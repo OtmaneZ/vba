@@ -1,0 +1,22 @@
+# Fichiers temporaires Excel
+~$*.xlsx
+~$*.xlsm
+*.tmp
+
+# Environnement Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Fichiers système macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Fichiers de sauvegarde
+*.bak
+*~
+
+# Logs
+*.log

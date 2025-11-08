@@ -1,0 +1,289 @@
+# 📊 Structure des feuilles Excel - Référence
+
+## Vue d'ensemble
+
+Ce document décrit la structure de chaque feuille Excel du système.
+
+---
+
+## 📋 Feuille "Guides"
+
+**Objectif :** Liste de tous les guides avec leurs coordonnées
+
+### Colonnes
+
+| Colonne | Type | Obligatoire | Description | Exemple |
+|---------|------|-------------|-------------|---------|
+| A - ID_Guide | Texte | ✅ Oui | Identifiant unique (ne jamais changer) | G001, G002, G003 |
+| B - Nom | Texte | ✅ Oui | Nom de famille | DUPONT |
+| C - Prénom | Texte | ✅ Oui | Prénom | Marie |
+| D - Email | Email | ✅ Oui | Adresse email professionnelle | marie.dupont@email.fr |
+| E - Téléphone | Texte | ❌ Non | Numéro de téléphone | 0601020304 |
+
+### Règles
+- L'ID_Guide doit être unique
+- L'email doit être valide pour l'envoi des plannings
+- Ne pas supprimer les guides, ajouter "(INACTIF)" si nécessaire
+
+### Exemple de données
+```
+ID_Guide | Nom      | Prénom  | Email                    | Téléphone
+---------|----------|---------|--------------------------|------------
+G001     | DUPONT   | Marie   | marie.dupont@email.fr    | 0601020304
+G002     | MARTIN   | Pierre  | pierre.martin@email.fr   | 0605060708
+G003     | BERNARD  | Sophie  | sophie.bernard@email.fr  | 0609101112
+```
+
+---
+
+## 📅 Feuille "Disponibilités"
+
+**Objectif :** Disponibilités de chaque guide par date
+
+### Colonnes
+
+| Colonne | Type | Obligatoire | Description | Exemple |
+|---------|------|-------------|-------------|---------|
+| A - ID_Guide | Texte | ✅ Oui | Référence au guide | G001 |
+| B - Date | Date | ✅ Oui | Date concernée | 15/12/2025 |
+| C - Disponible | Texte | ✅ Oui | OUI ou NON (en majuscules) | OUI |
+| D - Commentaire | Texte | ❌ Non | Raison si non disponible | Congés |
+
+### Règles
+- Format de date : jj/mm/aaaa
+- "Disponible" doit être exactement "OUI" ou "NON" (majuscules)
+- Une ligne par guide par jour
+- Les lignes sont généralement créées automatiquement via la macro `SaisirDisponibilites`
+
+### Exemple de données
+```
+ID_Guide | Date       | Disponible | Commentaire
+---------|------------|------------|-------------
+G001     | 15/12/2025 | OUI        |
+G001     | 16/12/2025 | NON        | Formation
+G001     | 17/12/2025 | OUI        |
+G002     | 15/12/2025 | OUI        |
+G002     | 16/12/2025 | OUI        |
+```
+
+### Codes couleur automatiques
+- 🟢 Vert : Disponible (OUI)
+- 🔴 Rouge : Non disponible (NON)
+
+---
+
+## 🏛️ Feuille "Visites"
+
+**Objectif :** Catalogue de toutes les visites prévues
+
+### Colonnes
+
+| Colonne | Type | Obligatoire | Description | Exemple |
+|---------|------|-------------|-------------|---------|
+| A - ID_Visite | Texte | ✅ Oui | Identifiant unique de la visite | V001, V042 |
+| B - Date | Date | ✅ Oui | Date de la visite | 20/12/2025 |
+| C - Heure_Debut | Heure | ✅ Oui | Heure de début | 10:00 |
+| D - Heure_Fin | Heure | ✅ Oui | Heure de fin | 12:00 |
+| E - Musée | Texte | ✅ Oui | Nom du musée ou lieu | Musée du Louvre |
+| F - Type_Visite | Texte | ❌ Non | Type de prestation | Visite guidée |
+| G - Nombre_Visiteurs | Nombre | ❌ Non | Nombre de participants | 25 |
+
+### Règles
+- ID_Visite unique
+- Format date : jj/mm/aaaa
+- Format heure : hh:mm (24h)
+- Heure_Fin doit être après Heure_Debut
+- La durée est calculée automatiquement pour les salaires
+
+### Exemple de données
+```
+ID_Visite | Date       | Heure_Debut | Heure_Fin | Musée              | Type_Visite    | Nb_Visiteurs
+----------|------------|-------------|-----------|--------------------|-----------------|--------------
+V001      | 15/12/2025 | 10:00       | 12:00     | Musée du Louvre    | Visite guidée  | 20
+V002      | 15/12/2025 | 14:00       | 16:00     | Musée d'Orsay      | Visite guidée  | 15
+V003      | 16/12/2025 | 10:00       | 12:00     | Centre Pompidou    | Atelier        | 12
+```
+
+---
+
+## 📊 Feuille "Planning"
+
+**Objectif :** Attribution des guides aux visites (GÉNÉRÉE AUTOMATIQUEMENT)
+
+### Colonnes
+
+| Colonne | Type | Description | Exemple |
+|---------|------|-------------|---------|
+| A - ID_Visite | Texte | Référence à la visite | V001 |
+| B - Date | Date | Date de la visite | 15/12/2025 |
+| C - Heure | Texte | Plage horaire | 10:00 - 12:00 |
+| D - Musée | Texte | Lieu de la visite | Musée du Louvre |
+| E - ID_Guide | Texte | Guide assigné (ou "NON ATTRIBUÉ") | G001 |
+| F - Guide_Nom | Texte | Nom complet du guide | Marie DUPONT |
+
+### Règles
+- ⚠️ Cette feuille est générée automatiquement par `GenererPlanningAutomatique`
+- Ne pas modifier manuellement sauf pour corrections ponctuelles
+- Utiliser `ModifierAttribution` pour changer un guide
+
+### Codes couleur automatiques
+- 🔵 Bleu : Visite attribuée avec succès
+- 🔴 Rouge : Aucun guide disponible (à traiter manuellement)
+
+### Exemple de données
+```
+ID_Visite | Date       | Heure         | Musée              | ID_Guide      | Guide_Nom
+----------|------------|---------------|--------------------|--------------|--------------
+V001      | 15/12/2025 | 10:00 - 12:00 | Musée du Louvre    | G001         | Marie DUPONT
+V002      | 15/12/2025 | 14:00 - 16:00 | Musée d'Orsay      | G002         | Pierre MARTIN
+V003      | 16/12/2025 | 10:00 - 12:00 | Centre Pompidou    | NON ATTRIBUÉ | Aucun guide disponible
+```
+
+---
+
+## 💰 Feuille "Calculs_Paie"
+
+**Objectif :** Calculs automatiques des salaires (GÉNÉRÉE AUTOMATIQUEMENT)
+
+### Colonnes
+
+| Colonne | Type | Description | Exemple |
+|---------|------|-------------|---------|
+| A - ID_Guide | Texte | Identifiant du guide | G001 |
+| B - Nom_Complet | Texte | Nom et prénom | Marie DUPONT |
+| C - Nb_Visites | Nombre | Nombre total de visites | 8 |
+| D - Montant_Salaire | Monétaire | Salaire calculé | 800,00 € |
+
+### Règles
+- Générée par `CalculerVisitesEtSalaires`
+- Calcul : Nombre d'heures × Tarif horaire (configuré dans "Configuration")
+- Une ligne de TOTAL en bas
+
+### Exemple de données
+```
+ID_Guide | Nom_Complet      | Nb_Visites | Montant_Salaire
+---------|------------------|------------|------------------
+G001     | Marie DUPONT     | 8          | 800,00 €
+G002     | Pierre MARTIN    | 6          | 600,00 €
+G003     | Sophie BERNARD   | 5          | 500,00 €
+---------|------------------|------------|------------------
+TOTAL    |                  | 19         | 1 900,00 €
+```
+
+---
+
+## 📄 Feuille "Contrats"
+
+**Objectif :** Historique des contrats générés
+
+### Colonnes
+
+| Colonne | Type | Description | Exemple |
+|---------|------|-------------|---------|
+| A - ID_Guide | Texte | Guide concerné | G001 |
+| B - Nom | Texte | Nom du guide | Marie DUPONT |
+| C - Mois | Texte | Période du contrat | décembre 2025 |
+| D - Dates_Visites | Texte | Liste des dates | 15/12, 17/12, 20/12 |
+| E - Horaires | Texte | Détail des horaires | Multi-lignes |
+| F - Total_Heures | Texte | Volume horaire total | 16.0 h |
+
+### Règles
+- Remplie automatiquement par `GenererContratGuide`
+- Sert d'historique et de traçabilité
+- Les contrats Word/Excel sont générés à part
+
+### Exemple de données
+```
+ID_Guide | Nom          | Mois          | Dates_Visites        | Horaires        | Total_Heures
+---------|--------------|---------------|----------------------|-----------------|-------------
+G001     | Marie DUPONT | décembre 2025 | 15/12, 17/12, 20/12  | (Détaillé)      | 16.0 h
+```
+
+---
+
+## ⚙️ Feuille "Configuration"
+
+**Objectif :** Paramètres globaux du système
+
+### Structure
+
+| Paramètre | Valeur | Description |
+|-----------|--------|-------------|
+| Email_Expediteur | votre@email.fr | Email utilisé pour l'envoi |
+| Nom_Association | Votre Association | Nom complet de l'association |
+| Tarif_Heure | 50 | Tarif horaire en euros |
+| Notification_J7 | OUI | Activer notification 7 jours avant |
+| Notification_J1 | OUI | Activer notification 1 jour avant |
+
+### Règles
+- Modifier les valeurs selon vos besoins
+- Le tarif horaire est utilisé pour tous les calculs de paie
+- Les notifications peuvent être désactivées (mettre "NON")
+
+### Exemple
+```
+Paramètre            | Valeur
+---------------------|-------------------------
+Email_Expediteur     | gestion@musees-guides.fr
+Nom_Association      | Association des Guides de Musée
+Tarif_Heure          | 50
+Notification_J7      | OUI
+Notification_J1      | OUI
+```
+
+---
+
+## 🔄 Flux de données
+
+```
+1. GUIDES (données maîtres)
+   ↓
+2. DISPONIBILITÉS (saisies par les guides)
+   ↓
+3. VISITES (saisies par l'administrateur)
+   ↓
+4. PLANNING (généré automatiquement)
+   ↓
+5. CALCULS_PAIE (calculés automatiquement)
+   ↓
+6. CONTRATS (générés à la demande)
+```
+
+---
+
+## 📝 Notes importantes
+
+### Formats de date
+- Toujours utiliser : jj/mm/aaaa
+- Excel peut convertir automatiquement selon les paramètres régionaux
+
+### Formats d'heure
+- Toujours utiliser : hh:mm (24h)
+- Exemple : 14:00 (et non 2:00 PM)
+
+### Identifiants (ID)
+- Utiliser un format cohérent : G001, G002... pour les guides
+- V001, V002... pour les visites
+- Ne jamais réutiliser un ID supprimé
+
+### Protection des données
+- Protéger la feuille "Disponibilités" avec un mot de passe
+- Limiter l'accès à "Calculs_Paie" (données sensibles)
+- Sauvegarder régulièrement
+
+---
+
+## ✅ Checklist de validation des données
+
+Avant de générer le planning, vérifier :
+
+- [ ] Tous les guides ont un email valide
+- [ ] Les disponibilités sont saisies pour la période concernée
+- [ ] Les visites ont des dates/heures cohérentes
+- [ ] Les ID sont uniques (pas de doublons)
+- [ ] Le tarif horaire est configuré
+- [ ] Outlook est configuré (pour les emails)
+
+---
+
+**📌 Ce document est une référence. Les feuilles sont créées automatiquement avec les bons en-têtes par la macro `InitialiserApplication`.**
