@@ -87,7 +87,15 @@ Sub SeConnecter()
                        "Acces a votre planning personnel.", _
                        vbInformation, "Connexion reussie"
 
-                AfficherPlanningGuide utilisateurConnecte
+                ' Afficher les vues filtrees du guide
+                Call AfficherMesVisites(utilisateurConnecte)
+                Call AfficherMesDisponibilites(utilisateurConnecte)
+                Call AfficherPlanningGuide(utilisateurConnecte)
+                Call AfficherListeGuidesLimitee
+
+                ' Masquer les feuilles originales (securite)
+                Call MasquerFeuillesOriginalesPourGuide
+
                 Exit Sub
             Else
                 MsgBox "[ERREUR] Mot de passe incorrect pour " & nomGuide & ".", _
@@ -701,4 +709,226 @@ Private Sub AfficherToutesFeuillesAdmin()
 
     On Error GoTo 0
 End Sub
+
+'===============================================================================
+' FONCTION: AfficherMesVisites
+' DESCRIPTION: Affiche uniquement les visites assignees au guide connecte
+'===============================================================================
+Sub AfficherMesVisites(nomGuide As String)
+    Dim wsVisites As Worksheet
+    Dim wsMesVisites As Worksheet
+    Dim lastRow As Long
+    Dim i As Long
+    Dim ligneDestination As Long
+
+    On Error Resume Next
+    Set wsVisites = ThisWorkbook.Sheets(FEUILLE_VISITES)
+    On Error GoTo 0
+
+    If wsVisites Is Nothing Then Exit Sub
+
+    ' Supprimer l'ancienne feuille si elle existe
+    On Error Resume Next
+    Application.DisplayAlerts = False
+    ThisWorkbook.Sheets("Mes_Visites").Delete
+    Application.DisplayAlerts = True
+    On Error GoTo 0
+
+    ' Creer la nouvelle feuille
+    Set wsMesVisites = ThisWorkbook.Sheets.Add
+    wsMesVisites.Name = "Mes_Visites"
+    wsMesVisites.Tab.Color = RGB(70, 173, 71)
+
+    ' Copier l'en-tete
+    wsVisites.Rows(1).Copy wsMesVisites.Rows(1)
+
+    ' Formater l'en-tete
+    With wsMesVisites.Rows(1)
+        .Font.Bold = True
+        .Interior.Color = RGB(70, 173, 71)
+        .Font.Color = RGB(255, 255, 255)
+    End With
+
+    ' Copier uniquement les visites du guide
+    lastRow = wsVisites.Cells(wsVisites.Rows.Count, 1).End(xlUp).Row
+    ligneDestination = 2
+
+    For i = 2 To lastRow
+        ' Colonne 5 = Guide_Attribue (ou verifier selon votre structure)
+        If InStr(1, UCase(wsVisites.Cells(i, 5).Value), UCase(nomGuide), vbTextCompare) > 0 Then
+            wsVisites.Rows(i).Copy wsMesVisites.Rows(ligneDestination)
+            ligneDestination = ligneDestination + 1
+        End If
+    Next i
+
+    ' Ajuster les colonnes
+    wsMesVisites.Columns.AutoFit
+
+    ' Message si aucune visite
+    If ligneDestination = 2 Then
+        wsMesVisites.Range("A2").Value = "Aucune visite assignee pour le moment"
+        wsMesVisites.Range("A2").Font.Italic = True
+        wsMesVisites.Range("A2").Font.Color = RGB(150, 150, 150)
+    End If
+End Sub
+
+'===============================================================================
+' FONCTION: AfficherMesDisponibilites
+' DESCRIPTION: Affiche uniquement les disponibilites du guide connecte
+'===============================================================================
+Sub AfficherMesDisponibilites(nomGuide As String)
+    Dim wsDispos As Worksheet
+    Dim wsMesDispos As Worksheet
+    Dim wsGuides As Worksheet
+    Dim lastRow As Long
+    Dim i As Long
+    Dim ligneDestination As Long
+    Dim idGuide As Long
+
+    On Error Resume Next
+    Set wsDispos = ThisWorkbook.Sheets(FEUILLE_DISPONIBILITES)
+    Set wsGuides = ThisWorkbook.Sheets(FEUILLE_GUIDES)
+    On Error GoTo 0
+
+    If wsDispos Is Nothing Or wsGuides Is Nothing Then Exit Sub
+
+    ' Trouver l'ID du guide (numero de ligne dans la feuille Guides)
+    lastRow = wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
+    idGuide = 0
+
+    For i = 2 To lastRow
+        If InStr(1, UCase(wsGuides.Cells(i, 1).Value & " " & wsGuides.Cells(i, 2).Value), UCase(nomGuide), vbTextCompare) > 0 Then
+            idGuide = i - 1 ' ID commence a 1 (ligne 2 = ID 1)
+            Exit For
+        End If
+    Next i
+
+    If idGuide = 0 Then Exit Sub
+
+    ' Supprimer l'ancienne feuille si elle existe
+    On Error Resume Next
+    Application.DisplayAlerts = False
+    ThisWorkbook.Sheets("Mes_Disponibilites").Delete
+    Application.DisplayAlerts = True
+    On Error GoTo 0
+
+    ' Creer la nouvelle feuille
+    Set wsMesDispos = ThisWorkbook.Sheets.Add
+    wsMesDispos.Name = "Mes_Disponibilites"
+    wsMesDispos.Tab.Color = RGB(52, 152, 219)
+
+    ' Copier l'en-tete
+    wsDispos.Rows(1).Copy wsMesDispos.Rows(1)
+
+    ' Formater l'en-tete
+    With wsMesDispos.Rows(1)
+        .Font.Bold = True
+        .Interior.Color = RGB(52, 152, 219)
+        .Font.Color = RGB(255, 255, 255)
+    End With
+
+    ' Copier uniquement les disponibilites du guide
+    lastRow = wsDispos.Cells(wsDispos.Rows.Count, 1).End(xlUp).Row
+    ligneDestination = 2
+
+    For i = 2 To lastRow
+        ' Colonne 1 = ID_Guide
+        If wsDispos.Cells(i, 1).Value = idGuide Then
+            wsDispos.Rows(i).Copy wsMesDispos.Rows(ligneDestination)
+            ligneDestination = ligneDestination + 1
+        End If
+    Next i
+
+    ' Ajuster les colonnes
+    wsMesDispos.Columns.AutoFit
+
+    ' Message si aucune disponibilite
+    If ligneDestination = 2 Then
+        wsMesDispos.Range("A2").Value = "Aucune disponibilite enregistree"
+        wsMesDispos.Range("A2").Font.Italic = True
+        wsMesDispos.Range("A2").Font.Color = RGB(150, 150, 150)
+    End If
+End Sub
+
+'===============================================================================
+' FONCTION: AfficherListeGuidesLimitee
+' DESCRIPTION: Affiche uniquement les noms des guides (pas infos privees)
+'===============================================================================
+Sub AfficherListeGuidesLimitee()
+    Dim wsGuides As Worksheet
+    Dim wsAnnuaire As Worksheet
+    Dim lastRow As Long
+    Dim i As Long
+
+    On Error Resume Next
+    Set wsGuides = ThisWorkbook.Sheets(FEUILLE_GUIDES)
+    On Error GoTo 0
+
+    If wsGuides Is Nothing Then Exit Sub
+
+    ' Supprimer l'ancienne feuille si elle existe
+    On Error Resume Next
+    Application.DisplayAlerts = False
+    ThisWorkbook.Sheets("Annuaire").Delete
+    Application.DisplayAlerts = True
+    On Error GoTo 0
+
+    ' Creer la nouvelle feuille
+    Set wsAnnuaire = ThisWorkbook.Sheets.Add
+    wsAnnuaire.Name = "Annuaire"
+    wsAnnuaire.Tab.Color = RGB(155, 89, 182)
+
+    ' Creer l'en-tete (seulement Prenom et Nom)
+    wsAnnuaire.Range("A1").Value = "Prenom"
+    wsAnnuaire.Range("B1").Value = "Nom"
+
+    ' Formater l'en-tete
+    With wsAnnuaire.Range("A1:B1")
+        .Font.Bold = True
+        .Interior.Color = RGB(155, 89, 182)
+        .Font.Color = RGB(255, 255, 255)
+        .HorizontalAlignment = xlCenter
+    End With
+
+    ' Copier uniquement les prenoms et noms
+    lastRow = wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
+
+    For i = 2 To lastRow
+        wsAnnuaire.Cells(i, 1).Value = wsGuides.Cells(i, 1).Value ' Prenom
+        wsAnnuaire.Cells(i, 2).Value = wsGuides.Cells(i, 2).Value ' Nom
+    Next i
+
+    ' Ajuster les colonnes
+    wsAnnuaire.Columns.AutoFit
+
+    ' Ajouter un message informatif
+    wsAnnuaire.Range("A" & lastRow + 2).Value = "[i] Pour contacter un collegue, demandez a l'administrateur"
+    wsAnnuaire.Range("A" & lastRow + 2).Font.Italic = True
+    wsAnnuaire.Range("A" & lastRow + 2).Font.Color = RGB(150, 150, 150)
+End Sub
+
+'===============================================================================
+' FONCTION: MasquerFeuillesOriginalesPourGuide
+' DESCRIPTION: Masque les feuilles sensibles pour les guides
+'===============================================================================
+Sub MasquerFeuillesOriginalesPourGuide()
+    On Error Resume Next
+
+    ' Masquer les feuilles originales (donnees completes)
+    ThisWorkbook.Sheets(FEUILLE_VISITES).Visible = xlSheetVeryHidden
+    ThisWorkbook.Sheets(FEUILLE_DISPONIBILITES).Visible = xlSheetVeryHidden
+    ThisWorkbook.Sheets(FEUILLE_GUIDES).Visible = xlSheetVeryHidden
+    ThisWorkbook.Sheets(FEUILLE_PLANNING).Visible = xlSheetVeryHidden
+
+    ' Les feuilles admin restent masquees (deja fait dans Module_Config)
+    ThisWorkbook.Sheets(FEUILLE_CALCULS).Visible = xlSheetVeryHidden
+    ThisWorkbook.Sheets(FEUILLE_CONTRATS).Visible = xlSheetVeryHidden
+    ThisWorkbook.Sheets(FEUILLE_CONFIG).Visible = xlSheetVeryHidden
+
+    ' Activer la feuille Mes_Visites
+    ThisWorkbook.Sheets("Mes_Visites").Activate
+
+    On Error GoTo 0
+End Sub
+
 
