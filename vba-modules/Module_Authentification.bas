@@ -55,6 +55,9 @@ Sub SeConnecter()
             niveauAcces = "ADMIN"
             emailUtilisateur = ObtenirConfig("EmailAdmin", "")
 
+            ' Afficher toutes les feuilles pour l'admin
+            Call AfficherToutesFeuillesAdmin
+
             MsgBox "[OK] Bienvenue Administrateur !" & vbCrLf & vbCrLf & _
                    "Acces complet au systeme." & vbCrLf & _
                    "Vous pouvez gerer tous les plannings.", _
@@ -679,4 +682,23 @@ Function ObtenirGuidesDisponiblesPourDate(dateVisite As Date, heureVisite As Str
 
     ObtenirGuidesDisponiblesPourDate = listeGuides
 End Function
+
+'===============================================================================
+' FONCTION: AfficherToutesFeuillesAdmin
+' DESCRIPTION: Affiche toutes les feuilles pour l'administrateur
+'===============================================================================
+Private Sub AfficherToutesFeuillesAdmin()
+    On Error Resume Next
+
+    ' Afficher toutes les feuilles pour l'admin
+    ThisWorkbook.Sheets(FEUILLE_GUIDES).Visible = xlSheetVisible
+    ThisWorkbook.Sheets(FEUILLE_DISPONIBILITES).Visible = xlSheetVisible
+    ThisWorkbook.Sheets(FEUILLE_VISITES).Visible = xlSheetVisible
+    ThisWorkbook.Sheets(FEUILLE_PLANNING).Visible = xlSheetVisible
+    ThisWorkbook.Sheets(FEUILLE_CALCULS).Visible = xlSheetVisible
+    ThisWorkbook.Sheets(FEUILLE_CONTRATS).Visible = xlSheetVisible
+    ThisWorkbook.Sheets(FEUILLE_CONFIG).Visible = xlSheetVisible
+
+    On Error GoTo 0
+End Sub
 

@@ -46,6 +46,9 @@ Public Sub InitialiserApplication()
     ' Configurer les plages nommees
     Call ConfigurerPlagesNommees
 
+    ' Masquer les feuilles sensibles par defaut
+    Call MasquerFeuillesSensibles
+
     ' Message de confirmation
     MsgBox "Application initialisee avec succes !" & vbCrLf & _
            "Toutes les feuilles sont pretes.", vbInformation, "Initialisation"
@@ -209,3 +212,24 @@ Public Function ObtenirTarifHeure() As Double
     End If
     On Error GoTo 0
 End Function
+
+'===============================================================================
+' FONCTION: MasquerFeuillesSensibles
+' DESCRIPTION: Masque les feuilles sensibles par defaut (securite)
+'===============================================================================
+Public Sub MasquerFeuillesSensibles()
+    On Error Resume Next
+
+    ' Masquer les feuilles sensibles (visibles uniquement pour l'admin)
+    ThisWorkbook.Sheets(FEUILLE_CALCULS).Visible = xlSheetVeryHidden
+    ThisWorkbook.Sheets(FEUILLE_CONFIG).Visible = xlSheetVeryHidden
+    ThisWorkbook.Sheets(FEUILLE_CONTRATS).Visible = xlSheetVeryHidden
+
+    ' Les guides peuvent voir ces feuilles (mais en lecture seule via code)
+    ThisWorkbook.Sheets(FEUILLE_GUIDES).Visible = xlSheetVisible
+    ThisWorkbook.Sheets(FEUILLE_DISPONIBILITES).Visible = xlSheetVisible
+    ThisWorkbook.Sheets(FEUILLE_VISITES).Visible = xlSheetVisible
+    ThisWorkbook.Sheets(FEUILLE_PLANNING).Visible = xlSheetVisible
+
+    On Error GoTo 0
+End Sub

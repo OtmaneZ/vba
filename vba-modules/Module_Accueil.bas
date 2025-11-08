@@ -185,9 +185,9 @@ Sub CreerFeuilleAccueil()
         ' Masquer les quadrillages
         ActiveWindow.DisplayGridlines = False
 
-        ' Proteger la feuille (navigation uniquement)
-        .Protect Password:="protection", UserInterfaceOnly:=True, _
-                 AllowFiltering:=True, AllowSorting:=True
+        ' [TEMPORAIRE] Protection desactivee pour les tests
+        ' .Protect Password:="protection", UserInterfaceOnly:=True, _
+        '          AllowFiltering:=True, AllowSorting:=True
 
         ' Activer la feuille
         .Activate
