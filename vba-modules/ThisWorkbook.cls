@@ -1,5 +1,9 @@
 Option Explicit
 
+' Variable pour eviter envois multiples
+Private planningEnvoyeCeMois As Boolean
+Private notificationsEnvoyeesAujourdhui As Boolean
+
 Private Sub Workbook_Open()
     On Error Resume Next
 
@@ -8,6 +12,9 @@ Private Sub Workbook_Open()
 
     ' Activer la page d'accueil
     ThisWorkbook.Sheets("Accueil").Activate
+
+    ' AUTOMATISATION : Verifier si actions a faire
+    Call VerifierActionsAutomatiques
 
     On Error GoTo 0
 End Sub
@@ -50,6 +57,68 @@ Private Sub MasquerToutesFeuillesParDefaut()
 
     ' S'assurer que Accueil est visible
     ThisWorkbook.Sheets("Accueil").Visible = xlSheetVisible
+
+    On Error GoTo 0
+End Sub
+
+' ============================================
+' AUTOMATISATION : Verifier actions a faire
+' ============================================
+Private Sub VerifierActionsAutomatiques()
+    On Error Resume Next
+
+    Dim jourActuel As Integer
+    Dim moisActuel As Integer
+    Dim dernierJourDuMois As Date
+
+    jourActuel = Day(Date)
+    moisActuel = Month(Date)
+    dernierJourDuMois = DateSerial(Year(Date), Month(Date) + 1, 0)
+
+    ' 1. ENVOI PLANNING MENSUEL (1er du mois a 9h)
+    If jourActuel = 1 And Hour(Now) >= 9 And Not planningEnvoyeCeMois Then
+        If MsgBox("C'est le 1er du mois !" & vbCrLf & vbCrLf & _
+                  "Voulez-vous envoyer les plannings mensuels aux guides ?", _
+                  vbQuestion + vbYesNo, "Envoi automatique planning") = vbYes Then
+            Call EnvoyerPlanningMensuel
+            planningEnvoyeCeMois = True
+        End If
+    End If
+
+    ' Reinitialiser le flag si changement de mois
+    If jourActuel <> 1 Then
+        planningEnvoyeCeMois = False
+    End If
+
+    ' 2. NOTIFICATIONS QUOTIDIENNES (8h-18h)
+    If Hour(Now) >= 8 And Hour(Now) < 18 And Not notificationsEnvoyeesAujourdhui Then
+        If MsgBox("Voulez-vous envoyer les notifications de rappel aux guides ?", _
+                  vbQuestion + vbYesNo, "Notifications automatiques") = vbYes Then
+            Call EnvoyerNotificationsAutomatiques
+            notificationsEnvoyeesAujourdhui = True
+        End If
+    End If
+
+    ' Reinitialiser notifications chaque jour
+    If Hour(Now) < 8 Then
+        notificationsEnvoyeesAujourdhui = False
+    End If
+
+    ' 3. CALCUL SALAIRES (dernier jour du mois a 17h)
+    If Date = dernierJourDuMois And Hour(Now) >= 17 Then
+        If MsgBox("C'est le dernier jour du mois !" & vbCrLf & vbCrLf & _
+                  "Voulez-vous calculer les salaires automatiquement ?", _
+                  vbQuestion + vbYesNo, "Calcul salaires") = vbYes Then
+            Call CalculerVisitesEtSalaires
+
+            ' Proposer generation contrats
+            If MsgBox("Salaires calcules !" & vbCrLf & vbCrLf & _
+                      "Generer les contrats maintenant ?", _
+                      vbQuestion + vbYesNo, "Generation contrats") = vbYes Then
+                Call GenererContratsEnMasse(Format(Date, "mm/yyyy"))
+            End If
+        End If
+    End If
 
     On Error GoTo 0
 End Sub
