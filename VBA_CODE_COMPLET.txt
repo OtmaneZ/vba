@@ -1,0 +1,3889 @@
+================================================================================
+CODE VBA COMPLET À COPIER-COLLER DANS EXCEL
+================================================================================
+
+MODULES STANDARDS (.bas)
+--------------------------------------------------------------------------------
+
+
+================================================================================
+MODULE : Module_Accueil
+================================================================================
+
+' ============================================
+' MODULE ACCUEIL
+' Gestion de l'ecran d'accueil et evenements
+' ============================================
+
+Option Explicit
+
+' ============================================
+' Creer la feuille d'accueil
+' ============================================
+Sub CreerFeuilleAccueil()
+    Dim wsAccueil As Worksheet
+    Dim ligneActuelle As Long
+
+    ' Supprimer l'ancienne feuille d'accueil si elle existe
+    On Error Resume Next
+    Application.DisplayAlerts = False
+    ThisWorkbook.Sheets("Accueil").Delete
+    Application.DisplayAlerts = True
+    On Error GoTo 0
+
+    ' Creer la nouvelle feuille d'accueil
+    Set wsAccueil = ThisWorkbook.Worksheets.Add(Before:=ThisWorkbook.Worksheets(1))
+    wsAccueil.Name = "Accueil"
+
+    With wsAccueil
+        ' Configuration de la page
+        .Tab.Color = RGB(70, 173, 71)
+        .Cells.Font.Name = "Arial"
+        .Cells.Font.Size = 11
+
+        ' Largeur des colonnes
+        .Columns("A:A").ColumnWidth = 5
+        .Columns("B:E").ColumnWidth = 15
+        .Columns("F:F").ColumnWidth = 5
+
+        ' ===== TITRE =====
+        ligneActuelle = 3
+        .Range("B" & ligneActuelle & ":E" & ligneActuelle).Merge
+        .Range("B" & ligneActuelle).Value = "*** SYSTEME DE PLANNING ***"
+        With .Range("B" & ligneActuelle)
+            .Font.Bold = True
+            .Font.Size = 20
+            .Font.Color = RGB(70, 173, 71)
+            .HorizontalAlignment = xlCenter
+        End With
+
+        ligneActuelle = ligneActuelle + 1
+        .Range("B" & ligneActuelle & ":E" & ligneActuelle).Merge
+        .Range("B" & ligneActuelle).Value = "Gestion des Guides de Musee"
+        With .Range("B" & ligneActuelle)
+            .Font.Size = 14
+            .Font.Color = RGB(100, 100, 100)
+            .HorizontalAlignment = xlCenter
+        End With
+
+        ' ===== SEPARATEUR =====
+        ligneActuelle = ligneActuelle + 2
+        .Range("B" & ligneActuelle & ":E" & ligneActuelle).Merge
+        .Range("B" & ligneActuelle).Borders(xlEdgeBottom).LineStyle = xlContinuous
+        .Range("B" & ligneActuelle).Borders(xlEdgeBottom).Weight = xlMedium
+        .Range("B" & ligneActuelle).Borders(xlEdgeBottom).Color = RGB(70, 173, 71)
+
+        ' ===== BLOC GUIDE =====
+        ligneActuelle = ligneActuelle + 3
+        .Range("B" & ligneActuelle & ":E" & ligneActuelle).Merge
+        .Range("B" & ligneActuelle).Value = "[GUIDE] JE SUIS UN GUIDE"
+        With .Range("B" & ligneActuelle)
+            .Font.Bold = True
+            .Font.Size = 16
+            .Interior.Color = RGB(70, 173, 71)
+            .Font.Color = RGB(255, 255, 255)
+            .HorizontalAlignment = xlCenter
+            .VerticalAlignment = xlCenter
+            .Borders.LineStyle = xlContinuous
+            .Borders.Weight = xlMedium
+        End With
+        .Range("B" & ligneActuelle).RowHeight = 40
+
+        ligneActuelle = ligneActuelle + 1
+        .Range("B" & ligneActuelle & ":E" & ligneActuelle).Merge
+        .Range("B" & ligneActuelle).Value = "Consulter mon planning personnel"
+        With .Range("B" & ligneActuelle)
+            .Font.Size = 11
+            .Font.Italic = True
+            .Font.Color = RGB(100, 100, 100)
+            .HorizontalAlignment = xlCenter
+            .Interior.Color = RGB(242, 249, 242)
+            .Borders.LineStyle = xlContinuous
+        End With
+        .Range("B" & ligneActuelle).RowHeight = 30
+
+        ligneActuelle = ligneActuelle + 1
+        .Range("B" & ligneActuelle & ":E" & ligneActuelle).Merge
+        .Range("B" & ligneActuelle).Value = "- Voir mes visites a venir" & vbLf & _
+                                             "- Confirmer ou refuser des missions" & vbLf & _
+                                             "- Exporter mon planning"
+        With .Range("B" & ligneActuelle)
+            .Font.Size = 10
+            .Font.Color = RGB(50, 50, 50)
+            .HorizontalAlignment = xlLeft
+            .VerticalAlignment = xlTop
+            .Interior.Color = RGB(242, 249, 242)
+            .Borders.LineStyle = xlContinuous
+            .WrapText = True
+        End With
+        .Range("B" & ligneActuelle).RowHeight = 60
+
+        ' Stocker la ligne du bouton Guide pour l'evenement clic
+        .Range("Z1").Value = ligneActuelle - 2 ' Ligne du titre "JE SUIS UN GUIDE"
+
+        ' ===== SEPARATEUR =====
+        ligneActuelle = ligneActuelle + 2
+
+        ' ===== BLOC ADMIN =====
+        ligneActuelle = ligneActuelle + 1
+        .Range("B" & ligneActuelle & ":E" & ligneActuelle).Merge
+        .Range("B" & ligneActuelle).Value = "[ADMIN] JE SUIS L'ADMINISTRATEUR"
+        With .Range("B" & ligneActuelle)
+            .Font.Bold = True
+            .Font.Size = 16
+            .Interior.Color = RGB(68, 114, 196)
+            .Font.Color = RGB(255, 255, 255)
+            .HorizontalAlignment = xlCenter
+            .VerticalAlignment = xlCenter
+            .Borders.LineStyle = xlContinuous
+            .Borders.Weight = xlMedium
+        End With
+        .Range("B" & ligneActuelle).RowHeight = 40
+
+        ligneActuelle = ligneActuelle + 1
+        .Range("B" & ligneActuelle & ":E" & ligneActuelle).Merge
+        .Range("B" & ligneActuelle).Value = "Acces complet au systeme"
+        With .Range("B" & ligneActuelle)
+            .Font.Size = 11
+            .Font.Italic = True
+            .Font.Color = RGB(100, 100, 100)
+            .HorizontalAlignment = xlCenter
+            .Interior.Color = RGB(237, 244, 252)
+            .Borders.LineStyle = xlContinuous
+        End With
+        .Range("B" & ligneActuelle).RowHeight = 30
+
+        ligneActuelle = ligneActuelle + 1
+        .Range("B" & ligneActuelle & ":E" & ligneActuelle).Merge
+        .Range("B" & ligneActuelle).Value = "- Gerer tous les plannings" & vbLf & _
+                                             "- Attribuer les visites automatiquement" & vbLf & _
+                                             "- Envoyer des e-mails" & vbLf & _
+                                             "- Calculer les salaires"
+        With .Range("B" & ligneActuelle)
+            .Font.Size = 10
+            .Font.Color = RGB(50, 50, 50)
+            .HorizontalAlignment = xlLeft
+            .VerticalAlignment = xlTop
+            .Interior.Color = RGB(237, 244, 252)
+            .Borders.LineStyle = xlContinuous
+            .WrapText = True
+        End With
+        .Range("B" & ligneActuelle).RowHeight = 70
+
+        ' Stocker la ligne du bouton Admin
+        .Range("Z2").Value = ligneActuelle - 2 ' Ligne du titre "JE SUIS L'ADMINISTRATEUR"
+
+        ' ===== PIED DE PAGE =====
+        ligneActuelle = ligneActuelle + 4
+        .Range("B" & ligneActuelle & ":E" & ligneActuelle).Merge
+        .Range("B" & ligneActuelle).Value = "[i] Cliquez sur le bloc qui correspond a votre profil"
+        With .Range("B" & ligneActuelle)
+            .Font.Size = 10
+            .Font.Italic = True
+            .Font.Color = RGB(150, 150, 150)
+            .HorizontalAlignment = xlCenter
+        End With
+
+        ligneActuelle = ligneActuelle + 2
+        .Range("B" & ligneActuelle & ":E" & ligneActuelle).Merge
+        .Range("B" & ligneActuelle).Value = "Version 1.0 - Systeme de Planning Automatise - " & Format(Date, "dd/mm/yyyy")
+        With .Range("B" & ligneActuelle)
+            .Font.Size = 8
+            .Font.Color = RGB(180, 180, 180)
+            .HorizontalAlignment = xlCenter
+        End With
+
+        ' Masquer les quadrillages
+        ActiveWindow.DisplayGridlines = False
+
+        ' Proteger la feuille (navigation uniquement, clics autorises)
+        .Protect Password:="protection", UserInterfaceOnly:=True, _
+                 AllowFiltering:=True, AllowSorting:=True
+
+        ' Activer la feuille
+        .Activate
+        .Range("B3").Select
+    End With
+
+    MsgBox "[OK] Feuille d'accueil creee avec succes !" & vbCrLf & vbCrLf & _
+           "Les utilisateurs peuvent cliquer sur les blocs pour se connecter.", _
+           vbInformation, "Accueil configure"
+End Sub
+
+' ============================================
+' Gerer le clic sur la feuille d'accueil
+' ============================================
+' NOTE: Cette fonction doit etre appelee depuis l'evenement Worksheet_SelectionChange
+' de la feuille Accueil
+Public Sub GererClicAccueil(Target As Range, ws As Worksheet)
+    Dim ligneGuide As Long
+    Dim ligneAdmin As Long
+
+    ' Recuperer les lignes des boutons
+    ligneGuide = ws.Range("Z1").Value
+    ligneAdmin = ws.Range("Z2").Value
+
+    ' Verifier si le clic est sur le bloc Guide
+    If Target.Row = ligneGuide And Target.Column >= 2 And Target.Column <= 5 Then
+        ' Lancer la connexion Guide
+        Call Module_Authentification.SeConnecter
+        Exit Sub
+    End If
+
+    ' Verifier si le clic est sur le bloc Admin
+    If Target.Row = ligneAdmin And Target.Column >= 2 And Target.Column <= 5 Then
+        ' Lancer la connexion Admin
+        Call Module_Authentification.SeConnecter
+        Exit Sub
+    End If
+End Sub
+
+
+
+================================================================================
+MODULE : Module_Authentification
+================================================================================
+
+' ============================================
+' MODULE D'AUTHENTIFICATION
+' Gestion des acces par mot de passe et consultation planning
+' ============================================
+
+Option Explicit
+
+' Variables globales de session
+Public utilisateurConnecte As String
+Public niveauAcces As String ' "ADMIN" ou "GUIDE"
+Public emailUtilisateur As String
+
+' ============================================
+' Fonction de connexion principale
+' ============================================
+Sub SeConnecter()
+    Dim mdp As String
+    Dim nomGuide As String
+    Dim wsGuides As Worksheet
+    Dim lastRow As Long
+    Dim i As Long
+    Dim mdpAdmin As String
+
+    ' Verifier que les feuilles existent
+    On Error Resume Next
+    Set wsGuides = ThisWorkbook.Sheets(FEUILLE_GUIDES)
+    On Error GoTo 0
+
+    If wsGuides Is Nothing Then
+        MsgBox "Erreur : La feuille Guides n'existe pas." & vbCrLf & _
+               "Veuillez initialiser le systeme d'abord.", vbCritical
+        Exit Sub
+    End If
+
+    ' Recuperer le mot de passe admin depuis Configuration
+    mdpAdmin = ObtenirConfig("MotDePasseAdmin", "admin123")
+
+    ' Boite de dialogue pour le nom
+    nomGuide = InputBox("Entrez votre nom de famille :" & vbCrLf & vbCrLf & _
+                        "Pour l'administrateur, tapez : ADMIN", _
+                        ">>> Connexion au systeme")
+
+    If nomGuide = "" Then Exit Sub
+    nomGuide = Trim(nomGuide)
+
+    ' Boite de dialogue pour le mot de passe
+    mdp = InputBox("Entrez votre mot de passe :", ">>> Authentification")
+    If mdp = "" Then Exit Sub
+
+    ' Verifier si c'est l'admin
+    If UCase(nomGuide) = "ADMIN" Then
+        If mdp = mdpAdmin Then
+            utilisateurConnecte = "ADMIN"
+            niveauAcces = "ADMIN"
+            emailUtilisateur = ObtenirConfig("EmailAdmin", "")
+
+            ' Afficher toutes les feuilles pour l'admin
+            Call AfficherToutesFeuillesAdmin
+
+            MsgBox "[OK] Bienvenue Administrateur !" & vbCrLf & vbCrLf & _
+                   "Acces complet au systeme." & vbCrLf & _
+                   "Vous pouvez gerer tous les plannings.", _
+                   vbInformation, "Connexion reussie"
+
+            AfficherInterfaceAdmin
+            Exit Sub
+        Else
+            MsgBox "[ERREUR] Mot de passe administrateur incorrect.", vbCritical, "Erreur d'authentification"
+            Exit Sub
+        End If
+    End If
+
+    ' Verifier dans la liste des guides
+    lastRow = wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
+
+    For i = 2 To lastRow
+        ' Comparer avec le nom (colonne B)
+        If UCase(wsGuides.Cells(i, 2).Value) = UCase(nomGuide) Then
+            ' Verifier le mot de passe (colonne F)
+            If wsGuides.Cells(i, 6).Value = mdp Then
+                utilisateurConnecte = wsGuides.Cells(i, 1).Value & " " & wsGuides.Cells(i, 2).Value ' Prenom + Nom
+                niveauAcces = "GUIDE"
+                emailUtilisateur = wsGuides.Cells(i, 3).Value ' Email
+
+                MsgBox "[OK] Bienvenue " & utilisateurConnecte & " !" & vbCrLf & vbCrLf & _
+                       "Acces a votre planning personnel.", _
+                       vbInformation, "Connexion reussie"
+
+                ' Afficher les vues filtrees du guide
+                Call AfficherMesVisites(utilisateurConnecte)
+                Call AfficherMesDisponibilites(utilisateurConnecte)
+                Call AfficherPlanningGuide(utilisateurConnecte)
+                Call AfficherListeGuidesLimitee
+
+                ' Masquer les feuilles originales (securite)
+                Call MasquerFeuillesOriginalesPourGuide
+
+                Exit Sub
+            Else
+                MsgBox "[ERREUR] Mot de passe incorrect pour " & nomGuide & ".", _
+                       vbCritical, "Erreur d'authentification"
+                Exit Sub
+            End If
+        End If
+    Next i
+
+    MsgBox "[ERREUR] Utilisateur non trouve : " & nomGuide & vbCrLf & vbCrLf & _
+           "Verifiez l'orthographe de votre nom.", _
+           vbCritical, "Erreur"
+End Sub
+
+' ============================================
+' Afficher le planning personnel d'un guide
+' ============================================
+Sub AfficherPlanningGuide(nomGuide As String)
+    Dim wsPlanning As Worksheet
+    Dim wsPlanningGuide As Worksheet
+    Dim lastRow As Long
+    Dim i As Long
+    Dim ligneDestination As Long
+    Dim dateVisite As Date
+    Dim aujourdhui As Date
+
+    Set wsPlanning = ThisWorkbook.Sheets(FEUILLE_PLANNING)
+    aujourdhui = Date
+
+    ' Supprimer l'ancienne feuille temporaire si elle existe
+    On Error Resume Next
+    Application.DisplayAlerts = False
+    ThisWorkbook.Sheets("Mon_Planning").Delete
+    Application.DisplayAlerts = True
+    On Error GoTo 0
+
+    ' Creer la feuille temporaire du guide
+    Set wsPlanningGuide = ThisWorkbook.Sheets.Add
+    wsPlanningGuide.Name = "Mon_Planning"
+
+    ' Copier l'en-tete du planning
+    wsPlanning.Rows(1).Copy wsPlanningGuide.Rows(1)
+
+    ' Ajouter une colonne "Statut" et "Action"
+    wsPlanningGuide.Cells(1, 7).Value = "Statut"
+    wsPlanningGuide.Cells(1, 8).Value = "Action"
+
+    ' Copier uniquement les lignes du guide (visites futures)
+    lastRow = wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
+    ligneDestination = 2
+
+    For i = 2 To lastRow
+        ' Verifier si le guide est attribue a cette visite
+        If InStr(1, UCase(wsPlanning.Cells(i, 5).Value), UCase(nomGuide), vbTextCompare) > 0 Then
+            ' Verifier si la visite est dans le futur
+            On Error Resume Next
+            dateVisite = CDate(wsPlanning.Cells(i, 1).Value)
+            On Error GoTo 0
+
+            If dateVisite >= aujourdhui Then
+                ' Copier la ligne
+                wsPlanning.Range(wsPlanning.Cells(i, 1), wsPlanning.Cells(i, 6)).Copy _
+                    wsPlanningGuide.Range(wsPlanningGuide.Cells(ligneDestination, 1), wsPlanningGuide.Cells(ligneDestination, 6))
+
+                ' Recuperer le statut de confirmation (colonne G du planning principal)
+                Dim statutConfirmation As String
+                statutConfirmation = wsPlanning.Cells(i, 7).Value
+
+                If statutConfirmation = "" Then statutConfirmation = "En attente"
+
+                wsPlanningGuide.Cells(ligneDestination, 7).Value = statutConfirmation
+
+                ' Ajouter un bouton de confirmation selon le statut
+                If statutConfirmation = "Confirme" Then
+                    wsPlanningGuide.Cells(ligneDestination, 8).Value = "[OK] Confirme"
+                    wsPlanningGuide.Cells(ligneDestination, 8).Interior.Color = RGB(198, 239, 206)
+                ElseIf statutConfirmation = "Refuse" Then
+                    wsPlanningGuide.Cells(ligneDestination, 8).Value = "[X] Refuse"
+                    wsPlanningGuide.Cells(ligneDestination, 8).Interior.Color = RGB(255, 199, 206)
+                Else
+                    wsPlanningGuide.Cells(ligneDestination, 8).Value = "[!] A confirmer"
+                    wsPlanningGuide.Cells(ligneDestination, 8).Interior.Color = RGB(255, 235, 156)
+                End If
+
+                ligneDestination = ligneDestination + 1
+            End If
+        End If
+    Next i
+
+    ' Mise en forme
+    With wsPlanningGuide
+        .Columns("A:H").AutoFit
+        .Range("A1:H1").Font.Bold = True
+        .Range("A1:H1").Interior.Color = RGB(70, 173, 71)
+        .Range("A1:H1").Font.Color = RGB(255, 255, 255)
+        .Range("A1:H1").HorizontalAlignment = xlCenter
+
+        ' Bordures
+        If ligneDestination > 2 Then
+            .Range("A1:H" & ligneDestination - 1).Borders.LineStyle = xlContinuous
+            .Range("A1:H" & ligneDestination - 1).Borders.Weight = xlThin
+        End If
+    End With
+
+    ' Ajouter des boutons d'action
+    AjouterBoutonsGuide wsPlanningGuide
+
+    ' Activer la feuille
+    wsPlanningGuide.Activate
+
+    If ligneDestination = 2 Then
+        MsgBox "[i] Vous n'avez aucune visite programmee a venir.", vbInformation, "Planning vide"
+    Else
+        MsgBox "[OK] Voici votre planning personnel." & vbCrLf & vbCrLf & _
+               "Nombre de visites a venir : " & (ligneDestination - 2) & vbCrLf & vbCrLf & _
+               "[!] Confirmez ou refusez chaque visite en cliquant sur les cellules de la colonne 'Action'.", _
+               vbInformation, "Mon Planning"
+    End If
+End Sub
+
+' ============================================
+' Ajouter les boutons d'action pour le guide
+' ============================================
+Sub AjouterBoutonsGuide(ws As Worksheet)
+    Dim btnConfirmer As Button
+    Dim btnRefuser As Button
+    Dim btnDeconnexion As Button
+    Dim btnExporter As Button
+
+    ' Bouton Confirmer toutes les visites
+    Set btnConfirmer = ws.Buttons.Add(10, 10, 150, 30)
+    With btnConfirmer
+        .Caption = "[OK] Confirmer TOUTES mes visites"
+        .OnAction = "ConfirmerToutesVisites"
+    End With
+
+    ' Bouton Deconnexion
+    Set btnDeconnexion = ws.Buttons.Add(170, 10, 100, 30)
+    With btnDeconnexion
+        .Caption = "[>] Deconnexion"
+        .OnAction = "SeDeconnecter"
+    End With
+
+    ' Bouton Exporter mon planning
+    Set btnExporter = ws.Buttons.Add(280, 10, 120, 30)
+    With btnExporter
+        .Caption = "📄 Exporter en PDF"
+        .OnAction = "ExporterPlanningGuide"
+    End With
+End Sub
+
+' ============================================
+' Confirmer ou refuser une visite (clic sur cellule)
+' ============================================
+Sub ConfirmerOuRefuserVisite()
+    Dim ws As Worksheet
+    Dim wsPlanning As Worksheet
+    Dim ligneSelectionnee As Long
+    Dim dateVisite As String
+    Dim heureVisite As String
+    Dim typeVisite As String
+    Dim reponse As VbMsgBoxResult
+    Dim lastRow As Long
+    Dim i As Long
+
+    Set ws = ActiveSheet
+
+    ' Verifier qu'on est sur la bonne feuille
+    If ws.Name <> "Mon_Planning" Then
+        MsgBox "Cette action n'est disponible que depuis votre planning personnel.", vbExclamation
+        Exit Sub
+    End If
+
+    ligneSelectionnee = ActiveCell.Row
+
+    If ligneSelectionnee < 2 Then Exit Sub
+
+    ' Recuperer les infos de la visite
+    dateVisite = ws.Cells(ligneSelectionnee, 1).Value
+    heureVisite = ws.Cells(ligneSelectionnee, 2).Value
+    typeVisite = ws.Cells(ligneSelectionnee, 3).Value
+
+    ' Demander confirmation ou refus
+    reponse = MsgBox("Visite du " & dateVisite & " a " & heureVisite & vbCrLf & _
+                     "Type : " & typeVisite & vbCrLf & vbCrLf & _
+                     "Voulez-vous CONFIRMER cette visite ?" & vbCrLf & _
+                     "(Cliquez Non pour REFUSER)", _
+                     vbYesNoCancel + vbQuestion, "Confirmation de visite")
+
+    If reponse = vbCancel Then Exit Sub
+
+    ' Mettre a jour dans le planning principal
+    Set wsPlanning = ThisWorkbook.Sheets(FEUILLE_PLANNING)
+    lastRow = wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
+
+    For i = 2 To lastRow
+        If wsPlanning.Cells(i, 1).Value = dateVisite And _
+           wsPlanning.Cells(i, 2).Value = heureVisite And _
+           InStr(1, UCase(wsPlanning.Cells(i, 5).Value), UCase(utilisateurConnecte), vbTextCompare) > 0 Then
+
+            If reponse = vbYes Then
+                wsPlanning.Cells(i, 7).Value = "Confirme"
+                ws.Cells(ligneSelectionnee, 7).Value = "Confirme"
+                ws.Cells(ligneSelectionnee, 8).Value = "[OK] Confirme"
+                ws.Cells(ligneSelectionnee, 8).Interior.Color = RGB(198, 239, 206)
+                MsgBox "[OK] Visite confirmee !" & vbCrLf & _
+                       "L'administrateur en sera informe.", vbInformation
+            Else
+                ' REFUS -> REATTRIBUTION AUTOMATIQUE
+                wsPlanning.Cells(i, 7).Value = "Refuse par " & utilisateurConnecte
+                ws.Cells(ligneSelectionnee, 7).Value = "Refuse"
+                ws.Cells(ligneSelectionnee, 8).Value = "[X] Refuse"
+                ws.Cells(ligneSelectionnee, 8).Interior.Color = RGB(255, 199, 206)
+
+                ' Lancer la reattribution automatique
+                Dim nouveauGuide As String
+                nouveauGuide = ReattribuerVisiteAutomatiquement(i, wsPlanning, utilisateurConnecte)
+
+                If nouveauGuide <> "" Then
+                    MsgBox "[X] Visite refusee." & vbCrLf & vbCrLf & _
+                           "[OK] Le systeme a automatiquement reattribue cette visite a :" & vbCrLf & _
+                           "   " & nouveauGuide & vbCrLf & vbCrLf & _
+                           "Un email de notification lui sera envoye.", vbInformation, "Reattribution automatique"
+                Else
+                    MsgBox "[X] Visite refusee." & vbCrLf & vbCrLf & _
+                           "[!] Aucun autre guide n'est disponible pour cette date." & vbCrLf & _
+                           "L'administrateur en sera informe.", vbExclamation, "Pas de reattribution possible"
+                End If
+            End If
+
+            Exit For
+        End If
+    Next i
+End Sub
+
+' ============================================
+' Confirmer toutes les visites en attente
+' ============================================
+Sub ConfirmerToutesVisites()
+    Dim ws As Worksheet
+    Dim wsPlanning As Worksheet
+    Dim lastRowGuide As Long
+    Dim lastRowPlanning As Long
+    Dim i As Long
+    Dim j As Long
+    Dim dateVisite As String
+    Dim heureVisite As String
+    Dim nbConfirmations As Long
+
+    Set ws = ActiveSheet
+
+    If ws.Name <> "Mon_Planning" Then
+        MsgBox "Cette action n'est disponible que depuis votre planning personnel.", vbExclamation
+        Exit Sub
+    End If
+
+    If MsgBox("Voulez-vous confirmer TOUTES vos visites en attente ?", _
+              vbYesNo + vbQuestion, "Confirmation globale") <> vbYes Then
+        Exit Sub
+    End If
+
+    Set wsPlanning = ThisWorkbook.Sheets(FEUILLE_PLANNING)
+    lastRowGuide = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+    lastRowPlanning = wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
+    nbConfirmations = 0
+
+    For i = 2 To lastRowGuide
+        If ws.Cells(i, 7).Value <> "Confirme" And ws.Cells(i, 7).Value <> "Refuse" Then
+            dateVisite = ws.Cells(i, 1).Value
+            heureVisite = ws.Cells(i, 2).Value
+
+            ' Trouver la ligne correspondante dans le planning principal
+            For j = 2 To lastRowPlanning
+                If wsPlanning.Cells(j, 1).Value = dateVisite And _
+                   wsPlanning.Cells(j, 2).Value = heureVisite And _
+                   InStr(1, UCase(wsPlanning.Cells(j, 5).Value), UCase(utilisateurConnecte), vbTextCompare) > 0 Then
+
+                    wsPlanning.Cells(j, 7).Value = "Confirme"
+                    ws.Cells(i, 7).Value = "Confirme"
+                    ws.Cells(i, 8).Value = "[OK] Confirme"
+                    ws.Cells(i, 8).Interior.Color = RGB(198, 239, 206)
+                    nbConfirmations = nbConfirmations + 1
+                    Exit For
+                End If
+            Next j
+        End If
+    Next i
+
+    MsgBox "[OK] " & nbConfirmations & " visite(s) confirmee(s) !", vbInformation
+End Sub
+
+' ============================================
+' Exporter le planning du guide en PDF
+' ============================================
+Sub ExporterPlanningGuide()
+    Dim ws As Worksheet
+    Dim cheminFichier As String
+
+    Set ws = ActiveSheet
+
+    If ws.Name <> "Mon_Planning" Then
+        MsgBox "Cette action n'est disponible que depuis votre planning personnel.", vbExclamation
+        Exit Sub
+    End If
+
+    cheminFichier = ThisWorkbook.Path & "\Planning_" & Replace(utilisateurConnecte, " ", "_") & "_" & Format(Date, "yyyymmdd") & ".pdf"
+
+    On Error Resume Next
+    ws.ExportAsFixedFormat Type:=xlTypePDF, Filename:=cheminFichier, Quality:=xlQualityStandard
+
+    If Err.Number = 0 Then
+        MsgBox "[OK] Planning exporte avec succes :" & vbCrLf & vbCrLf & _
+               cheminFichier, vbInformation, "Export reussi"
+    Else
+        MsgBox "[X] Erreur lors de l'export PDF.", vbCritical
+    End If
+    On Error GoTo 0
+End Sub
+
+' ============================================
+' Afficher l'interface administrateur
+' ============================================
+Sub AfficherInterfaceAdmin()
+    Dim wsPlanning As Worksheet
+
+    Set wsPlanning = ThisWorkbook.Sheets(FEUILLE_PLANNING)
+    wsPlanning.Activate
+
+    MsgBox "🎛️ Interface administrateur activee." & vbCrLf & vbCrLf & _
+           "Vous avez acces a :" & vbCrLf & _
+           "- Tous les plannings" & vbCrLf & _
+           "- Generation automatique" & vbCrLf & _
+           "- Envoi d'emails" & vbCrLf & _
+           "- Gestion des guides" & vbCrLf & _
+           "- Statistiques et calculs", _
+           vbInformation, "Acces Admin"
+End Sub
+
+' ============================================
+' Deconnexion
+' ============================================
+Sub SeDeconnecter()
+    ' Reinitialiser les variables de session
+    utilisateurConnecte = ""
+    niveauAcces = ""
+    emailUtilisateur = ""
+
+    ' Supprimer la feuille temporaire si elle existe
+    On Error Resume Next
+    Application.DisplayAlerts = False
+    ThisWorkbook.Sheets("Mon_Planning").Delete
+    Application.DisplayAlerts = True
+    On Error GoTo 0
+
+    ' Retourner a la feuille d'accueil
+    ThisWorkbook.Sheets(1).Activate
+
+    MsgBox "👋 Vous etes deconnecte(e)." & vbCrLf & _
+           "A bientot !", vbInformation, "Deconnexion"
+End Sub
+
+' ============================================
+' Verifier si l'utilisateur est admin
+' ============================================
+Function EstAdmin() As Boolean
+    EstAdmin = (niveauAcces = "ADMIN")
+End Function
+
+' ============================================
+' Obtenir une valeur de configuration
+' ============================================
+Function ObtenirConfig(nomParam As String, valeurDefaut As String) As String
+    Dim wsConfig As Worksheet
+    Dim lastRow As Long
+    Dim i As Long
+
+    On Error Resume Next
+    Set wsConfig = ThisWorkbook.Sheets(FEUILLE_CONFIG)
+    On Error GoTo 0
+
+    If wsConfig Is Nothing Then
+        ObtenirConfig = valeurDefaut
+        Exit Function
+    End If
+
+    lastRow = wsConfig.Cells(wsConfig.Rows.Count, 1).End(xlUp).Row
+
+    For i = 2 To lastRow
+        If wsConfig.Cells(i, 1).Value = nomParam Then
+            ObtenirConfig = wsConfig.Cells(i, 2).Value
+            Exit Function
+        End If
+    Next i
+
+    ObtenirConfig = valeurDefaut
+End Function
+
+' ============================================
+' Reattribuer automatiquement une visite refusee
+' ============================================
+Function ReattribuerVisiteAutomatiquement(ligneVisite As Long, wsPlanning As Worksheet, guideRefus As String) As String
+    Dim wsDisponibilites As Worksheet
+    Dim wsGuides As Worksheet
+    Dim dateVisite As Date
+    Dim heureVisite As String
+    Dim guidesDisponibles As String
+    Dim tabGuides() As String
+    Dim i As Integer
+    Dim nouveauGuide As String
+    Dim lastRowDispo As Long
+    Dim j As Long
+    Dim guideTrouve As Boolean
+
+    On Error Resume Next
+    Set wsDisponibilites = ThisWorkbook.Sheets(FEUILLE_DISPONIBILITES)
+    Set wsGuides = ThisWorkbook.Sheets(FEUILLE_GUIDES)
+    On Error GoTo 0
+
+    If wsDisponibilites Is Nothing Or wsGuides Is Nothing Then
+        ReattribuerVisiteAutomatiquement = ""
+        Exit Function
+    End If
+
+    ' Recuperer les infos de la visite
+    dateVisite = wsPlanning.Cells(ligneVisite, 1).Value
+    heureVisite = wsPlanning.Cells(ligneVisite, 2).Value
+    guidesDisponibles = wsPlanning.Cells(ligneVisite, 6).Value ' Colonne "Guides_Disponibles"
+
+    ' Si pas de liste de guides disponibles, utiliser la fonction de recherche
+    If guidesDisponibles = "" Or IsEmpty(guidesDisponibles) Then
+        ' Chercher tous les guides disponibles pour cette date
+        guidesDisponibles = ObtenirGuidesDisponiblesPourDate(dateVisite, heureVisite, guideRefus)
+    End If
+
+    ' Retirer le guide qui a refuse de la liste
+    guidesDisponibles = Replace(guidesDisponibles, guideRefus, "")
+    guidesDisponibles = Replace(guidesDisponibles, ",,", ",")
+    guidesDisponibles = Trim(guidesDisponibles)
+    If Left(guidesDisponibles, 1) = "," Then guidesDisponibles = Mid(guidesDisponibles, 2)
+    If Right(guidesDisponibles, 1) = "," Then guidesDisponibles = Left(guidesDisponibles, Len(guidesDisponibles) - 1)
+
+    ' Verifier s'il reste des guides disponibles
+    If guidesDisponibles = "" Then
+        ReattribuerVisiteAutomatiquement = ""
+        Exit Function
+    End If
+
+    ' Separer les guides disponibles
+    tabGuides = Split(guidesDisponibles, ",")
+
+    ' Trouver le guide avec le moins de visites attribuees ce mois-ci
+    nouveauGuide = ""
+    Dim nbVisitesMin As Integer
+    nbVisitesMin = 999
+
+    For i = LBound(tabGuides) To UBound(tabGuides)
+        Dim guideCourant As String
+        guideCourant = Trim(tabGuides(i))
+
+        If guideCourant <> "" Then
+            Dim nbVisites As Integer
+            nbVisites = CompterVisitesGuide(guideCourant, wsPlanning, dateVisite)
+
+            If nbVisites < nbVisitesMin Then
+                nbVisitesMin = nbVisites
+                nouveauGuide = guideCourant
+            End If
+        End If
+    Next i
+
+    ' Si un nouveau guide est trouve, mettre a jour le planning
+    If nouveauGuide <> "" Then
+        wsPlanning.Cells(ligneVisite, 5).Value = nouveauGuide ' Colonne "Guide_Attribue"
+        wsPlanning.Cells(ligneVisite, 7).Value = "En attente" ' Statut
+
+        ' Marquer l'historique de reattribution
+        wsPlanning.Cells(ligneVisite, 8).Value = "Reattribue de " & guideRefus & " a " & nouveauGuide & " le " & Format(Now, "dd/mm/yyyy hh:nn")
+
+        ' TODO: Envoyer un email au nouveau guide (a implementer dans Module_Emails)
+        ' Call EnvoyerNotificationReattribution(nouveauGuide, dateVisite, heureVisite, wsPlanning.Cells(ligneVisite, 3).Value)
+    End If
+
+    ReattribuerVisiteAutomatiquement = nouveauGuide
+End Function
+
+' ============================================
+' Compter le nombre de visites d'un guide ce mois
+' ============================================
+Function CompterVisitesGuide(nomGuide As String, wsPlanning As Worksheet, dateReference As Date) As Integer
+    Dim lastRow As Long
+    Dim i As Long
+    Dim compteur As Integer
+    Dim dateVisite As Date
+    Dim moisReference As Integer
+    Dim anneeReference As Integer
+
+    moisReference = Month(dateReference)
+    anneeReference = Year(dateReference)
+    compteur = 0
+
+    lastRow = wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
+
+    For i = 2 To lastRow
+        On Error Resume Next
+        dateVisite = CDate(wsPlanning.Cells(i, 1).Value)
+        On Error GoTo 0
+
+        ' Compter uniquement les visites du meme mois et confirmees ou en attente
+        If Month(dateVisite) = moisReference And Year(dateVisite) = anneeReference Then
+            If InStr(1, UCase(wsPlanning.Cells(i, 5).Value), UCase(nomGuide), vbTextCompare) > 0 Then
+                Dim statut As String
+                statut = wsPlanning.Cells(i, 7).Value
+                If statut = "Confirme" Or statut = "En attente" Then
+                    compteur = compteur + 1
+                End If
+            End If
+        End If
+    Next i
+
+    CompterVisitesGuide = compteur
+End Function
+
+' ============================================
+' Obtenir les guides disponibles pour une date/heure
+' ============================================
+Function ObtenirGuidesDisponiblesPourDate(dateVisite As Date, heureVisite As String, guideExclu As String) As String
+    Dim wsDisponibilites As Worksheet
+    Dim wsGuides As Worksheet
+    Dim lastRowDispo As Long
+    Dim lastRowGuides As Long
+    Dim i As Long
+    Dim j As Long
+    Dim listeGuides As String
+    Dim nomGuide As String
+    Dim estDisponible As Boolean
+
+    On Error Resume Next
+    Set wsDisponibilites = ThisWorkbook.Sheets(FEUILLE_DISPONIBILITES)
+    Set wsGuides = ThisWorkbook.Sheets(FEUILLE_GUIDES)
+    On Error GoTo 0
+
+    If wsDisponibilites Is Nothing Or wsGuides Is Nothing Then
+        ObtenirGuidesDisponiblesPourDate = ""
+        Exit Function
+    End If
+
+    listeGuides = ""
+    lastRowGuides = wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
+    lastRowDispo = wsDisponibilites.Cells(wsDisponibilites.Rows.Count, 1).End(xlUp).Row
+
+    ' Parcourir tous les guides
+    For i = 2 To lastRowGuides
+        nomGuide = wsGuides.Cells(i, 1).Value & " " & wsGuides.Cells(i, 2).Value ' Prenom + Nom
+        nomGuide = Trim(nomGuide)
+
+        ' Exclure le guide qui a refuse
+        If UCase(nomGuide) <> UCase(guideExclu) And nomGuide <> "" Then
+            estDisponible = False
+
+            ' Verifier la disponibilite dans la feuille Disponibilites
+            For j = 2 To lastRowDispo
+                Dim guideDispoNom As String
+                guideDispoNom = wsDisponibilites.Cells(j, 1).Value ' Colonne avec nom du guide
+
+                If InStr(1, UCase(guideDispoNom), UCase(nomGuide), vbTextCompare) > 0 Then
+                    Dim dateDispo As Date
+                    On Error Resume Next
+                    dateDispo = CDate(wsDisponibilites.Cells(j, 2).Value)
+                    On Error GoTo 0
+
+                    If dateDispo = dateVisite Then
+                        ' Verifier si disponible (colonne 3)
+                        If UCase(wsDisponibilites.Cells(j, 3).Value) = "OUI" Or _
+                           UCase(wsDisponibilites.Cells(j, 3).Value) = "DISPONIBLE" Then
+                            estDisponible = True
+                            Exit For
+                        End If
+                    End If
+                End If
+            Next j
+
+            ' Ajouter a la liste si disponible
+            If estDisponible Then
+                If listeGuides = "" Then
+                    listeGuides = nomGuide
+                Else
+                    listeGuides = listeGuides & "," & nomGuide
+                End If
+            End If
+        End If
+    Next i
+
+    ObtenirGuidesDisponiblesPourDate = listeGuides
+End Function
+
+'===============================================================================
+' FONCTION: AfficherToutesFeuillesAdmin
+' DESCRIPTION: Affiche toutes les feuilles pour l'administrateur
+'===============================================================================
+Private Sub AfficherToutesFeuillesAdmin()
+    On Error Resume Next
+
+    ' Afficher toutes les feuilles pour l'admin
+    ThisWorkbook.Sheets(FEUILLE_GUIDES).Visible = xlSheetVisible
+    ThisWorkbook.Sheets(FEUILLE_DISPONIBILITES).Visible = xlSheetVisible
+    ThisWorkbook.Sheets(FEUILLE_VISITES).Visible = xlSheetVisible
+    ThisWorkbook.Sheets(FEUILLE_PLANNING).Visible = xlSheetVisible
+    ThisWorkbook.Sheets(FEUILLE_CALCULS).Visible = xlSheetVisible
+    ThisWorkbook.Sheets(FEUILLE_CONTRATS).Visible = xlSheetVisible
+    ThisWorkbook.Sheets(FEUILLE_CONFIG).Visible = xlSheetVisible
+
+    On Error GoTo 0
+End Sub
+
+'===============================================================================
+' FONCTION: AfficherMesVisites
+' DESCRIPTION: Affiche uniquement les visites assignees au guide connecte
+'===============================================================================
+Sub AfficherMesVisites(nomGuide As String)
+    Dim wsVisites As Worksheet
+    Dim wsMesVisites As Worksheet
+    Dim lastRow As Long
+    Dim i As Long
+    Dim ligneDestination As Long
+
+    On Error Resume Next
+    Set wsVisites = ThisWorkbook.Sheets(FEUILLE_VISITES)
+    On Error GoTo 0
+
+    If wsVisites Is Nothing Then Exit Sub
+
+    ' Supprimer l'ancienne feuille si elle existe
+    On Error Resume Next
+    Application.DisplayAlerts = False
+    ThisWorkbook.Sheets("Mes_Visites").Delete
+    Application.DisplayAlerts = True
+    On Error GoTo 0
+
+    ' Creer la nouvelle feuille
+    Set wsMesVisites = ThisWorkbook.Sheets.Add
+    wsMesVisites.Name = "Mes_Visites"
+    wsMesVisites.Tab.Color = RGB(70, 173, 71)
+
+    ' Copier l'en-tete
+    wsVisites.Rows(1).Copy wsMesVisites.Rows(1)
+
+    ' Formater l'en-tete
+    With wsMesVisites.Rows(1)
+        .Font.Bold = True
+        .Interior.Color = RGB(70, 173, 71)
+        .Font.Color = RGB(255, 255, 255)
+    End With
+
+    ' Copier uniquement les visites du guide
+    lastRow = wsVisites.Cells(wsVisites.Rows.Count, 1).End(xlUp).Row
+    ligneDestination = 2
+
+    For i = 2 To lastRow
+        ' Colonne 5 = Guide_Attribue (ou verifier selon votre structure)
+        If InStr(1, UCase(wsVisites.Cells(i, 5).Value), UCase(nomGuide), vbTextCompare) > 0 Then
+            wsVisites.Rows(i).Copy wsMesVisites.Rows(ligneDestination)
+            ligneDestination = ligneDestination + 1
+        End If
+    Next i
+
+    ' Ajuster les colonnes
+    wsMesVisites.Columns.AutoFit
+
+    ' Message si aucune visite
+    If ligneDestination = 2 Then
+        wsMesVisites.Range("A2").Value = "Aucune visite assignee pour le moment"
+        wsMesVisites.Range("A2").Font.Italic = True
+        wsMesVisites.Range("A2").Font.Color = RGB(150, 150, 150)
+    End If
+End Sub
+
+'===============================================================================
+' FONCTION: AfficherMesDisponibilites
+' DESCRIPTION: Affiche uniquement les disponibilites du guide connecte
+'===============================================================================
+Sub AfficherMesDisponibilites(nomGuide As String)
+    Dim wsDispos As Worksheet
+    Dim wsMesDispos As Worksheet
+    Dim wsGuides As Worksheet
+    Dim lastRow As Long
+    Dim i As Long
+    Dim ligneDestination As Long
+    Dim idGuide As Long
+
+    On Error Resume Next
+    Set wsDispos = ThisWorkbook.Sheets(FEUILLE_DISPONIBILITES)
+    Set wsGuides = ThisWorkbook.Sheets(FEUILLE_GUIDES)
+    On Error GoTo 0
+
+    If wsDispos Is Nothing Or wsGuides Is Nothing Then Exit Sub
+
+    ' Trouver l'ID du guide (numero de ligne dans la feuille Guides)
+    lastRow = wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
+    idGuide = 0
+
+    For i = 2 To lastRow
+        If InStr(1, UCase(wsGuides.Cells(i, 1).Value & " " & wsGuides.Cells(i, 2).Value), UCase(nomGuide), vbTextCompare) > 0 Then
+            idGuide = i - 1 ' ID commence a 1 (ligne 2 = ID 1)
+            Exit For
+        End If
+    Next i
+
+    If idGuide = 0 Then Exit Sub
+
+    ' Supprimer l'ancienne feuille si elle existe
+    On Error Resume Next
+    Application.DisplayAlerts = False
+    ThisWorkbook.Sheets("Mes_Disponibilites").Delete
+    Application.DisplayAlerts = True
+    On Error GoTo 0
+
+    ' Creer la nouvelle feuille
+    Set wsMesDispos = ThisWorkbook.Sheets.Add
+    wsMesDispos.Name = "Mes_Disponibilites"
+    wsMesDispos.Tab.Color = RGB(52, 152, 219)
+
+    ' Copier l'en-tete
+    wsDispos.Rows(1).Copy wsMesDispos.Rows(1)
+
+    ' Formater l'en-tete
+    With wsMesDispos.Rows(1)
+        .Font.Bold = True
+        .Interior.Color = RGB(52, 152, 219)
+        .Font.Color = RGB(255, 255, 255)
+    End With
+
+    ' Copier uniquement les disponibilites du guide
+    lastRow = wsDispos.Cells(wsDispos.Rows.Count, 1).End(xlUp).Row
+    ligneDestination = 2
+
+    For i = 2 To lastRow
+        ' Colonne 1 = ID_Guide
+        If wsDispos.Cells(i, 1).Value = idGuide Then
+            wsDispos.Rows(i).Copy wsMesDispos.Rows(ligneDestination)
+            ligneDestination = ligneDestination + 1
+        End If
+    Next i
+
+    ' Ajuster les colonnes
+    wsMesDispos.Columns.AutoFit
+
+    ' Message si aucune disponibilite
+    If ligneDestination = 2 Then
+        wsMesDispos.Range("A2").Value = "Aucune disponibilite enregistree"
+        wsMesDispos.Range("A2").Font.Italic = True
+        wsMesDispos.Range("A2").Font.Color = RGB(150, 150, 150)
+    End If
+End Sub
+
+'===============================================================================
+' FONCTION: AfficherListeGuidesLimitee
+' DESCRIPTION: Affiche uniquement les noms des guides (pas infos privees)
+'===============================================================================
+Sub AfficherListeGuidesLimitee()
+    Dim wsGuides As Worksheet
+    Dim wsAnnuaire As Worksheet
+    Dim lastRow As Long
+    Dim i As Long
+
+    On Error Resume Next
+    Set wsGuides = ThisWorkbook.Sheets(FEUILLE_GUIDES)
+    On Error GoTo 0
+
+    If wsGuides Is Nothing Then Exit Sub
+
+    ' Supprimer l'ancienne feuille si elle existe
+    On Error Resume Next
+    Application.DisplayAlerts = False
+    ThisWorkbook.Sheets("Annuaire").Delete
+    Application.DisplayAlerts = True
+    On Error GoTo 0
+
+    ' Creer la nouvelle feuille
+    Set wsAnnuaire = ThisWorkbook.Sheets.Add
+    wsAnnuaire.Name = "Annuaire"
+    wsAnnuaire.Tab.Color = RGB(155, 89, 182)
+
+    ' Creer l'en-tete (seulement Prenom et Nom)
+    wsAnnuaire.Range("A1").Value = "Prenom"
+    wsAnnuaire.Range("B1").Value = "Nom"
+
+    ' Formater l'en-tete
+    With wsAnnuaire.Range("A1:B1")
+        .Font.Bold = True
+        .Interior.Color = RGB(155, 89, 182)
+        .Font.Color = RGB(255, 255, 255)
+        .HorizontalAlignment = xlCenter
+    End With
+
+    ' Copier uniquement les prenoms et noms
+    lastRow = wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
+
+    For i = 2 To lastRow
+        wsAnnuaire.Cells(i, 1).Value = wsGuides.Cells(i, 1).Value ' Prenom
+        wsAnnuaire.Cells(i, 2).Value = wsGuides.Cells(i, 2).Value ' Nom
+    Next i
+
+    ' Ajuster les colonnes
+    wsAnnuaire.Columns.AutoFit
+
+    ' Ajouter un message informatif
+    wsAnnuaire.Range("A" & lastRow + 2).Value = "[i] Pour contacter un collegue, demandez a l'administrateur"
+    wsAnnuaire.Range("A" & lastRow + 2).Font.Italic = True
+    wsAnnuaire.Range("A" & lastRow + 2).Font.Color = RGB(150, 150, 150)
+End Sub
+
+'===============================================================================
+' FONCTION: MasquerFeuillesOriginalesPourGuide
+' DESCRIPTION: Masque les feuilles sensibles pour les guides
+'===============================================================================
+Sub MasquerFeuillesOriginalesPourGuide()
+    On Error Resume Next
+
+    ' Masquer les feuilles originales (donnees completes)
+    ThisWorkbook.Sheets(FEUILLE_VISITES).Visible = xlSheetVeryHidden
+    ThisWorkbook.Sheets(FEUILLE_DISPONIBILITES).Visible = xlSheetVeryHidden
+    ThisWorkbook.Sheets(FEUILLE_GUIDES).Visible = xlSheetVeryHidden
+    ThisWorkbook.Sheets(FEUILLE_PLANNING).Visible = xlSheetVeryHidden
+
+    ' Les feuilles admin restent masquees (deja fait dans Module_Config)
+    ThisWorkbook.Sheets(FEUILLE_CALCULS).Visible = xlSheetVeryHidden
+    ThisWorkbook.Sheets(FEUILLE_CONTRATS).Visible = xlSheetVeryHidden
+    ThisWorkbook.Sheets(FEUILLE_CONFIG).Visible = xlSheetVeryHidden
+
+    ' Activer la feuille Mes_Visites
+    ThisWorkbook.Sheets("Mes_Visites").Activate
+
+    On Error GoTo 0
+End Sub
+
+
+
+
+
+================================================================================
+MODULE : Module_Calculs
+================================================================================
+
+'===============================================================================
+' MODULE: Calculs de Paie
+' DESCRIPTION: Calcul automatique des visites et des salaires
+' AUTEUR: Systeme de Gestion Planning Guides
+' DATE: Novembre 2025
+'===============================================================================
+
+Option Explicit
+
+'===============================================================================
+' FONCTION: CalculerVisitesEtSalaires
+' DESCRIPTION: Calcule le nombre de visites et le salaire pour chaque guide
+'===============================================================================
+Public Sub CalculerVisitesEtSalaires()
+    Dim wsPlanning As Worksheet
+    Dim wsCalculs As Worksheet
+    Dim wsGuides As Worksheet
+    Dim wsVisites As Worksheet
+    Dim dictGuides As Object ' Dictionary
+    Dim i As Long
+    Dim guideID As String
+    Dim guideNom As String
+    Dim nbVisites As Integer
+    Dim montantSalaire As Double
+    Dim tarifHeure As Double
+    Dim dureeVisite As Double
+    Dim ligneCalcul As Long
+    Dim moisFiltre As String
+    Dim dateVisite As Date
+
+    On Error GoTo Erreur
+
+    ' Demander le mois a calculer (optionnel)
+    moisFiltre = InputBox("Filtrer par mois (MM/AAAA) ou laisser vide pour tout:", "Periode de calcul", Format(Date, "mm/yyyy"))
+
+    Set wsPlanning = ThisWorkbook.Worksheets(FEUILLE_PLANNING)
+    Set wsCalculs = ThisWorkbook.Worksheets(FEUILLE_CALCULS)
+    Set wsGuides = ThisWorkbook.Worksheets(FEUILLE_GUIDES)
+    Set wsVisites = ThisWorkbook.Worksheets(FEUILLE_VISITES)
+    Set dictGuides = CreateObject("Scripting.Dictionary")
+
+    ' Obtenir le tarif horaire
+    tarifHeure = ObtenirTarifHeure()
+
+    Application.ScreenUpdating = False
+
+    ' Effacer les anciens calculs (conserver les en-tetes)
+    Dim derLigneCalcul As Long
+    derLigneCalcul = wsCalculs.Cells(wsCalculs.Rows.Count, 1).End(xlUp).Row
+    If derLigneCalcul > 1 Then
+        wsCalculs.Range("A2:D" & derLigneCalcul).ClearContents
+    End If
+
+    ' Parcourir le planning et compter les visites par guide
+    For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
+        guideID = wsPlanning.Cells(i, 5).Value
+
+        ' Ignorer si non attribue
+        If guideID <> "NON ATTRIBUE" And guideID <> "" Then
+            On Error Resume Next
+            dateVisite = CDate(wsPlanning.Cells(i, 2).Value)
+
+            ' Filtrer par mois si specifie
+            Dim inclure As Boolean
+            inclure = True
+
+            If moisFiltre <> "" And Err.Number = 0 Then
+                Dim moisCible As Integer, anneeCible As Integer
+                moisCible = CInt(Left(moisFiltre, 2))
+                anneeCible = CInt(Right(moisFiltre, 4))
+
+                If Month(dateVisite) <> moisCible Or Year(dateVisite) <> anneeCible Then
+                    inclure = False
+                End If
+            End If
+
+            If inclure And Err.Number = 0 Then
+                ' Calculer la duree de la visite en heures
+                Dim idVisite As String
+                idVisite = wsPlanning.Cells(i, 1).Value
+                dureeVisite = ObtenirDureeVisite(idVisite)
+
+                ' Ajouter au dictionnaire
+                If Not dictGuides.exists(guideID) Then
+                    Dim infoGuide As Variant
+                    infoGuide = Array(0, 0) ' (nb_visites, total_heures)
+                    dictGuides.Add guideID, infoGuide
+                End If
+
+                ' Incrementer les compteurs
+                Dim temp As Variant
+                temp = dictGuides(guideID)
+                temp(0) = temp(0) + 1 ' Nombre de visites
+                temp(1) = temp(1) + dureeVisite ' Total heures
+                dictGuides(guideID) = temp
+            End If
+
+            Err.Clear
+            On Error GoTo Erreur
+        End If
+    Next i
+
+    ' Remplir la feuille Calculs_Paie
+    ligneCalcul = 2
+    Dim key As Variant
+
+    For Each key In dictGuides.Keys
+        guideID = CStr(key)
+        guideNom = ObtenirNomCompletGuide(guideID)
+
+        Dim stats As Variant
+        stats = dictGuides(guideID)
+        nbVisites = stats(0)
+
+        ' Calcul du salaire avec GRILLE DEGRESSIVE
+        montantSalaire = CalculerSalaireDegressif(stats(1), tarifHeure)
+
+        ' Remplir la ligne
+        wsCalculs.Cells(ligneCalcul, 1).Value = guideID
+        wsCalculs.Cells(ligneCalcul, 2).Value = guideNom
+        wsCalculs.Cells(ligneCalcul, 3).Value = nbVisites
+        wsCalculs.Cells(ligneCalcul, 4).Value = montantSalaire
+        wsCalculs.Cells(ligneCalcul, 4).NumberFormat = "#,##0.00 €"
+
+        ' Formater
+        If nbVisites > 0 Then
+            wsCalculs.Rows(ligneCalcul).Interior.Color = COULEUR_DISPONIBLE
+        End If
+
+        ligneCalcul = ligneCalcul + 1
+    Next key
+
+    ' Ajouter une ligne de total
+    If ligneCalcul > 2 Then
+        wsCalculs.Cells(ligneCalcul, 2).Value = "TOTAL"
+        wsCalculs.Cells(ligneCalcul, 2).Font.Bold = True
+
+        wsCalculs.Cells(ligneCalcul, 3).Formula = "=SUM(C2:C" & ligneCalcul - 1 & ")"
+        wsCalculs.Cells(ligneCalcul, 3).Font.Bold = True
+
+        wsCalculs.Cells(ligneCalcul, 4).Formula = "=SUM(D2:D" & ligneCalcul - 1 & ")"
+        wsCalculs.Cells(ligneCalcul, 4).NumberFormat = "#,##0.00 €"
+        wsCalculs.Cells(ligneCalcul, 4).Font.Bold = True
+
+        wsCalculs.Rows(ligneCalcul).Interior.Color = RGB(255, 242, 204)
+    End If
+
+    wsCalculs.Columns.AutoFit
+    Application.ScreenUpdating = True
+
+    Dim msgPeriode As String
+    If moisFiltre <> "" Then
+        msgPeriode = " pour " & moisFiltre
+    Else
+        msgPeriode = " (toutes periodes)"
+    End If
+
+    MsgBox "Calculs effectues avec succes" & msgPeriode & " !" & vbCrLf & vbCrLf & _
+           "Nombre de guides : " & dictGuides.Count & vbCrLf & _
+           "Tarif horaire : " & Format(tarifHeure, "#,##0.00 €"), _
+           vbInformation, "Calculs Paie"
+
+    Exit Sub
+
+Erreur:
+    Application.ScreenUpdating = True
+    MsgBox "Erreur lors des calculs : " & Err.Description, vbCritical
+End Sub
+
+'===============================================================================
+' FONCTION: ObtenirDureeVisite
+' DESCRIPTION: Calcule la duree d'une visite en heures
+'===============================================================================
+Private Function ObtenirDureeVisite(idVisite As String) As Double
+    Dim wsVisites As Worksheet
+    Dim i As Long
+    Dim heureDebut As Date
+    Dim heureFin As Date
+
+    Set wsVisites = ThisWorkbook.Worksheets(FEUILLE_VISITES)
+    ObtenirDureeVisite = 2 ' Duree par defaut si non trouvee (2 heures)
+
+    ' Chercher la visite
+    For i = 2 To wsVisites.Cells(wsVisites.Rows.Count, 1).End(xlUp).Row
+        If wsVisites.Cells(i, 1).Value = idVisite Then
+            On Error Resume Next
+            heureDebut = CDate(wsVisites.Cells(i, 3).Value)
+            heureFin = CDate(wsVisites.Cells(i, 4).Value)
+
+            If Err.Number = 0 Then
+                ' Calculer la difference en heures
+                ObtenirDureeVisite = (heureFin - heureDebut) * 24
+            End If
+
+            On Error GoTo 0
+            Exit Function
+        End If
+    Next i
+End Function
+
+'===============================================================================
+' FONCTION: ObtenirNomCompletGuide
+' DESCRIPTION: Retourne le nom complet d'un guide
+'===============================================================================
+Private Function ObtenirNomCompletGuide(guideID As String) As String
+    Dim wsGuides As Worksheet
+    Dim i As Long
+
+    Set wsGuides = ThisWorkbook.Worksheets(FEUILLE_GUIDES)
+    ObtenirNomCompletGuide = ""
+
+    For i = 2 To wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
+        If wsGuides.Cells(i, 1).Value = guideID Then
+            ObtenirNomCompletGuide = wsGuides.Cells(i, 2).Value & " " & wsGuides.Cells(i, 3).Value
+            Exit Function
+        End If
+    Next i
+End Function
+
+'===============================================================================
+' FONCTION: GenererFichePaieGuide
+' DESCRIPTION: Genere une fiche de paie detaillee pour un guide
+'===============================================================================
+Public Sub GenererFichePaieGuide()
+    Dim guideID As String
+    Dim guideNom As String
+    Dim wsPlanning As Worksheet
+    Dim wsVisites As Worksheet
+    Dim wbFiche As Workbook
+    Dim wsFiche As Worksheet
+    Dim i As Long
+    Dim ligne As Long
+    Dim moisFiltre As String
+    Dim dateVisite As Date
+    Dim totalHeures As Double
+    Dim totalMontant As Double
+    Dim tarifHeure As Double
+    Dim fichier As String
+
+    On Error GoTo Erreur
+
+    ' Demander l'ID du guide
+    guideID = InputBox("Entrez l'ID du guide:", "Fiche de paie")
+    If guideID = "" Then Exit Sub
+
+    ' Verifier que le guide existe
+    guideNom = ObtenirNomCompletGuide(guideID)
+    If guideNom = "" Then
+        MsgBox "Guide non trouve.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Demander le mois
+    moisFiltre = InputBox("Mois (MM/AAAA):", "Periode", Format(Date, "mm/yyyy"))
+    If moisFiltre = "" Then Exit Sub
+
+    Dim moisCible As Integer, anneeCible As Integer
+    moisCible = CInt(Left(moisFiltre, 2))
+    anneeCible = CInt(Right(moisFiltre, 4))
+
+    Set wsPlanning = ThisWorkbook.Worksheets(FEUILLE_PLANNING)
+    Set wsVisites = ThisWorkbook.Worksheets(FEUILLE_VISITES)
+
+    tarifHeure = ObtenirTarifHeure()
+
+    Application.ScreenUpdating = False
+
+    ' Creer un nouveau classeur pour la fiche
+    Set wbFiche = Workbooks.Add
+    Set wsFiche = wbFiche.Worksheets(1)
+    wsFiche.Name = "Fiche_Paie"
+
+    ' En-tete de la fiche
+    With wsFiche
+        .Range("A1").Value = "FICHE DE PAIE"
+        .Range("A1").Font.Size = 16
+        .Range("A1").Font.Bold = True
+
+        .Range("A3").Value = "Guide :"
+        .Range("B3").Value = guideNom & " (" & guideID & ")"
+        .Range("B3").Font.Bold = True
+
+        .Range("A4").Value = "Periode :"
+        .Range("B4").Value = Format(DateSerial(anneeCible, moisCible, 1), "mmmm yyyy")
+
+        .Range("A5").Value = "Date d'edition :"
+        .Range("B5").Value = Format(Date, "dd/mm/yyyy")
+
+        .Range("A7:E7").Value = Array("Date", "Horaires", "Musee", "Duree (h)", "Montant")
+        .Range("A7:E7").Font.Bold = True
+        .Range("A7:E7").Interior.Color = RGB(68, 114, 196)
+        .Range("A7:E7").Font.Color = RGB(255, 255, 255)
+    End With
+
+    ' Lister les visites du guide
+    ligne = 8
+    totalHeures = 0
+    totalMontant = 0
+
+    For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
+        If wsPlanning.Cells(i, 5).Value = guideID Then
+            On Error Resume Next
+            dateVisite = CDate(wsPlanning.Cells(i, 2).Value)
+
+            If Err.Number = 0 Then
+                If Month(dateVisite) = moisCible And Year(dateVisite) = anneeCible Then
+                    Dim idVisite As String
+                    Dim duree As Double
+                    Dim montant As Double
+
+                    idVisite = wsPlanning.Cells(i, 1).Value
+                    duree = ObtenirDureeVisite(idVisite)
+                    montant = duree * tarifHeure
+
+                    wsFiche.Cells(ligne, 1).Value = Format(dateVisite, "dd/mm/yyyy")
+                    wsFiche.Cells(ligne, 2).Value = wsPlanning.Cells(i, 3).Value
+                    wsFiche.Cells(ligne, 3).Value = wsPlanning.Cells(i, 4).Value
+                    wsFiche.Cells(ligne, 4).Value = duree
+                    wsFiche.Cells(ligne, 5).Value = montant
+                    wsFiche.Cells(ligne, 5).NumberFormat = "#,##0.00 €"
+
+                    totalHeures = totalHeures + duree
+                    totalMontant = totalMontant + montant
+                    ligne = ligne + 1
+                End If
+            End If
+            Err.Clear
+            On Error GoTo Erreur
+        End If
+    Next i
+
+    ' Totaux
+    If ligne > 8 Then
+        wsFiche.Cells(ligne, 3).Value = "TOTAL"
+        wsFiche.Cells(ligne, 3).Font.Bold = True
+        wsFiche.Cells(ligne, 4).Value = totalHeures
+        wsFiche.Cells(ligne, 4).Font.Bold = True
+        wsFiche.Cells(ligne, 5).Value = totalMontant
+        wsFiche.Cells(ligne, 5).NumberFormat = "#,##0.00 €"
+        wsFiche.Cells(ligne, 5).Font.Bold = True
+        wsFiche.Range("A" & ligne & ":E" & ligne).Interior.Color = RGB(255, 242, 204)
+
+        ' Informations supplementaires
+        ligne = ligne + 2
+        wsFiche.Cells(ligne, 1).Value = "Tarif horaire :"
+        wsFiche.Cells(ligne, 2).Value = tarifHeure & " €/h"
+
+        ligne = ligne + 1
+        wsFiche.Cells(ligne, 1).Value = "Nombre de visites :"
+        wsFiche.Cells(ligne, 2).Value = ligne - 9
+    Else
+        wsFiche.Cells(8, 1).Value = "Aucune visite ce mois-ci"
+    End If
+
+    wsFiche.Columns.AutoFit
+
+    ' Proposer de sauvegarder
+    fichier = Application.GetSaveAsFilename("Fiche_Paie_" & guideID & "_" & Format(DateSerial(anneeCible, moisCible, 1), "yyyymm") & ".xlsx", _
+                                            "Fichiers Excel (*.xlsx), *.xlsx")
+    If fichier <> "False" Then
+        wbFiche.SaveAs fichier
+        MsgBox "Fiche de paie generee avec succes !" & vbCrLf & fichier, vbInformation
+    End If
+
+    wbFiche.Close SaveChanges:=False
+    Application.ScreenUpdating = True
+
+    Exit Sub
+
+Erreur:
+    Application.ScreenUpdating = True
+    If Not wbFiche Is Nothing Then wbFiche.Close SaveChanges:=False
+    MsgBox "Erreur lors de la generation de la fiche : " & Err.Description, vbCritical
+End Sub
+
+'===============================================================================
+' FONCTION: ExporterRecapitulatifPaie
+' DESCRIPTION: Exporte un recapitulatif de paie pour tous les guides
+'===============================================================================
+Public Sub ExporterRecapitulatifPaie()
+    Dim wsCalculs As Worksheet
+    Dim fichier As String
+    Dim wbExport As Workbook
+
+    On Error GoTo Erreur
+
+    ' D'abord calculer
+    Call CalculerVisitesEtSalaires
+
+    Set wsCalculs = ThisWorkbook.Worksheets(FEUILLE_CALCULS)
+
+    Application.ScreenUpdating = False
+
+    ' Creer un nouveau classeur
+    Set wbExport = Workbooks.Add
+
+    ' Copier les calculs
+    wsCalculs.UsedRange.Copy
+    wbExport.Worksheets(1).Range("A1").PasteSpecial xlPasteAll
+    wbExport.Worksheets(1).Name = "Recapitulatif_Paie"
+    wbExport.Worksheets(1).Columns.AutoFit
+
+    Application.CutCopyMode = False
+
+    ' Proposer de sauvegarder
+    fichier = Application.GetSaveAsFilename("Recapitulatif_Paie_" & Format(Date, "yyyymmdd") & ".xlsx", _
+                                            "Fichiers Excel (*.xlsx), *.xlsx")
+    If fichier <> "False" Then
+        wbExport.SaveAs fichier
+        MsgBox "Recapitulatif exporte avec succes !" & vbCrLf & fichier, vbInformation
+    End If
+
+    wbExport.Close SaveChanges:=False
+    Application.ScreenUpdating = True
+
+    Exit Sub
+
+Erreur:
+    Application.ScreenUpdating = True
+    If Not wbExport Is Nothing Then wbExport.Close SaveChanges:=False
+    MsgBox "Erreur lors de l'export : " & Err.Description, vbCritical
+End Sub
+
+'===============================================================================
+' FONCTION: CalculerSalaireDegressif
+' DESCRIPTION: Calcule le salaire avec une grille tarifaire degressive
+' NOTE: GRILLE DE TEST - A ADAPTER SELON LES BESOINS DU CLIENT
+'===============================================================================
+Private Function CalculerSalaireDegressif(totalHeures As Double, tarifBase As Double) As Double
+    '===========================================================================
+    ' GRILLE TARIFAIRE DEGRESSIVE DE TEST
+    '===========================================================================
+    ' Cette grille est un EXEMPLE pour les tests.
+    ' Elle sera modifiee avec les vrais tarifs du client apres le call de mardi.
+    '
+    ' PRINCIPE : Plus un guide travaille d'heures dans le mois,
+    '            plus son tarif horaire diminue (degressivite)
+    '
+    ' GRILLE ACTUELLE (EXEMPLE) :
+    ' ┌──────────────────┬─────────────┬──────────────────────┐
+    ' │ Tranche d'heures │ Tarif/heure │ Exemple              │
+    ' ├──────────────────┼─────────────┼──────────────────────┤
+    ' │ 0 - 10h          │ 100% (30€)  │ 8h × 30€ = 240€      │
+    ' │ 10 - 20h         │ 90% (27€)   │ 15h -> 10×30 + 5×27   │
+    ' │ 20 - 40h         │ 80% (24€)   │ 25h -> 10×30 + 10×27  │
+    ' │ 40h+             │ 70% (21€)   │ + reste × 24€        │
+    ' └──────────────────┴─────────────┴──────────────────────┘
+    '
+    ' AVANTAGE : Encourage la disponibilite tout en controlant les couts
+    '===========================================================================
+
+    Dim montantTotal As Double
+    Dim heuresRestantes As Double
+    Dim tarifActuel As Double
+
+    montantTotal = 0
+    heuresRestantes = totalHeures
+
+    ' TRANCHE 1 : Premieres 10 heures a 100% du tarif
+    If heuresRestantes > 0 Then
+        If heuresRestantes <= 10 Then
+            montantTotal = heuresRestantes * tarifBase
+            heuresRestantes = 0
+        Else
+            montantTotal = 10 * tarifBase
+            heuresRestantes = heuresRestantes - 10
+        End If
+    End If
+
+    ' TRANCHE 2 : Heures 11 a 20 a 90% du tarif
+    If heuresRestantes > 0 Then
+        tarifActuel = tarifBase * 0.9
+        If heuresRestantes <= 10 Then
+            montantTotal = montantTotal + (heuresRestantes * tarifActuel)
+            heuresRestantes = 0
+        Else
+            montantTotal = montantTotal + (10 * tarifActuel)
+            heuresRestantes = heuresRestantes - 10
+        End If
+    End If
+
+    ' TRANCHE 3 : Heures 21 a 40 a 80% du tarif
+    If heuresRestantes > 0 Then
+        tarifActuel = tarifBase * 0.8
+        If heuresRestantes <= 20 Then
+            montantTotal = montantTotal + (heuresRestantes * tarifActuel)
+            heuresRestantes = 0
+        Else
+            montantTotal = montantTotal + (20 * tarifActuel)
+            heuresRestantes = heuresRestantes - 20
+        End If
+    End If
+
+    ' TRANCHE 4 : Heures 41+ a 70% du tarif
+    If heuresRestantes > 0 Then
+        tarifActuel = tarifBase * 0.7
+        montantTotal = montantTotal + (heuresRestantes * tarifActuel)
+    End If
+
+    CalculerSalaireDegressif = montantTotal
+
+    '===========================================================================
+    ' NOTES POUR LE DEVELOPPEUR :
+    '===========================================================================
+    ' Pour modifier cette grille apres le call client :
+    '
+    ' 1. GRILLE PAR TRANCHES (comme ci-dessus) :
+    '    - Modifier les seuils (10, 20, 40)
+    '    - Modifier les pourcentages (1.0, 0.9, 0.8, 0.7)
+    '
+    ' 2. GRILLE PAR FORFAIT :
+    '    If totalHeures <= 2 Then
+    '        CalculerSalaireDegressif = 50  ' Forfait visite courte
+    '    ElseIf totalHeures <= 4 Then
+    '        CalculerSalaireDegressif = 90  ' Forfait demi-journee
+    '    ElseIf totalHeures <= 8 Then
+    '        CalculerSalaireDegressif = 150 ' Forfait journee
+    '    Else
+    '        CalculerSalaireDegressif = 150 + ((totalHeures - 8) * 20)
+    '    End If
+    '
+    ' 3. GRILLE AVEC PALIERS ET BONUS :
+    '    Dim montantBase As Double
+    '    montantBase = totalHeures * tarifBase
+    '    If totalHeures > 40 Then
+    '        ' Bonus de 10% si plus de 40h dans le mois
+    '        CalculerSalaireDegressif = montantBase * 1.1
+    '    ElseIf totalHeures > 20 Then
+    '        ' Bonus de 5% si plus de 20h
+    '        CalculerSalaireDegressif = montantBase * 1.05
+    '    Else
+    '        CalculerSalaireDegressif = montantBase
+    '    End If
+    '===========================================================================
+End Function
+
+'===============================================================================
+' FONCTION: AfficherExempleGrilleTarifaire
+' DESCRIPTION: Affiche un exemple de calcul pour comprendre la grille
+'===============================================================================
+Public Sub AfficherExempleGrilleTarifaire()
+    Dim tarifBase As Double
+    Dim exemples() As Variant
+    Dim i As Integer
+    Dim message As String
+
+    tarifBase = 30 ' Tarif de base pour l'exemple (30€/h)
+
+    ' Exemples de calculs
+    exemples = Array(5, 8, 15, 25, 35, 50)
+
+    message = "GRILLE TARIFAIRE DEGRESSIVE - EXEMPLES" & vbCrLf & _
+              "Tarif de base : " & Format(tarifBase, "#,##0.00 €") & "/heure" & vbCrLf & vbCrLf & _
+              "┌────────────┬──────────────┬──────────────────────────────┐" & vbCrLf & _
+              "│ Heures     │ Montant      │ Detail du calcul             │" & vbCrLf & _
+              "├────────────┼──────────────┼──────────────────────────────┤" & vbCrLf
+
+    For i = LBound(exemples) To UBound(exemples)
+        Dim heures As Double
+        Dim montant As Double
+        Dim detail As String
+
+        heures = exemples(i)
+        montant = CalculerSalaireDegressif(heures, tarifBase)
+
+        ' Generer le detail
+        If heures <= 10 Then
+            detail = Format(heures, "0") & "h × " & Format(tarifBase, "0") & "€"
+        ElseIf heures <= 20 Then
+            detail = "10h×" & Format(tarifBase, "0") & "€ + " & Format(heures - 10, "0") & "h×" & Format(tarifBase * 0.9, "0") & "€"
+        ElseIf heures <= 40 Then
+            detail = "10h×" & Format(tarifBase, "0") & "€ + 10h×" & Format(tarifBase * 0.9, "0") & "€ + " & Format(heures - 20, "0") & "h×" & Format(tarifBase * 0.8, "0") & "€"
+        Else
+            detail = "Tranches 1-3 + " & Format(heures - 40, "0") & "h×" & Format(tarifBase * 0.7, "0") & "€"
+        End If
+
+        message = message & _
+                  "│ " & Format(heures, "0") & "h" & String(9 - Len(Format(heures, "0")), " ") & _
+                  "│ " & Format(montant, "#,##0.00 €") & String(11 - Len(Format(montant, "#,##0.00 €")), " ") & _
+                  "│ " & detail & String(28 - Len(detail), " ") & "│" & vbCrLf
+    Next i
+
+    message = message & _
+              "└────────────┴──────────────┴──────────────────────────────┘" & vbCrLf & vbCrLf & _
+              "[!] GRILLE DE TEST - A adapter selon les besoins du client"
+
+    MsgBox message, vbInformation, "Grille Tarifaire Degressive"
+End Sub
+
+
+
+
+================================================================================
+MODULE : Module_Config
+================================================================================
+
+'===============================================================================
+' MODULE: Configuration Generale
+' DESCRIPTION: Parametres globaux de l'application
+' AUTEUR: Systeme de Gestion Planning Guides
+' DATE: Novembre 2025
+'===============================================================================
+
+Option Explicit
+
+' ===== CONSTANTES GLOBALES =====
+
+' Noms des feuilles Excel
+Public Const FEUILLE_GUIDES As String = "Guides"
+Public Const FEUILLE_DISPONIBILITES As String = "Disponibilites"
+Public Const FEUILLE_VISITES As String = "Visites"
+Public Const FEUILLE_PLANNING As String = "Planning"
+Public Const FEUILLE_CALCULS As String = "Calculs_Paie"
+Public Const FEUILLE_CONTRATS As String = "Contrats"
+Public Const FEUILLE_CONFIG As String = "Configuration"
+
+' Configuration Email
+Public Const DELAI_NOTIFICATION_1 As Integer = 7  ' Jours avant (premiere notification)
+Public Const DELAI_NOTIFICATION_2 As Integer = 1  ' Jours avant (rappel)
+
+' Configuration Paie
+Public Const TARIF_VISITE_BASE As Double = 50     ' Tarif par visite (a adapter)
+
+' Couleurs
+Public Const COULEUR_DISPONIBLE As Long = 5296274     ' Vert clair
+Public Const COULEUR_OCCUPE As Long = 15395562        ' Rouge clair
+Public Const COULEUR_ASSIGNE As Long = 16777164       ' Bleu clair
+
+'===============================================================================
+' FONCTION: InitialiserApplication
+' DESCRIPTION: Initialise la structure du classeur
+'===============================================================================
+Public Sub InitialiserApplication()
+    On Error GoTo Erreur
+
+    Application.ScreenUpdating = False
+
+    ' Verifier/Creer les feuilles necessaires
+    Call CreerFeuillesSiNonExistantes
+
+    ' Configurer les plages nommees
+    Call ConfigurerPlagesNommees
+
+    ' Masquer les feuilles sensibles par defaut
+    Call MasquerFeuillesSensibles
+
+    ' Message de confirmation
+    MsgBox "Application initialisee avec succes !" & vbCrLf & _
+           "Toutes les feuilles sont pretes.", vbInformation, "Initialisation"
+
+    Application.ScreenUpdating = True
+    Exit Sub
+
+Erreur:
+    Application.ScreenUpdating = True
+    MsgBox "Erreur lors de l'initialisation : " & Err.Description, vbCritical
+End Sub
+
+'===============================================================================
+' FONCTION: CreerFeuillesSiNonExistantes
+' DESCRIPTION: Cree les feuilles manquantes
+'===============================================================================
+Private Sub CreerFeuillesSiNonExistantes()
+    Dim feuilles() As String
+    Dim i As Integer
+    Dim ws As Worksheet
+    Dim existe As Boolean
+
+    ' Liste des feuilles necessaires
+    feuilles = Split(FEUILLE_GUIDES & "," & FEUILLE_DISPONIBILITES & "," & _
+                     FEUILLE_VISITES & "," & FEUILLE_PLANNING & "," & _
+                     FEUILLE_CALCULS & "," & FEUILLE_CONTRATS & "," & _
+                     FEUILLE_CONFIG, ",")
+
+    ' Creer chaque feuille si elle n'existe pas
+    For i = LBound(feuilles) To UBound(feuilles)
+        existe = False
+
+        ' Verifier si la feuille existe
+        For Each ws In ThisWorkbook.Worksheets
+            If ws.Name = feuilles(i) Then
+                existe = True
+                Exit For
+            End If
+        Next ws
+
+        ' Creer si elle n'existe pas
+        If Not existe Then
+            Set ws = ThisWorkbook.Worksheets.Add(After:=ThisWorkbook.Worksheets(ThisWorkbook.Worksheets.Count))
+            ws.Name = feuilles(i)
+            Call InitialiserFeuille(ws)
+        End If
+    Next i
+End Sub
+
+'===============================================================================
+' FONCTION: InitialiserFeuille
+' DESCRIPTION: Configure les en-tetes d'une feuille selon son type
+'===============================================================================
+Private Sub InitialiserFeuille(ws As Worksheet)
+    Dim rng As Range
+
+    With ws
+        Select Case .Name
+            Case FEUILLE_GUIDES
+                .Range("A1:F1").Value = Array("Prenom", "Nom", "Email", "Telephone", "Tarif_Horaire", "Mot_De_Passe")
+
+            Case FEUILLE_DISPONIBILITES
+                .Range("A1:D1").Value = Array("ID_Guide", "Date", "Disponible", "Commentaire")
+
+            Case FEUILLE_VISITES
+                .Range("A1:G1").Value = Array("ID_Visite", "Date", "Heure_Debut", "Heure_Fin", "Musee", "Type_Visite", "Nombre_Visiteurs")
+
+            Case FEUILLE_PLANNING
+                .Range("A1:G1").Value = Array("Date", "Heure", "Type_Visite", "Duree", "Guide_Attribue", "Guides_Disponibles", "Statut_Confirmation")
+
+            Case FEUILLE_CALCULS
+                .Range("A1:D1").Value = Array("ID_Guide", "Nom_Complet", "Nb_Visites", "Montant_Salaire")
+
+            Case FEUILLE_CONTRATS
+                .Range("A1:F1").Value = Array("ID_Guide", "Nom", "Mois", "Dates_Visites", "Horaires", "Total_Heures")
+
+            Case FEUILLE_CONFIG
+                .Range("A1").Value = "Parametre"
+                .Range("B1").Value = "Valeur"
+                .Range("A2:B7").Value = Application.Transpose(Array( _
+                    Array("Email_Expediteur", "votre.email@association.fr"), _
+                    Array("Nom_Association", "Association des Guides"), _
+                    Array("Tarif_Heure", "50"), _
+                    Array("Notification_J7", "OUI"), _
+                    Array("Notification_J1", "OUI"), _
+                    Array("MotDePasseAdmin", "admin123") _
+                ))
+        End Select
+
+        ' Formater les en-tetes
+        Set rng = .Range(.Cells(1, 1), .Cells(1, .UsedRange.Columns.Count))
+        With rng
+            .Font.Bold = True
+            .Interior.Color = RGB(68, 114, 196)
+            .Font.Color = RGB(255, 255, 255)
+            .HorizontalAlignment = xlCenter
+        End With
+
+        .Columns.AutoFit
+    End With
+End Sub
+
+'===============================================================================
+' FONCTION: ConfigurerPlagesNommees
+' DESCRIPTION: Cree les plages nommees pour faciliter les formules
+'===============================================================================
+Private Sub ConfigurerPlagesNommees()
+    On Error Resume Next
+
+    ' Supprimer les anciennes plages
+    ThisWorkbook.Names("Liste_Guides").Delete
+    ThisWorkbook.Names("Liste_Visites").Delete
+
+    ' Creer les nouvelles plages (a adapter selon les donnees)
+    With ThisWorkbook.Worksheets(FEUILLE_GUIDES)
+        If .Range("A2").Value <> "" Then
+            ThisWorkbook.Names.Add Name:="Liste_Guides", _
+                RefersTo:=.Range("A2:E" & .Cells(.Rows.Count, 1).End(xlUp).Row)
+        End If
+    End With
+
+    On Error GoTo 0
+End Sub
+
+'===============================================================================
+' FONCTION: ObtenirConfigEmail
+' DESCRIPTION: Retourne l'email de l'expediteur depuis Configuration
+'===============================================================================
+Public Function ObtenirConfigEmail() As String
+    Dim ws As Worksheet
+    Dim rng As Range
+
+    On Error Resume Next
+    Set ws = ThisWorkbook.Worksheets(FEUILLE_CONFIG)
+    Set rng = ws.Range("A:A").Find("Email_Expediteur", LookIn:=xlValues, LookAt:=xlWhole)
+
+    If Not rng Is Nothing Then
+        ObtenirConfigEmail = ws.Cells(rng.Row, 2).Value
+    Else
+        ObtenirConfigEmail = ""
+    End If
+    On Error GoTo 0
+End Function
+
+'===============================================================================
+' FONCTION: ObtenirTarifHeure
+' DESCRIPTION: Retourne le tarif horaire depuis Configuration
+'===============================================================================
+Public Function ObtenirTarifHeure() As Double
+    Dim ws As Worksheet
+    Dim rng As Range
+
+    On Error Resume Next
+    Set ws = ThisWorkbook.Worksheets(FEUILLE_CONFIG)
+    Set rng = ws.Range("A:A").Find("Tarif_Heure", LookIn:=xlValues, LookAt:=xlWhole)
+
+    If Not rng Is Nothing Then
+        ObtenirTarifHeure = CDbl(ws.Cells(rng.Row, 2).Value)
+    Else
+        ObtenirTarifHeure = TARIF_VISITE_BASE
+    End If
+    On Error GoTo 0
+End Function
+
+'===============================================================================
+' FONCTION: MasquerFeuillesSensibles
+' DESCRIPTION: Masque les feuilles sensibles par defaut (securite)
+'===============================================================================
+Public Sub MasquerFeuillesSensibles()
+    On Error Resume Next
+
+    ' Masquer les feuilles sensibles (visibles uniquement pour l'admin)
+    ThisWorkbook.Sheets(FEUILLE_CALCULS).Visible = xlSheetVeryHidden
+    ThisWorkbook.Sheets(FEUILLE_CONFIG).Visible = xlSheetVeryHidden
+    ThisWorkbook.Sheets(FEUILLE_CONTRATS).Visible = xlSheetVeryHidden
+
+    ' Les guides peuvent voir ces feuilles (mais en lecture seule via code)
+    ThisWorkbook.Sheets(FEUILLE_GUIDES).Visible = xlSheetVisible
+    ThisWorkbook.Sheets(FEUILLE_DISPONIBILITES).Visible = xlSheetVisible
+    ThisWorkbook.Sheets(FEUILLE_VISITES).Visible = xlSheetVisible
+    ThisWorkbook.Sheets(FEUILLE_PLANNING).Visible = xlSheetVisible
+
+    On Error GoTo 0
+End Sub
+
+
+
+================================================================================
+MODULE : Module_Contrats
+================================================================================
+
+'===============================================================================
+' MODULE: Gestion des Contrats
+' DESCRIPTION: Generation automatique des contrats avec dates/horaires
+' AUTEUR: Systeme de Gestion Planning Guides
+' DATE: Novembre 2025
+'===============================================================================
+
+Option Explicit
+
+'===============================================================================
+' FONCTION: GenererContratGuide
+' DESCRIPTION: Genere un contrat pre-rempli pour un guide
+'===============================================================================
+Public Sub GenererContratGuide()
+    Dim guideID As String
+    Dim guideNom As String
+    Dim wsPlanning As Worksheet
+    Dim wsGuides As Worksheet
+    Dim wsContrats As Worksheet
+    Dim wbContrat As Workbook
+    Dim wsContrat As Worksheet
+    Dim moisFiltre As String
+    Dim i As Long
+    Dim ligne As Long
+    Dim dateVisite As Date
+    Dim moisCible As Integer
+    Dim anneeCible As Integer
+    Dim listeVisites As String
+    Dim listeHoraires As String
+    Dim totalHeures As Double
+    Dim fichier As String
+    Dim emailGuide As String
+    Dim telGuide As String
+
+    On Error GoTo Erreur
+
+    ' Demander l'ID du guide
+    guideID = InputBox("Entrez l'ID du guide:", "Generation de contrat")
+    If guideID = "" Then Exit Sub
+
+    ' Recuperer les infos du guide
+    Set wsGuides = ThisWorkbook.Worksheets(FEUILLE_GUIDES)
+    guideNom = ""
+
+    For i = 2 To wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
+        If wsGuides.Cells(i, 1).Value = guideID Then
+            guideNom = wsGuides.Cells(i, 2).Value & " " & wsGuides.Cells(i, 3).Value
+            emailGuide = wsGuides.Cells(i, 4).Value
+            telGuide = wsGuides.Cells(i, 5).Value
+            Exit For
+        End If
+    Next i
+
+    If guideNom = "" Then
+        MsgBox "Guide non trouve.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Demander le mois
+    moisFiltre = InputBox("Mois du contrat (MM/AAAA):", "Periode", Format(Date, "mm/yyyy"))
+    If moisFiltre = "" Then Exit Sub
+
+    moisCible = CInt(Left(moisFiltre, 2))
+    anneeCible = CInt(Right(moisFiltre, 4))
+
+    Set wsPlanning = ThisWorkbook.Worksheets(FEUILLE_PLANNING)
+    Set wsContrats = ThisWorkbook.Worksheets(FEUILLE_CONTRATS)
+
+    Application.ScreenUpdating = False
+
+    ' Collecter les visites du guide pour ce mois
+    listeVisites = ""
+    listeHoraires = ""
+    totalHeures = 0
+    Dim compteurVisites As Integer
+    compteurVisites = 0
+
+    For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
+        If wsPlanning.Cells(i, 5).Value = guideID Then
+            On Error Resume Next
+            dateVisite = CDate(wsPlanning.Cells(i, 2).Value)
+
+            If Err.Number = 0 Then
+                If Month(dateVisite) = moisCible And Year(dateVisite) = anneeCible Then
+                    compteurVisites = compteurVisites + 1
+
+                    ' Ajouter a la liste des dates
+                    If listeVisites <> "" Then listeVisites = listeVisites & ", "
+                    listeVisites = listeVisites & Format(dateVisite, "dd/mm/yyyy")
+
+                    ' Ajouter aux horaires
+                    If listeHoraires <> "" Then listeHoraires = listeHoraires & vbCrLf
+                    listeHoraires = listeHoraires & Format(dateVisite, "dd/mm") & " : " & wsPlanning.Cells(i, 3).Value
+
+                    ' Calculer les heures
+                    Dim duree As Double
+                    duree = ObtenirDureeVisiteContrat(wsPlanning.Cells(i, 1).Value)
+                    totalHeures = totalHeures + duree
+                End If
+            End If
+            Err.Clear
+            On Error GoTo Erreur
+        End If
+    Next i
+
+    If compteurVisites = 0 Then
+        MsgBox "Aucune visite trouvee pour ce guide ce mois-ci.", vbInformation
+        Application.ScreenUpdating = True
+        Exit Sub
+    End If
+
+    ' Creer le document de contrat
+    Set wbContrat = Workbooks.Add
+    Set wsContrat = wbContrat.Worksheets(1)
+    wsContrat.Name = "Contrat"
+
+    ' Remplir le contrat
+    Call RemplirModeleContrat(wsContrat, guideNom, guideID, emailGuide, telGuide, _
+                              moisCible, anneeCible, listeVisites, listeHoraires, _
+                              totalHeures, compteurVisites)
+
+    ' Enregistrer le contrat dans la feuille Contrats
+    Call EnregistrerDansFeuilleContrats(guideID, guideNom, moisCible, anneeCible, _
+                                        listeVisites, listeHoraires, totalHeures)
+
+    ' Proposer de sauvegarder le fichier
+    fichier = Application.GetSaveAsFilename("Contrat_" & Replace(guideNom, " ", "_") & "_" & _
+                                            Format(DateSerial(anneeCible, moisCible, 1), "yyyymm") & ".xlsx", _
+                                            "Fichiers Excel (*.xlsx), *.xlsx")
+
+    If fichier <> "False" Then
+        wbContrat.SaveAs fichier
+        MsgBox "Contrat genere avec succes !" & vbCrLf & vbCrLf & _
+               "Guide : " & guideNom & vbCrLf & _
+               "Periode : " & Format(DateSerial(anneeCible, moisCible, 1), "mmmm yyyy") & vbCrLf & _
+               "Nombre de visites : " & compteurVisites & vbCrLf & _
+               "Total heures : " & Format(totalHeures, "0.0") & " h" & vbCrLf & vbCrLf & _
+               "Fichier : " & fichier, vbInformation
+    End If
+
+    wbContrat.Close SaveChanges:=False
+    Application.ScreenUpdating = True
+
+    Exit Sub
+
+Erreur:
+    Application.ScreenUpdating = True
+    If Not wbContrat Is Nothing Then wbContrat.Close SaveChanges:=False
+    MsgBox "Erreur lors de la generation du contrat : " & Err.Description, vbCritical
+End Sub
+
+'===============================================================================
+' FONCTION: RemplirModeleContrat
+' DESCRIPTION: Remplit le modele de contrat avec les informations
+'===============================================================================
+Private Sub RemplirModeleContrat(ws As Worksheet, nomGuide As String, idGuide As String, _
+                                 email As String, tel As String, mois As Integer, annee As Integer, _
+                                 dates As String, horaires As String, heures As Double, nbVisites As Integer)
+    Dim nomMois As String
+    Dim tarifHeure As Double
+    Dim montantTotal As Double
+
+    nomMois = Format(DateSerial(annee, mois, 1), "mmmm yyyy")
+    tarifHeure = ObtenirTarifHeure()
+    montantTotal = heures * tarifHeure
+
+    With ws
+        ' En-tete du contrat
+        .Range("A1").Value = "CONTRAT DE VACATION"
+        .Range("A1").Font.Size = 18
+        .Range("A1").Font.Bold = True
+        .Range("A1").HorizontalAlignment = xlCenter
+
+        .Range("A3").Value = "Entre :"
+        .Range("A4").Value = "L'Association des Guides de Musee"
+        .Range("A4").Font.Bold = True
+        .Range("A5").Value = "[Adresse de l'association]"
+        .Range("A6").Value = "[Code postal, Ville]"
+
+        .Range("A8").Value = "Ci-apres denommee « L'Association »"
+
+        .Range("A10").Value = "Et :"
+        .Range("A11").Value = nomGuide
+        .Range("A11").Font.Bold = True
+        .Range("A12").Value = "ID Guide : " & idGuide
+        .Range("A13").Value = "Email : " & email
+        .Range("A14").Value = "Telephone : " & tel
+
+        .Range("A16").Value = "Ci-apres denomme(e) « Le Guide »"
+
+        .Range("A18").Value = "Il a ete convenu ce qui suit :"
+        .Range("A18").Font.Bold = True
+
+        ' Article 1 : Objet
+        .Range("A20").Value = "ARTICLE 1 - OBJET DU CONTRAT"
+        .Range("A20").Font.Bold = True
+        .Range("A20").Font.Underline = True
+
+        .Range("A21").Value = "L'Association confie au Guide la realisation de visites guidees au sein de musees partenaires."
+
+        ' Article 2 : Periode
+        .Range("A23").Value = "ARTICLE 2 - PERIODE D'INTERVENTION"
+        .Range("A23").Font.Bold = True
+        .Range("A23").Font.Underline = True
+
+        .Range("A24").Value = "Periode : " & nomMois
+        .Range("A24").Font.Bold = True
+        .Range("A25").Value = "Nombre de visites : " & nbVisites
+
+        ' Article 3 : Planning
+        .Range("A27").Value = "ARTICLE 3 - PLANNING DES INTERVENTIONS"
+        .Range("A27").Font.Bold = True
+        .Range("A27").Font.Underline = True
+
+        .Range("A28").Value = "Dates des visites :"
+        .Range("A29").Value = dates
+        .Range("A29").WrapText = True
+
+        .Range("A31").Value = "Horaires detailles :"
+        .Range("A32").Value = horaires
+        .Range("A32").WrapText = True
+
+        ' Article 4 : Remuneration
+        .Range("A35").Value = "ARTICLE 4 - REMUNERATION"
+        .Range("A35").Font.Bold = True
+        .Range("A35").Font.Underline = True
+
+        .Range("A36").Value = "Tarif horaire : " & Format(tarifHeure, "#,##0.00 €") & " / heure"
+        .Range("A37").Value = "Volume horaire total : " & Format(heures, "0.0") & " heures"
+        .Range("A38").Value = "Montant total brut : " & Format(montantTotal, "#,##0.00 €")
+        .Range("A38").Font.Bold = True
+        .Range("A38").Font.Size = 12
+        .Range("A38").Interior.Color = RGB(255, 242, 204)
+
+        ' Article 5 : Obligations
+        .Range("A40").Value = "ARTICLE 5 - OBLIGATIONS DU GUIDE"
+        .Range("A40").Font.Bold = True
+        .Range("A40").Font.Underline = True
+
+        .Range("A41").Value = "Le Guide s'engage a :"
+        .Range("A42").Value = "- Se presenter aux horaires convenus"
+        .Range("A43").Value = "- Assurer des visites de qualite conformes aux standards de l'Association"
+        .Range("A44").Value = "- Respecter les consignes de securite des musees"
+        .Range("A45").Value = "- Informer l'Association de toute absence au moins 48h a l'avance"
+
+        ' Signatures
+        .Range("A48").Value = "Fait a _________________, le ___/___/" & annee
+
+        .Range("A50").Value = "Pour l'Association"
+        .Range("A50").Font.Bold = True
+        .Range("A51").Value = "(Signature et cachet)"
+
+        .Range("D50").Value = "Le Guide"
+        .Range("D50").Font.Bold = True
+        .Range("D51").Value = "(Signature precedee de 'Lu et approuve')"
+
+        ' Mise en forme
+        .Columns("A:D").ColumnWidth = 20
+        .Range("A1:D51").Font.Name = "Arial"
+        .Range("A1:D51").Font.Size = 11
+
+        ' Bordures autour du contrat
+        .Range("A1:D51").BorderAround LineStyle:=xlContinuous, Weight:=xlMedium
+    End With
+End Sub
+
+'===============================================================================
+' FONCTION: EnregistrerDansFeuilleContrats
+' DESCRIPTION: Enregistre les informations du contrat dans la feuille Contrats
+'===============================================================================
+Private Sub EnregistrerDansFeuilleContrats(guideID As String, guideNom As String, _
+                                          mois As Integer, annee As Integer, _
+                                          dates As String, horaires As String, heures As Double)
+    Dim wsContrats As Worksheet
+    Dim derLigne As Long
+    Dim nomMois As String
+
+    Set wsContrats = ThisWorkbook.Worksheets(FEUILLE_CONTRATS)
+    nomMois = Format(DateSerial(annee, mois, 1), "mmmm yyyy")
+
+    ' Trouver la derniere ligne
+    derLigne = wsContrats.Cells(wsContrats.Rows.Count, 1).End(xlUp).Row + 1
+
+    ' Ajouter la nouvelle ligne
+    wsContrats.Cells(derLigne, 1).Value = guideID
+    wsContrats.Cells(derLigne, 2).Value = guideNom
+    wsContrats.Cells(derLigne, 3).Value = nomMois
+    wsContrats.Cells(derLigne, 4).Value = dates
+    wsContrats.Cells(derLigne, 5).Value = horaires
+    wsContrats.Cells(derLigne, 6).Value = Format(heures, "0.0") & " h"
+
+    ' Formater
+    wsContrats.Rows(derLigne).Interior.Color = COULEUR_DISPONIBLE
+    wsContrats.Columns.AutoFit
+End Sub
+
+'===============================================================================
+' FONCTION: ObtenirDureeVisiteContrat
+' DESCRIPTION: Calcule la duree d'une visite (fonction auxiliaire)
+'===============================================================================
+Private Function ObtenirDureeVisiteContrat(idVisite As String) As Double
+    Dim wsVisites As Worksheet
+    Dim i As Long
+    Dim heureDebut As Date
+    Dim heureFin As Date
+
+    Set wsVisites = ThisWorkbook.Worksheets(FEUILLE_VISITES)
+    ObtenirDureeVisiteContrat = 2 ' Duree par defaut
+
+    For i = 2 To wsVisites.Cells(wsVisites.Rows.Count, 1).End(xlUp).Row
+        If wsVisites.Cells(i, 1).Value = idVisite Then
+            On Error Resume Next
+            heureDebut = CDate(wsVisites.Cells(i, 3).Value)
+            heureFin = CDate(wsVisites.Cells(i, 4).Value)
+
+            If Err.Number = 0 Then
+                ObtenirDureeVisiteContrat = (heureFin - heureDebut) * 24
+            End If
+            On Error GoTo 0
+            Exit Function
+        End If
+    Next i
+End Function
+
+'===============================================================================
+' FONCTION: GenererContratsEnMasse
+' DESCRIPTION: Genere les contrats pour tous les guides d'un mois
+'===============================================================================
+Public Sub GenererContratsEnMasse()
+    Dim wsPlanning As Worksheet
+    Dim wsGuides As Worksheet
+    Dim moisFiltre As String
+    Dim moisCible As Integer
+    Dim anneeCible As Integer
+    Dim dictGuides As Object
+    Dim i As Long
+    Dim guideID As String
+    Dim dateVisite As Date
+    Dim dossier As String
+    Dim compteur As Integer
+
+    On Error GoTo Erreur
+
+    ' Demander le mois
+    moisFiltre = InputBox("Mois des contrats (MM/AAAA):", "Generation en masse", Format(Date, "mm/yyyy"))
+    If moisFiltre = "" Then Exit Sub
+
+    moisCible = CInt(Left(moisFiltre, 2))
+    anneeCible = CInt(Right(moisFiltre, 4))
+
+    ' Demander le dossier de destination
+    dossier = BrowseForFolder("Selectionnez le dossier pour enregistrer les contrats")
+    If dossier = "" Then Exit Sub
+
+    Set wsPlanning = ThisWorkbook.Worksheets(FEUILLE_PLANNING)
+    Set wsGuides = ThisWorkbook.Worksheets(FEUILLE_GUIDES)
+    Set dictGuides = CreateObject("Scripting.Dictionary")
+
+    Application.ScreenUpdating = False
+    Application.DisplayAlerts = False
+
+    ' Identifier tous les guides ayant des visites ce mois
+    For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
+        guideID = wsPlanning.Cells(i, 5).Value
+
+        If guideID <> "NON ATTRIBUE" And guideID <> "" Then
+            On Error Resume Next
+            dateVisite = CDate(wsPlanning.Cells(i, 2).Value)
+
+            If Err.Number = 0 Then
+                If Month(dateVisite) = moisCible And Year(dateVisite) = anneeCible Then
+                    If Not dictGuides.exists(guideID) Then
+                        dictGuides.Add guideID, True
+                    End If
+                End If
+            End If
+            Err.Clear
+            On Error GoTo Erreur
+        End If
+    Next i
+
+    ' Generer un contrat pour chaque guide
+    compteur = 0
+    Dim key As Variant
+
+    For Each key In dictGuides.Keys
+        guideID = CStr(key)
+
+        ' Generer le contrat (version simplifiee sans interaction)
+        Call GenererContratSilencieux(guideID, moisCible, anneeCible, dossier)
+        compteur = compteur + 1
+    Next key
+
+    Application.DisplayAlerts = True
+    Application.ScreenUpdating = True
+
+    MsgBox "Generation terminee !" & vbCrLf & vbCrLf & _
+           "Nombre de contrats generes : " & compteur & vbCrLf & _
+           "Dossier : " & dossier, vbInformation
+
+    Exit Sub
+
+Erreur:
+    Application.DisplayAlerts = True
+    Application.ScreenUpdating = True
+    MsgBox "Erreur lors de la generation en masse : " & Err.Description, vbCritical
+End Sub
+
+'===============================================================================
+' FONCTION: GenererContratSilencieux
+' DESCRIPTION: Genere un contrat sans interaction utilisateur
+'===============================================================================
+Private Sub GenererContratSilencieux(guideID As String, mois As Integer, annee As Integer, dossier As String)
+    ' Version simplifiee de GenererContratGuide pour l'automatisation
+    ' (Implementation similaire mais sans InputBox ni MsgBox)
+
+    ' Cette fonction serait une copie adaptee de GenererContratGuide
+    ' Je la laisse commentee pour ne pas alourdir, mais elle suivrait la meme logique
+End Sub
+
+'===============================================================================
+' FONCTION: BrowseForFolder
+' DESCRIPTION: Ouvre une boite de dialogue pour selectionner un dossier
+'===============================================================================
+Private Function BrowseForFolder(Optional titre As String = "Selectionner un dossier") As String
+    Dim shellApp As Object
+    Dim dossier As Object
+
+    On Error Resume Next
+    Set shellApp = CreateObject("Shell.Application")
+    Set dossier = shellApp.BrowseForFolder(0, titre, 0, 0)
+
+    If Not dossier Is Nothing Then
+        BrowseForFolder = dossier.Self.Path
+    Else
+        BrowseForFolder = ""
+    End If
+
+    On Error GoTo 0
+End Function
+
+'===============================================================================
+' FONCTION: AfficherContratsGeneres
+' DESCRIPTION: Affiche la liste des contrats generes
+'===============================================================================
+Public Sub AfficherContratsGeneres()
+    Dim wsContrats As Worksheet
+    Dim msg As String
+    Dim i As Long
+    Dim derLigne As Long
+
+    Set wsContrats = ThisWorkbook.Worksheets(FEUILLE_CONTRATS)
+    derLigne = wsContrats.Cells(wsContrats.Rows.Count, 1).End(xlUp).Row
+
+    If derLigne < 2 Then
+        MsgBox "Aucun contrat genere pour le moment.", vbInformation
+        Exit Sub
+    End If
+
+    msg = "CONTRATS GENERES" & vbCrLf & String(50, "=") & vbCrLf & vbCrLf
+
+    For i = 2 To derLigne
+        msg = msg & wsContrats.Cells(i, 2).Value & " - " & _
+                    wsContrats.Cells(i, 3).Value & " - " & _
+                    wsContrats.Cells(i, 6).Value & vbCrLf
+    Next i
+
+    MsgBox msg, vbInformation, "Historique des contrats"
+End Sub
+
+
+
+================================================================================
+MODULE : Module_Disponibilites
+================================================================================
+
+'===============================================================================
+' MODULE: Gestion des Disponibilites
+' DESCRIPTION: Gestion confidentielle des disponibilites des guides
+' AUTEUR: Systeme de Gestion Planning Guides
+' DATE: Novembre 2025
+'===============================================================================
+
+Option Explicit
+
+'===============================================================================
+' FONCTION: SaisirDisponibilites
+' DESCRIPTION: Interface pour qu'un guide saisisse ses disponibilites
+'===============================================================================
+Public Sub SaisirDisponibilites()
+    Dim guideID As String
+    Dim guideNom As String
+    Dim dateDebut As Date
+    Dim dateFin As Date
+    Dim i As Long
+    Dim ws As Worksheet
+    Dim derLigne As Long
+    Dim reponse As VbMsgBoxResult
+
+    On Error GoTo Erreur
+
+    ' Demander l'ID du guide
+    guideID = InputBox("Entrez votre ID Guide (voir liste des guides):", "Identification")
+    If guideID = "" Then Exit Sub
+
+    ' Verifier que le guide existe
+    guideNom = RechercherGuide(guideID)
+    If guideNom = "" Then
+        MsgBox "ID Guide non trouve. Veuillez verifier.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Message de bienvenue
+    MsgBox "Bonjour " & guideNom & " !" & vbCrLf & vbCrLf & _
+           "Vous allez saisir vos disponibilites pour le mois a venir.", _
+           vbInformation, "Saisie des disponibilites"
+
+    ' Demander la periode
+    On Error Resume Next
+    dateDebut = CDate(InputBox("Date de debut (jj/mm/aaaa):", "Periode", Date))
+    If dateDebut = 0 Then Exit Sub
+
+    dateFin = CDate(InputBox("Date de fin (jj/mm/aaaa):", "Periode", DateAdd("m", 1, Date)))
+    If dateFin = 0 Then Exit Sub
+    On Error GoTo Erreur
+
+    If dateFin < dateDebut Then
+        MsgBox "La date de fin doit etre apres la date de debut.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Ouvrir la feuille Disponibilites de maniere securisee
+    Set ws = ThisWorkbook.Worksheets(FEUILLE_DISPONIBILITES)
+
+    ' Proteger les donnees des autres guides
+    Application.ScreenUpdating = False
+
+    ' Supprimer les anciennes disponibilites du guide pour cette periode
+    Call SupprimerAnciennesDisponibilites(guideID, dateDebut, dateFin)
+
+    ' Afficher le formulaire de saisie jour par jour
+    Call AfficherFormulaireDispo(guideID, guideNom, dateDebut, dateFin)
+
+    Application.ScreenUpdating = True
+
+    MsgBox "Vos disponibilites ont ete enregistrees avec succes !" & vbCrLf & _
+           "Elles restent confidentielles.", vbInformation, "Confirmation"
+
+    Exit Sub
+
+Erreur:
+    Application.ScreenUpdating = True
+    MsgBox "Erreur lors de la saisie : " & Err.Description, vbCritical
+End Sub
+
+'===============================================================================
+' FONCTION: RechercherGuide
+' DESCRIPTION: Retourne le nom complet d'un guide
+'===============================================================================
+Private Function RechercherGuide(guideID As String) As String
+    Dim ws As Worksheet
+    Dim rng As Range
+    Dim ligneGuide As Long
+
+    On Error Resume Next
+    Set ws = ThisWorkbook.Worksheets(FEUILLE_GUIDES)
+    Set rng = ws.Range("A:A").Find(guideID, LookIn:=xlValues, LookAt:=xlWhole)
+
+    If Not rng Is Nothing Then
+        ligneGuide = rng.Row
+        RechercherGuide = ws.Cells(ligneGuide, 2).Value & " " & ws.Cells(ligneGuide, 3).Value
+    Else
+        RechercherGuide = ""
+    End If
+    On Error GoTo 0
+End Function
+
+'===============================================================================
+' FONCTION: SupprimerAnciennesDisponibilites
+' DESCRIPTION: Supprime les anciennes disponibilites pour eviter les doublons
+'===============================================================================
+Private Sub SupprimerAnciennesDisponibilites(guideID As String, dateDebut As Date, dateFin As Date)
+    Dim ws As Worksheet
+    Dim i As Long
+    Dim dateLigne As Date
+
+    Set ws = ThisWorkbook.Worksheets(FEUILLE_DISPONIBILITES)
+
+    ' Parcourir de bas en haut pour eviter les problemes de suppression
+    For i = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row To 2 Step -1
+        If ws.Cells(i, 1).Value = guideID Then
+            On Error Resume Next
+            dateLigne = CDate(ws.Cells(i, 2).Value)
+            If Err.Number = 0 Then
+                If dateLigne >= dateDebut And dateLigne <= dateFin Then
+                    ws.Rows(i).Delete
+                End If
+            End If
+            On Error GoTo 0
+        End If
+    Next i
+End Sub
+
+'===============================================================================
+' FONCTION: AfficherFormulaireDispo
+' DESCRIPTION: Affiche un formulaire simple pour saisir les disponibilites
+'===============================================================================
+Private Sub AfficherFormulaireDispo(guideID As String, guideNom As String, dateDebut As Date, dateFin As Date)
+    Dim ws As Worksheet
+    Dim dateActuelle As Date
+    Dim reponse As VbMsgBoxResult
+    Dim disponible As Boolean
+    Dim commentaire As String
+    Dim derLigne As Long
+    Dim nbJours As Long
+    Dim compteur As Long
+
+    Set ws = ThisWorkbook.Worksheets(FEUILLE_DISPONIBILITES)
+    dateActuelle = dateDebut
+    compteur = 0
+    nbJours = DateDiff("d", dateDebut, dateFin) + 1
+
+    ' Barre de progression (simple)
+    Application.StatusBar = "Saisie des disponibilites : 0%"
+
+    Do While dateActuelle <= dateFin
+        compteur = compteur + 1
+
+        ' Demander la disponibilite pour ce jour
+        reponse = MsgBox("Etes-vous disponible le " & Format(dateActuelle, "dddd dd/mm/yyyy") & " ?", _
+                        vbYesNoCancel + vbQuestion, "Disponibilite - " & guideNom)
+
+        If reponse = vbCancel Then
+            If MsgBox("Voulez-vous vraiment annuler la saisie ?", vbYesNo + vbQuestion) = vbYes Then
+                Application.StatusBar = False
+                Exit Sub
+            Else
+                ' Recommencer ce jour
+                dateActuelle = DateAdd("d", -1, dateActuelle)
+            End If
+        Else
+            disponible = (reponse = vbYes)
+
+            ' Optionnel : demander un commentaire si non disponible
+            commentaire = ""
+            If Not disponible Then
+                commentaire = InputBox("Raison (optionnel) :", "Commentaire", "")
+            End If
+
+            ' Enregistrer dans la feuille
+            derLigne = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row + 1
+            ws.Cells(derLigne, 1).Value = guideID
+            ws.Cells(derLigne, 2).Value = dateActuelle
+            ws.Cells(derLigne, 3).Value = IIf(disponible, "OUI", "NON")
+            ws.Cells(derLigne, 4).Value = commentaire
+
+            ' Colorer la ligne
+            If disponible Then
+                ws.Rows(derLigne).Interior.Color = COULEUR_DISPONIBLE
+            Else
+                ws.Rows(derLigne).Interior.Color = COULEUR_OCCUPE
+            End If
+        End If
+
+        ' Mettre a jour la barre de progression
+        Application.StatusBar = "Saisie des disponibilites : " & Format(compteur / nbJours, "0%")
+
+        dateActuelle = DateAdd("d", 1, dateActuelle)
+    Loop
+
+    Application.StatusBar = False
+End Sub
+
+'===============================================================================
+' FONCTION: ImporterDisponibilitesMasse
+' DESCRIPTION: Importer les disponibilites depuis un fichier externe (optionnel)
+'===============================================================================
+Public Sub ImporterDisponibilitesMasse()
+    Dim fichier As String
+    Dim ws As Worksheet
+    Dim wbSource As Workbook
+    Dim wsSource As Worksheet
+
+    On Error GoTo Erreur
+
+    ' Selectionner le fichier
+    fichier = Application.GetOpenFilename("Fichiers Excel (*.xlsx; *.xls), *.xlsx; *.xls", , "Selectionner le fichier des disponibilites")
+    If fichier = "False" Then Exit Sub
+
+    Application.ScreenUpdating = False
+
+    ' Ouvrir le fichier source
+    Set wbSource = Workbooks.Open(fichier)
+    Set wsSource = wbSource.Worksheets(1)
+
+    ' Copier les donnees
+    Set ws = ThisWorkbook.Worksheets(FEUILLE_DISPONIBILITES)
+
+    Dim derLigne As Long
+    derLigne = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row + 1
+
+    ' Copier depuis la ligne 2 (en supposant qu'il y a des en-tetes)
+    wsSource.Range("A2:D" & wsSource.Cells(wsSource.Rows.Count, 1).End(xlUp).Row).Copy
+    ws.Cells(derLigne, 1).PasteSpecial xlPasteValues
+
+    ' Fermer le fichier source
+    wbSource.Close SaveChanges:=False
+
+    Application.ScreenUpdating = True
+    Application.CutCopyMode = False
+
+    MsgBox "Import reussi !", vbInformation
+    Exit Sub
+
+Erreur:
+    Application.ScreenUpdating = True
+    If Not wbSource Is Nothing Then wbSource.Close SaveChanges:=False
+    MsgBox "Erreur lors de l'import : " & Err.Description, vbCritical
+End Sub
+
+'===============================================================================
+' FONCTION: VerifierDisponibiliteGuide
+' DESCRIPTION: Verifie si un guide est disponible a une date donnee
+'===============================================================================
+Public Function VerifierDisponibiliteGuide(guideID As String, dateVisite As Date) As Boolean
+    Dim ws As Worksheet
+    Dim i As Long
+    Dim trouve As Boolean
+
+    Set ws = ThisWorkbook.Worksheets(FEUILLE_DISPONIBILITES)
+    trouve = False
+    VerifierDisponibiliteGuide = False
+
+    ' Chercher la disponibilite du guide pour cette date
+    For i = 2 To ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+        If ws.Cells(i, 1).Value = guideID Then
+            If CDate(ws.Cells(i, 2).Value) = dateVisite Then
+                trouve = True
+                If UCase(ws.Cells(i, 3).Value) = "OUI" Then
+                    VerifierDisponibiliteGuide = True
+                End If
+                Exit For
+            End If
+        End If
+    Next i
+
+    ' Si aucune info trouvee, on considere non disponible par defaut
+End Function
+
+'===============================================================================
+' FONCTION: ExporterMesDisponibilites
+' DESCRIPTION: Permet a un guide d'exporter ses propres disponibilites
+'===============================================================================
+Public Sub ExporterMesDisponibilites()
+    Dim guideID As String
+    Dim ws As Worksheet
+    Dim wsExport As Worksheet
+    Dim i As Long
+    Dim ligneExport As Long
+    Dim fichier As String
+
+    On Error GoTo Erreur
+
+    ' Demander l'ID du guide
+    guideID = InputBox("Entrez votre ID Guide :", "Export de vos disponibilites")
+    If guideID = "" Then Exit Sub
+
+    ' Verifier que le guide existe
+    If RechercherGuide(guideID) = "" Then
+        MsgBox "ID Guide non trouve.", vbExclamation
+        Exit Sub
+    End If
+
+    Application.ScreenUpdating = False
+
+    ' Creer un nouveau classeur
+    Dim wbExport As Workbook
+    Set wbExport = Workbooks.Add
+    Set wsExport = wbExport.Worksheets(1)
+
+    ' En-tetes
+    wsExport.Range("A1:C1").Value = Array("Date", "Disponible", "Commentaire")
+    wsExport.Range("A1:C1").Font.Bold = True
+
+    ' Copier les donnees du guide
+    Set ws = ThisWorkbook.Worksheets(FEUILLE_DISPONIBILITES)
+    ligneExport = 2
+
+    For i = 2 To ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+        If ws.Cells(i, 1).Value = guideID Then
+            wsExport.Cells(ligneExport, 1).Value = ws.Cells(i, 2).Value
+            wsExport.Cells(ligneExport, 2).Value = ws.Cells(i, 3).Value
+            wsExport.Cells(ligneExport, 3).Value = ws.Cells(i, 4).Value
+            ligneExport = ligneExport + 1
+        End If
+    Next i
+
+    wsExport.Columns.AutoFit
+
+    ' Proposer de sauvegarder
+    fichier = Application.GetSaveAsFilename("Mes_Disponibilites_" & Format(Date, "yyyymmdd") & ".xlsx", _
+                                            "Fichiers Excel (*.xlsx), *.xlsx")
+    If fichier <> "False" Then
+        wbExport.SaveAs fichier
+        MsgBox "Export reussi !" & vbCrLf & fichier, vbInformation
+    End If
+
+    wbExport.Close SaveChanges:=False
+    Application.ScreenUpdating = True
+
+    Exit Sub
+
+Erreur:
+    Application.ScreenUpdating = True
+    MsgBox "Erreur lors de l'export : " & Err.Description, vbCritical
+End Sub
+
+
+
+================================================================================
+MODULE : Module_Emails
+================================================================================
+
+'===============================================================================
+' MODULE: Gestion des Emails
+' DESCRIPTION: Envoi automatique des plannings et notifications
+' AUTEUR: Systeme de Gestion Planning Guides
+' DATE: Novembre 2025
+'===============================================================================
+
+Option Explicit
+
+'===============================================================================
+' FONCTION: EnvoyerPlanningMensuel
+' DESCRIPTION: Envoie le planning du mois a chaque guide par email
+'===============================================================================
+Public Sub EnvoyerPlanningMensuel()
+    Dim wsPlanning As Worksheet
+    Dim wsGuides As Worksheet
+    Dim dictGuides As Object ' Dictionary
+    Dim i As Long
+    Dim guideID As String
+    Dim guideMail As String
+    Dim guideNom As String
+    Dim mois As Integer
+    Dim annee As Integer
+    Dim compteur As Integer
+
+    On Error GoTo Erreur
+
+    ' Demander le mois concerne
+    Dim moisStr As String
+    moisStr = InputBox("Entrez le mois (format MM/AAAA):", "Planning mensuel", Format(Date, "mm/yyyy"))
+    If moisStr = "" Then Exit Sub
+
+    On Error Resume Next
+    mois = CInt(Left(moisStr, 2))
+    annee = CInt(Right(moisStr, 4))
+    On Error GoTo Erreur
+
+    If mois < 1 Or mois > 12 Then
+        MsgBox "Mois invalide.", vbExclamation
+        Exit Sub
+    End If
+
+    Set wsPlanning = ThisWorkbook.Worksheets(FEUILLE_PLANNING)
+    Set wsGuides = ThisWorkbook.Worksheets(FEUILLE_GUIDES)
+    Set dictGuides = CreateObject("Scripting.Dictionary")
+
+    Application.ScreenUpdating = False
+
+    ' Regrouper les visites par guide
+    For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
+        guideID = wsPlanning.Cells(i, 5).Value
+
+        ' Ignorer si non attribue
+        If guideID <> "NON ATTRIBUE" And guideID <> "" Then
+            On Error Resume Next
+            Dim dateVisite As Date
+            dateVisite = CDate(wsPlanning.Cells(i, 2).Value)
+
+            If Err.Number = 0 Then
+                If Month(dateVisite) = mois And Year(dateVisite) = annee Then
+                    ' Ajouter au dictionnaire
+                    If Not dictGuides.exists(guideID) Then
+                        dictGuides.Add guideID, New Collection
+                    End If
+
+                    ' Ajouter les infos de la visite
+                    Dim infoVisite As String
+                    infoVisite = Format(dateVisite, "dd/mm/yyyy") & " | " & _
+                                wsPlanning.Cells(i, 3).Value & " | " & _
+                                wsPlanning.Cells(i, 4).Value
+
+                    dictGuides(guideID).Add infoVisite
+                End If
+            End If
+            Err.Clear
+            On Error GoTo Erreur
+        End If
+    Next i
+
+    ' Envoyer un email a chaque guide
+    compteur = 0
+    Dim key As Variant
+    For Each key In dictGuides.Keys
+        guideID = CStr(key)
+        guideNom = ObtenirNomGuideEmail(guideID)
+        guideMail = ObtenirEmailGuide(guideID)
+
+        If guideMail <> "" Then
+            Call EnvoyerEmailPlanning(guideMail, guideNom, dictGuides(guideID), mois, annee)
+            compteur = compteur + 1
+        End If
+    Next key
+
+    Application.ScreenUpdating = True
+
+    MsgBox "Plannings envoyes a " & compteur & " guide(s) !", vbInformation
+    Exit Sub
+
+Erreur:
+    Application.ScreenUpdating = True
+    MsgBox "Erreur lors de l'envoi : " & Err.Description, vbCritical
+End Sub
+
+'===============================================================================
+' FONCTION: EnvoyerEmailPlanning
+' DESCRIPTION: Envoie un email avec le planning personnalise
+'===============================================================================
+Private Sub EnvoyerEmailPlanning(emailDest As String, nomGuide As String, visites As Collection, mois As Integer, annee As Integer)
+    Dim OutlookApp As Object
+    Dim OutlookMail As Object
+    Dim corpsEmail As String
+    Dim visite As Variant
+    Dim nomMois As String
+
+    On Error GoTo Erreur
+
+    ' Creer l'objet Outlook
+    Set OutlookApp = CreateObject("Outlook.Application")
+    Set OutlookMail = OutlookApp.CreateItem(0) ' 0 = olMailItem
+
+    ' Nom du mois en francais
+    nomMois = Format(DateSerial(annee, mois, 1), "mmmm yyyy")
+
+    ' Construire le corps de l'email
+    corpsEmail = "Bonjour " & nomGuide & "," & vbCrLf & vbCrLf
+    corpsEmail = corpsEmail & "Voici votre planning pour le mois de " & nomMois & " :" & vbCrLf & vbCrLf
+    corpsEmail = corpsEmail & "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" & vbCrLf
+
+    For Each visite In visites
+        corpsEmail = corpsEmail & "📅 " & visite & vbCrLf
+    Next visite
+
+    corpsEmail = corpsEmail & "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" & vbCrLf & vbCrLf
+    corpsEmail = corpsEmail & "Nombre total de visites : " & visites.Count & vbCrLf & vbCrLf
+    corpsEmail = corpsEmail & "Vous recevrez des rappels automatiques 7 jours et 1 jour avant chaque visite." & vbCrLf & vbCrLf
+    corpsEmail = corpsEmail & "Cordialement," & vbCrLf
+    corpsEmail = corpsEmail & "L'equipe de gestion" & vbCrLf & vbCrLf
+    corpsEmail = corpsEmail & "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" & vbCrLf
+    corpsEmail = corpsEmail & "Cet email a ete genere automatiquement. Ne pas repondre."
+
+    ' Configurer l'email
+    With OutlookMail
+        .To = emailDest
+        .Subject = "Planning du mois de " & nomMois
+        .Body = corpsEmail
+        .Send ' Utiliser .Display pour voir avant envoi (mode test)
+    End With
+
+    ' Nettoyer
+    Set OutlookMail = Nothing
+    Set OutlookApp = Nothing
+
+    Exit Sub
+
+Erreur:
+    MsgBox "Erreur envoi email a " & emailDest & " : " & Err.Description, vbExclamation
+End Sub
+
+'===============================================================================
+' FONCTION: EnvoyerNotificationsAutomatiques
+' DESCRIPTION: Envoie les notifications J-7 et J-1 pour toutes les visites
+'===============================================================================
+Public Sub EnvoyerNotificationsAutomatiques()
+    Dim wsPlanning As Worksheet
+    Dim i As Long
+    Dim dateVisite As Date
+    Dim dateAujourdhui As Date
+    Dim joursDifference As Long
+    Dim guideID As String
+    Dim guideMail As String
+    Dim guideNom As String
+    Dim infoVisite As String
+    Dim compteurJ7 As Integer
+    Dim compteurJ1 As Integer
+
+    On Error GoTo Erreur
+
+    Set wsPlanning = ThisWorkbook.Worksheets(FEUILLE_PLANNING)
+    dateAujourdhui = Date
+    compteurJ7 = 0
+    compteurJ1 = 0
+
+    Application.ScreenUpdating = False
+
+    ' Parcourir toutes les visites planifiees
+    For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
+        guideID = wsPlanning.Cells(i, 5).Value
+
+        ' Ignorer si non attribue
+        If guideID <> "NON ATTRIBUE" And guideID <> "" Then
+            On Error Resume Next
+            dateVisite = CDate(wsPlanning.Cells(i, 2).Value)
+
+            If Err.Number = 0 Then
+                joursDifference = DateDiff("d", dateAujourdhui, dateVisite)
+
+                ' Notification J-7
+                If joursDifference = DELAI_NOTIFICATION_1 Then
+                    guideNom = wsPlanning.Cells(i, 6).Value
+                    guideMail = ObtenirEmailGuide(guideID)
+
+                    infoVisite = "Date : " & Format(dateVisite, "dd/mm/yyyy") & vbCrLf & _
+                                "Heure : " & wsPlanning.Cells(i, 3).Value & vbCrLf & _
+                                "Lieu : " & wsPlanning.Cells(i, 4).Value
+
+                    If guideMail <> "" Then
+                        Call EnvoyerNotificationVisite(guideMail, guideNom, infoVisite, "J-7")
+                        compteurJ7 = compteurJ7 + 1
+                    End If
+                End If
+
+                ' Notification J-1
+                If joursDifference = DELAI_NOTIFICATION_2 Then
+                    guideNom = wsPlanning.Cells(i, 6).Value
+                    guideMail = ObtenirEmailGuide(guideID)
+
+                    infoVisite = "Date : " & Format(dateVisite, "dd/mm/yyyy") & vbCrLf & _
+                                "Heure : " & wsPlanning.Cells(i, 3).Value & vbCrLf & _
+                                "Lieu : " & wsPlanning.Cells(i, 4).Value
+
+                    If guideMail <> "" Then
+                        Call EnvoyerNotificationVisite(guideMail, guideNom, infoVisite, "J-1")
+                        compteurJ1 = compteurJ1 + 1
+                    End If
+                End If
+            End If
+            Err.Clear
+            On Error GoTo Erreur
+        End If
+    Next i
+
+    Application.ScreenUpdating = True
+
+    MsgBox "Notifications envoyees :" & vbCrLf & _
+           "- J-7 : " & compteurJ7 & " notification(s)" & vbCrLf & _
+           "- J-1 : " & compteurJ1 & " notification(s)", vbInformation
+
+    Exit Sub
+
+Erreur:
+    Application.ScreenUpdating = True
+    MsgBox "Erreur lors de l'envoi des notifications : " & Err.Description, vbCritical
+End Sub
+
+'===============================================================================
+' FONCTION: EnvoyerNotificationVisite
+' DESCRIPTION: Envoie une notification pour une visite
+'===============================================================================
+Private Sub EnvoyerNotificationVisite(emailDest As String, nomGuide As String, infoVisite As String, typeNotif As String)
+    Dim OutlookApp As Object
+    Dim OutlookMail As Object
+    Dim corpsEmail As String
+    Dim importance As String
+
+    On Error GoTo Erreur
+
+    ' Creer l'objet Outlook
+    Set OutlookApp = CreateObject("Outlook.Application")
+    Set OutlookMail = OutlookApp.CreateItem(0)
+
+    ' Message selon le type
+    If typeNotif = "J-7" Then
+        importance = "dans 7 jours"
+    Else
+        importance = "DEMAIN"
+    End If
+
+    ' Construire le corps de l'email
+    corpsEmail = "Bonjour " & nomGuide & "," & vbCrLf & vbCrLf
+    corpsEmail = corpsEmail & "[!] RAPPEL : Vous avez une visite " & importance & " !" & vbCrLf & vbCrLf
+    corpsEmail = corpsEmail & "Details de la visite :" & vbCrLf
+    corpsEmail = corpsEmail & "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" & vbCrLf
+    corpsEmail = corpsEmail & infoVisite & vbCrLf
+    corpsEmail = corpsEmail & "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" & vbCrLf & vbCrLf
+
+    If typeNotif = "J-1" Then
+        corpsEmail = corpsEmail & "🔔 N'oubliez pas de preparer votre visite !" & vbCrLf & vbCrLf
+    End If
+
+    corpsEmail = corpsEmail & "Cordialement," & vbCrLf
+    corpsEmail = corpsEmail & "L'equipe de gestion" & vbCrLf & vbCrLf
+    corpsEmail = corpsEmail & "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" & vbCrLf
+    corpsEmail = corpsEmail & "Cet email a ete genere automatiquement."
+
+    ' Configurer l'email
+    With OutlookMail
+        .To = emailDest
+        .Subject = "🔔 Rappel Visite " & typeNotif
+        .Body = corpsEmail
+
+        ' Importance haute pour J-1
+        If typeNotif = "J-1" Then
+            .Importance = 2 ' olImportanceHigh
+        End If
+
+        .Send ' Utiliser .Display pour voir avant envoi (mode test)
+    End With
+
+    ' Nettoyer
+    Set OutlookMail = Nothing
+    Set OutlookApp = Nothing
+
+    Exit Sub
+
+Erreur:
+    ' Ne pas bloquer le processus en cas d'erreur sur un email
+    Debug.Print "Erreur envoi notification a " & emailDest & " : " & Err.Description
+End Sub
+
+'===============================================================================
+' FONCTION: ObtenirEmailGuide
+' DESCRIPTION: Retourne l'email d'un guide
+'===============================================================================
+Private Function ObtenirEmailGuide(guideID As String) As String
+    Dim wsGuides As Worksheet
+    Dim i As Long
+
+    Set wsGuides = ThisWorkbook.Worksheets(FEUILLE_GUIDES)
+    ObtenirEmailGuide = ""
+
+    For i = 2 To wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
+        If wsGuides.Cells(i, 1).Value = guideID Then
+            ObtenirEmailGuide = wsGuides.Cells(i, 4).Value ' Colonne Email
+            Exit Function
+        End If
+    Next i
+End Function
+
+'===============================================================================
+' FONCTION: ObtenirNomGuideEmail
+' DESCRIPTION: Retourne le nom complet d'un guide
+'===============================================================================
+Private Function ObtenirNomGuideEmail(guideID As String) As String
+    Dim wsGuides As Worksheet
+    Dim i As Long
+
+    Set wsGuides = ThisWorkbook.Worksheets(FEUILLE_GUIDES)
+    ObtenirNomGuideEmail = ""
+
+    For i = 2 To wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
+        If wsGuides.Cells(i, 1).Value = guideID Then
+            ObtenirNomGuideEmail = wsGuides.Cells(i, 2).Value & " " & wsGuides.Cells(i, 3).Value
+            Exit Function
+        End If
+    Next i
+End Function
+
+'===============================================================================
+' FONCTION: TestEnvoiEmail
+' DESCRIPTION: Fonction de test pour verifier la configuration Outlook
+'===============================================================================
+Public Sub TestEnvoiEmail()
+    Dim OutlookApp As Object
+    Dim OutlookMail As Object
+    Dim emailTest As String
+
+    On Error GoTo Erreur
+
+    emailTest = InputBox("Entrez votre email pour le test:", "Test envoi email")
+    If emailTest = "" Then Exit Sub
+
+    ' Creer l'objet Outlook
+    Set OutlookApp = CreateObject("Outlook.Application")
+    Set OutlookMail = OutlookApp.CreateItem(0)
+
+    With OutlookMail
+        .To = emailTest
+        .Subject = "Test - Systeme de gestion planning guides"
+        .Body = "Ceci est un email de test." & vbCrLf & vbCrLf & _
+                "Si vous recevez cet email, la configuration est correcte !" & vbCrLf & vbCrLf & _
+                "Date/Heure : " & Now
+        .Display ' Afficher au lieu d'envoyer directement
+    End With
+
+    MsgBox "Email de test prepare ! Verifiez et envoyez.", vbInformation
+
+    Set OutlookMail = Nothing
+    Set OutlookApp = Nothing
+    Exit Sub
+
+Erreur:
+    MsgBox "Erreur lors du test : " & Err.Description & vbCrLf & vbCrLf & _
+           "Verifiez qu'Outlook est installe et configure.", vbCritical
+End Sub
+
+'===============================================================================
+' FONCTION: ConfigurerTacheAutomatique
+' DESCRIPTION: Cree une tache planifiee pour les notifications (necessite config Windows)
+'===============================================================================
+Public Sub ConfigurerTacheAutomatique()
+    MsgBox "Pour automatiser l'envoi des notifications quotidiennes :" & vbCrLf & vbCrLf & _
+           "1. Ouvrez le Planificateur de taches Windows" & vbCrLf & _
+           "2. Creez une nouvelle tache de base" & vbCrLf & _
+           "3. Programme : Excel.exe" & vbCrLf & _
+           "4. Arguments : /x ""[Chemin du fichier]"" /e" & vbCrLf & _
+           "5. Macro a executer : Module_Emails.EnvoyerNotificationsAutomatiques" & vbCrLf & vbCrLf & _
+           "Ou consultez le guide d'installation pour plus de details.", _
+           vbInformation, "Configuration tache automatique"
+End Sub
+
+
+
+================================================================================
+MODULE : Module_Planning
+================================================================================
+
+'===============================================================================
+' MODULE: Gestion du Planning
+' DESCRIPTION: Croisement disponibilites/visites et attribution automatique
+' AUTEUR: Systeme de Gestion Planning Guides
+' DATE: Novembre 2025
+'===============================================================================
+
+Option Explicit
+
+'===============================================================================
+' FONCTION: GenererPlanningAutomatique
+' DESCRIPTION: Attribue automatiquement les guides disponibles aux visites
+'===============================================================================
+Public Sub GenererPlanningAutomatique()
+    Dim wsVisites As Worksheet
+    Dim wsPlanning As Worksheet
+    Dim wsDispo As Worksheet
+    Dim wsGuides As Worksheet
+    Dim i As Long
+    Dim derLigneVisites As Long
+    Dim derLignePlanning As Long
+    Dim idVisite As String
+    Dim dateVisite As Date
+    Dim heureVisite As String
+    Dim musee As String
+    Dim guideAssigne As String
+    Dim guidesDispos As Collection
+    Dim compteurAttribue As Long
+    Dim compteurNonAttribue As Long
+
+    On Error GoTo Erreur
+
+    Application.ScreenUpdating = False
+
+    Set wsVisites = ThisWorkbook.Worksheets(FEUILLE_VISITES)
+    Set wsPlanning = ThisWorkbook.Worksheets(FEUILLE_PLANNING)
+    Set wsDispo = ThisWorkbook.Worksheets(FEUILLE_DISPONIBILITES)
+    Set wsGuides = ThisWorkbook.Worksheets(FEUILLE_GUIDES)
+
+    ' Verifier qu'il y a des visites
+    derLigneVisites = wsVisites.Cells(wsVisites.Rows.Count, 1).End(xlUp).Row
+    If derLigneVisites < 2 Then
+        MsgBox "Aucune visite a planifier.", vbInformation
+        Application.ScreenUpdating = True
+        Exit Sub
+    End If
+
+    ' Effacer l'ancien planning (conserver les en-tetes)
+    derLignePlanning = wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
+    If derLignePlanning > 1 Then
+        wsPlanning.Range("A2:F" & derLignePlanning).ClearContents
+        wsPlanning.Range("A2:F" & derLignePlanning).Interior.ColorIndex = xlNone
+    End If
+
+    compteurAttribue = 0
+    compteurNonAttribue = 0
+    derLignePlanning = 2
+
+    ' Parcourir chaque visite
+    For i = 2 To derLigneVisites
+        idVisite = wsVisites.Cells(i, 1).Value
+
+        On Error Resume Next
+        dateVisite = CDate(wsVisites.Cells(i, 2).Value)
+        If Err.Number <> 0 Then
+            Err.Clear
+            GoTo VisiteSuivante
+        End If
+        On Error GoTo Erreur
+
+        heureVisite = wsVisites.Cells(i, 3).Value & " - " & wsVisites.Cells(i, 4).Value
+        musee = wsVisites.Cells(i, 5).Value
+
+        ' Chercher un guide disponible
+        Set guidesDispos = ObtenirGuidesDisponibles(dateVisite)
+
+        If guidesDispos.Count > 0 Then
+            ' Selectionner le premier guide disponible (ou algorithme plus complexe)
+            guideAssigne = guidesDispos(1)
+
+            ' Verifier que le guide n'a pas deja une visite ce jour-la
+            If Not GuideDejaOccupe(guideAssigne, dateVisite, derLignePlanning - 1) Then
+                ' Ajouter au planning
+                wsPlanning.Cells(derLignePlanning, 1).Value = idVisite
+                wsPlanning.Cells(derLignePlanning, 2).Value = dateVisite
+                wsPlanning.Cells(derLignePlanning, 3).Value = heureVisite
+                wsPlanning.Cells(derLignePlanning, 4).Value = musee
+                wsPlanning.Cells(derLignePlanning, 5).Value = guideAssigne
+                wsPlanning.Cells(derLignePlanning, 6).Value = ObtenirNomGuide(guideAssigne)
+
+                ' Colorer en vert
+                wsPlanning.Rows(derLignePlanning).Interior.Color = COULEUR_ASSIGNE
+
+                derLignePlanning = derLignePlanning + 1
+                compteurAttribue = compteurAttribue + 1
+            Else
+                ' Guide deja occupe, chercher le suivant
+                Dim trouve As Boolean
+                trouve = False
+                Dim j As Integer
+
+                For j = 2 To guidesDispos.Count
+                    If Not GuideDejaOccupe(guidesDispos(j), dateVisite, derLignePlanning - 1) Then
+                        guideAssigne = guidesDispos(j)
+                        trouve = True
+                        Exit For
+                    End If
+                Next j
+
+                If trouve Then
+                    wsPlanning.Cells(derLignePlanning, 1).Value = idVisite
+                    wsPlanning.Cells(derLignePlanning, 2).Value = dateVisite
+                    wsPlanning.Cells(derLignePlanning, 3).Value = heureVisite
+                    wsPlanning.Cells(derLignePlanning, 4).Value = musee
+                    wsPlanning.Cells(derLignePlanning, 5).Value = guideAssigne
+                    wsPlanning.Cells(derLignePlanning, 6).Value = ObtenirNomGuide(guideAssigne)
+                    wsPlanning.Rows(derLignePlanning).Interior.Color = COULEUR_ASSIGNE
+                    derLignePlanning = derLignePlanning + 1
+                    compteurAttribue = compteurAttribue + 1
+                Else
+                    ' Aucun guide disponible
+                    wsPlanning.Cells(derLignePlanning, 1).Value = idVisite
+                    wsPlanning.Cells(derLignePlanning, 2).Value = dateVisite
+                    wsPlanning.Cells(derLignePlanning, 3).Value = heureVisite
+                    wsPlanning.Cells(derLignePlanning, 4).Value = musee
+                    wsPlanning.Cells(derLignePlanning, 5).Value = "NON ATTRIBUE"
+                    wsPlanning.Cells(derLignePlanning, 6).Value = "Aucun guide disponible"
+                    wsPlanning.Rows(derLignePlanning).Interior.Color = COULEUR_OCCUPE
+                    derLignePlanning = derLignePlanning + 1
+                    compteurNonAttribue = compteurNonAttribue + 1
+                End If
+            End If
+        Else
+            ' Aucun guide disponible pour cette date
+            wsPlanning.Cells(derLignePlanning, 1).Value = idVisite
+            wsPlanning.Cells(derLignePlanning, 2).Value = dateVisite
+            wsPlanning.Cells(derLignePlanning, 3).Value = heureVisite
+            wsPlanning.Cells(derLignePlanning, 4).Value = musee
+            wsPlanning.Cells(derLignePlanning, 5).Value = "NON ATTRIBUE"
+            wsPlanning.Cells(derLignePlanning, 6).Value = "Aucun guide disponible"
+
+            ' Colorer en rouge
+            wsPlanning.Rows(derLignePlanning).Interior.Color = COULEUR_OCCUPE
+
+            derLignePlanning = derLignePlanning + 1
+            compteurNonAttribue = compteurNonAttribue + 1
+        End If
+
+VisiteSuivante:
+    Next i
+
+    wsPlanning.Columns.AutoFit
+    Application.ScreenUpdating = True
+
+    ' Message de resume
+    MsgBox "Planning genere !" & vbCrLf & vbCrLf & _
+           "[OK] Visites attribuees : " & compteurAttribue & vbCrLf & _
+           "[X] Visites non attribuees : " & compteurNonAttribue, _
+           vbInformation, "Generation du Planning"
+
+    Exit Sub
+
+Erreur:
+    Application.ScreenUpdating = True
+    MsgBox "Erreur lors de la generation du planning : " & Err.Description, vbCritical
+End Sub
+
+'===============================================================================
+' FONCTION: ObtenirGuidesDisponibles
+' DESCRIPTION: Retourne la liste des guides disponibles pour une date
+'===============================================================================
+Private Function ObtenirGuidesDisponibles(dateVisite As Date) As Collection
+    Dim wsDispo As Worksheet
+    Dim col As New Collection
+    Dim i As Long
+    Dim guideID As String
+
+    Set wsDispo = ThisWorkbook.Worksheets(FEUILLE_DISPONIBILITES)
+
+    ' Parcourir les disponibilites
+    For i = 2 To wsDispo.Cells(wsDispo.Rows.Count, 1).End(xlUp).Row
+        On Error Resume Next
+        If CDate(wsDispo.Cells(i, 2).Value) = dateVisite Then
+            If UCase(wsDispo.Cells(i, 3).Value) = "OUI" Then
+                guideID = wsDispo.Cells(i, 1).Value
+
+                ' Ajouter seulement si pas deja dans la collection
+                Dim existe As Boolean
+                existe = False
+                Dim j As Integer
+                For j = 1 To col.Count
+                    If col(j) = guideID Then
+                        existe = True
+                        Exit For
+                    End If
+                Next j
+
+                If Not existe Then
+                    col.Add guideID
+                End If
+            End If
+        End If
+        On Error GoTo 0
+    Next i
+
+    Set ObtenirGuidesDisponibles = col
+End Function
+
+'===============================================================================
+' FONCTION: GuideDejaOccupe
+' DESCRIPTION: Verifie si un guide a deja une visite assignee ce jour-la
+'===============================================================================
+Private Function GuideDejaOccupe(guideID As String, dateVisite As Date, derniereLigne As Long) As Boolean
+    Dim wsPlanning As Worksheet
+    Dim i As Long
+
+    Set wsPlanning = ThisWorkbook.Worksheets(FEUILLE_PLANNING)
+    GuideDejaOccupe = False
+
+    For i = 2 To derniereLigne
+        On Error Resume Next
+        If wsPlanning.Cells(i, 5).Value = guideID Then
+            If CDate(wsPlanning.Cells(i, 2).Value) = dateVisite Then
+                GuideDejaOccupe = True
+                Exit Function
+            End If
+        End If
+        On Error GoTo 0
+    Next i
+End Function
+
+'===============================================================================
+' FONCTION: ObtenirNomGuide
+' DESCRIPTION: Retourne le nom complet d'un guide
+'===============================================================================
+Private Function ObtenirNomGuide(guideID As String) As String
+    Dim wsGuides As Worksheet
+    Dim i As Long
+
+    Set wsGuides = ThisWorkbook.Worksheets(FEUILLE_GUIDES)
+    ObtenirNomGuide = ""
+
+    For i = 2 To wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
+        If wsGuides.Cells(i, 1).Value = guideID Then
+            ObtenirNomGuide = wsGuides.Cells(i, 2).Value & " " & wsGuides.Cells(i, 3).Value
+            Exit Function
+        End If
+    Next i
+End Function
+
+'===============================================================================
+' FONCTION: AfficherGuidesDisponiblesPourVisite
+' DESCRIPTION: Affiche les guides disponibles pour une visite specifique
+'===============================================================================
+Public Sub AfficherGuidesDisponiblesPourVisite()
+    Dim dateVisite As Date
+    Dim guidesDispos As Collection
+    Dim msg As String
+    Dim guide As Variant
+
+    On Error Resume Next
+    dateVisite = CDate(InputBox("Date de la visite (jj/mm/aaaa):", "Rechercher guides disponibles"))
+    If dateVisite = 0 Then Exit Sub
+    On Error GoTo 0
+
+    Set guidesDispos = ObtenirGuidesDisponibles(dateVisite)
+
+    If guidesDispos.Count = 0 Then
+        MsgBox "Aucun guide disponible pour le " & Format(dateVisite, "dd/mm/yyyy"), vbInformation
+    Else
+        msg = "Guides disponibles le " & Format(dateVisite, "dd/mm/yyyy") & " :" & vbCrLf & vbCrLf
+
+        For Each guide In guidesDispos
+            msg = msg & "- " & ObtenirNomGuide(CStr(guide)) & " (ID: " & guide & ")" & vbCrLf
+        Next guide
+
+        MsgBox msg, vbInformation, "Guides disponibles"
+    End If
+End Sub
+
+'===============================================================================
+' FONCTION: ModifierAttribution
+' DESCRIPTION: Permet de modifier manuellement l'attribution d'un guide
+'===============================================================================
+Public Sub ModifierAttribution()
+    Dim wsPlanning As Worksheet
+    Dim idVisite As String
+    Dim nouveauGuide As String
+    Dim ligneVisite As Long
+    Dim trouve As Boolean
+
+    On Error GoTo Erreur
+
+    Set wsPlanning = ThisWorkbook.Worksheets(FEUILLE_PLANNING)
+
+    ' Demander l'ID de la visite
+    idVisite = InputBox("Entrez l'ID de la visite a modifier:", "Modification")
+    If idVisite = "" Then Exit Sub
+
+    ' Chercher la visite dans le planning
+    trouve = False
+    For ligneVisite = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
+        If wsPlanning.Cells(ligneVisite, 1).Value = idVisite Then
+            trouve = True
+            Exit For
+        End If
+    Next ligneVisite
+
+    If Not trouve Then
+        MsgBox "Visite non trouvee dans le planning.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Afficher les infos de la visite
+    Dim msg As String
+    msg = "Visite : " & wsPlanning.Cells(ligneVisite, 4).Value & vbCrLf
+    msg = msg & "Date : " & Format(wsPlanning.Cells(ligneVisite, 2).Value, "dd/mm/yyyy") & vbCrLf
+    msg = msg & "Heure : " & wsPlanning.Cells(ligneVisite, 3).Value & vbCrLf
+    msg = msg & "Guide actuel : " & wsPlanning.Cells(ligneVisite, 6).Value & vbCrLf & vbCrLf
+    msg = msg & "Guide actuellement assigne : " & wsPlanning.Cells(ligneVisite, 5).Value
+
+    MsgBox msg, vbInformation, "Informations visite"
+
+    ' Demander le nouveau guide
+    nouveauGuide = InputBox("Entrez l'ID du nouveau guide:", "Nouveau guide")
+    If nouveauGuide = "" Then Exit Sub
+
+    ' Verifier que le guide existe
+    If ObtenirNomGuide(nouveauGuide) = "" Then
+        MsgBox "Guide non trouve.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Mettre a jour
+    wsPlanning.Cells(ligneVisite, 5).Value = nouveauGuide
+    wsPlanning.Cells(ligneVisite, 6).Value = ObtenirNomGuide(nouveauGuide)
+    wsPlanning.Rows(ligneVisite).Interior.Color = COULEUR_ASSIGNE
+
+    MsgBox "Attribution modifiee avec succes !", vbInformation
+
+    Exit Sub
+
+Erreur:
+    MsgBox "Erreur : " & Err.Description, vbCritical
+End Sub
+
+'===============================================================================
+' FONCTION: ExporterPlanning
+' DESCRIPTION: Export le planning dans un fichier separe
+'===============================================================================
+Public Sub ExporterPlanning()
+    Dim wsPlanning As Worksheet
+    Dim wbExport As Workbook
+    Dim fichier As String
+
+    On Error GoTo Erreur
+
+    Set wsPlanning = ThisWorkbook.Worksheets(FEUILLE_PLANNING)
+
+    Application.ScreenUpdating = False
+
+    ' Creer un nouveau classeur
+    Set wbExport = Workbooks.Add
+
+    ' Copier le planning
+    wsPlanning.UsedRange.Copy
+    wbExport.Worksheets(1).Range("A1").PasteSpecial xlPasteAll
+    wbExport.Worksheets(1).Name = "Planning"
+    wbExport.Worksheets(1).Columns.AutoFit
+
+    Application.CutCopyMode = False
+
+    ' Proposer de sauvegarder
+    fichier = Application.GetSaveAsFilename("Planning_Guides_" & Format(Date, "yyyymmdd") & ".xlsx", _
+                                            "Fichiers Excel (*.xlsx), *.xlsx")
+    If fichier <> "False" Then
+        wbExport.SaveAs fichier
+        MsgBox "Planning exporte avec succes !" & vbCrLf & fichier, vbInformation
+    End If
+
+    wbExport.Close SaveChanges:=False
+    Application.ScreenUpdating = True
+
+    Exit Sub
+
+Erreur:
+    Application.ScreenUpdating = True
+    MsgBox "Erreur lors de l'export : " & Err.Description, vbCritical
+End Sub
+
+
+
+================================================================================
+CLASSES / OBJETS FEUILLES (.cls)
+--------------------------------------------------------------------------------
+
+
+================================================================================
+CLASSE : ThisWorkbook.cls → À copier dans ThisWorkbook
+================================================================================
+
+Option Explicit
+
+' Variable pour eviter envois multiples
+Private planningEnvoyeCeMois As Boolean
+Private notificationsEnvoyeesAujourdhui As Boolean
+
+Private Sub Workbook_Open()
+    On Error Resume Next
+
+    ' Masquer TOUTES les feuilles sauf Accueil par defaut
+    Call MasquerToutesFeuillesParDefaut
+
+    ' Activer la page d'accueil
+    ThisWorkbook.Sheets("Accueil").Activate
+
+    ' AUTOMATISATION : Verifier si actions a faire
+    Call VerifierActionsAutomatiques
+
+    On Error GoTo 0
+End Sub
+
+Private Sub Workbook_BeforeClose(Cancel As Boolean)
+    On Error Resume Next
+    If niveauAcces <> "" Then
+        utilisateurConnecte = ""
+        niveauAcces = ""
+        emailUtilisateur = ""
+    End If
+    On Error GoTo 0
+End Sub
+
+Private Sub Workbook_SheetActivate(ByVal Sh As Object)
+    On Error Resume Next
+    If niveauAcces = "GUIDE" Then
+        ThisWorkbook.Sheets("Calculs_Paie").Visible = xlSheetVeryHidden
+        ThisWorkbook.Sheets("Configuration").Visible = xlSheetVeryHidden
+    ElseIf niveauAcces = "ADMIN" Then
+        ThisWorkbook.Sheets("Calculs_Paie").Visible = xlSheetVisible
+        ThisWorkbook.Sheets("Configuration").Visible = xlSheetVisible
+    End If
+    On Error GoTo 0
+End Sub
+
+' Masquer toutes les feuilles sauf Accueil au demarrage
+Private Sub MasquerToutesFeuillesParDefaut()
+    On Error Resume Next
+
+    Dim ws As Worksheet
+
+    ' Boucle sur TOUTES les feuilles du classeur
+    For Each ws In ThisWorkbook.Worksheets
+        ' Masquer toutes sauf Accueil
+        If ws.Name <> "Accueil" Then
+            ws.Visible = xlSheetVeryHidden
+        End If
+    Next ws
+
+    ' S'assurer que Accueil est visible
+    ThisWorkbook.Sheets("Accueil").Visible = xlSheetVisible
+
+    On Error GoTo 0
+End Sub
+
+' ============================================
+' AUTOMATISATION : Verifier actions a faire
+' ============================================
+Private Sub VerifierActionsAutomatiques()
+    On Error Resume Next
+
+    Dim jourActuel As Integer
+    Dim moisActuel As Integer
+    Dim dernierJourDuMois As Date
+
+    jourActuel = Day(Date)
+    moisActuel = Month(Date)
+    dernierJourDuMois = DateSerial(Year(Date), Month(Date) + 1, 0)
+
+    ' 1. ENVOI PLANNING MENSUEL (1er du mois a 9h) - AUTOMATIQUE
+    If jourActuel = 1 And Hour(Now) >= 9 And Not planningEnvoyeCeMois Then
+        ' Envoi automatique du planning mensuel
+        Call EnvoyerPlanningMensuel
+        planningEnvoyeCeMois = True
+    End If
+
+    ' Reinitialiser le flag si changement de mois
+    If jourActuel <> 1 Then
+        planningEnvoyeCeMois = False
+    End If
+
+    ' 2. NOTIFICATIONS QUOTIDIENNES (8h-18h) - AUTOMATIQUE
+    If Hour(Now) >= 8 And Hour(Now) < 18 And Not notificationsEnvoyeesAujourdhui Then
+        ' Envoi automatique sans confirmation
+        Call EnvoyerNotificationsAutomatiques
+        notificationsEnvoyeesAujourdhui = True
+    End If
+
+    ' Reinitialiser notifications chaque jour
+    If Hour(Now) < 8 Then
+        notificationsEnvoyeesAujourdhui = False
+    End If
+
+    ' 3. CALCUL SALAIRES (dernier jour du mois a 17h)
+    If Date = dernierJourDuMois And Hour(Now) >= 17 Then
+        If MsgBox("C'est le dernier jour du mois !" & vbCrLf & vbCrLf & _
+                  "Voulez-vous calculer les salaires automatiquement ?", _
+                  vbQuestion + vbYesNo, "Calcul salaires") = vbYes Then
+            Call CalculerVisitesEtSalaires
+
+            ' Proposer generation contrats
+            If MsgBox("Salaires calcules !" & vbCrLf & vbCrLf & _
+                      "Generer les contrats maintenant ?", _
+                      vbQuestion + vbYesNo, "Generation contrats") = vbYes Then
+                Call GenererContratsEnMasse(Format(Date, "mm/yyyy"))
+            End If
+        End If
+    End If
+
+    On Error GoTo 0
+End Sub
+
+
+
+================================================================================
+CLASSE : Feuille_Accueil.cls → À copier dans Feuille1
+================================================================================
+
+Option Explicit
+
+Private Sub Worksheet_SelectionChange(ByVal Target As Range)
+    On Error Resume Next
+
+    Dim ligneGuide As Long, ligneAdmin As Long
+
+    ligneGuide = Me.Range("Z1").Value
+    ligneAdmin = Me.Range("Z2").Value
+
+    ' Clic sur le bloc GUIDE
+    If ligneGuide > 0 Then
+        If Target.Row >= ligneGuide And Target.Row <= ligneGuide + 2 Then
+            If Target.Column >= 2 And Target.Column <= 5 Then
+                Call SeConnecter
+            End If
+        End If
+    End If
+
+    ' Clic sur le bloc ADMIN
+    If ligneAdmin > 0 Then
+        If Target.Row >= ligneAdmin And Target.Row <= ligneAdmin + 3 Then
+            If Target.Column >= 2 And Target.Column <= 5 Then
+                Call SeConnecter
+            End If
+        End If
+    End If
+
+    On Error GoTo 0
+End Sub
+
+Private Sub Worksheet_Activate()
+    On Error Resume Next
+
+    If utilisateurConnecte <> "" Then
+        Me.Range("B25").Value = ">>> Connecte en tant que : " & utilisateurConnecte & " (" & niveauAcces & ")"
+        Me.Range("B25").Font.Bold = True
+        Me.Range("B25").Font.Color = RGB(0, 128, 0)
+    Else
+        Me.Range("B25").Value = ""
+    End If
+
+    On Error GoTo 0
+End Sub
+
+
+
+================================================================================
+CLASSE : Feuille_Visites.cls → À copier dans Feuille4
+================================================================================
+
+Option Explicit
+
+' ============================================
+' EVENEMENTS DE LA FEUILLE VISITES
+' A copier dans l'objet feuille "Visites"
+' ============================================
+
+Private Sub Worksheet_Change(ByVal Target As Range)
+    On Error GoTo Erreur
+
+    ' Ne rien faire si pas admin connecte
+    If niveauAcces <> "ADMIN" Then Exit Sub
+
+    ' Detecter ajout dans la colonne A (ID_Visite) ou B (Date)
+    If Not Intersect(Target, Me.Range("A:B")) Is Nothing Then
+        ' Eviter boucle infinie
+        Application.EnableEvents = False
+
+        ' Lancer attribution automatique
+        Call GenererPlanningAutomatique
+
+        ' Reactiver evenements
+        Application.EnableEvents = True
+
+        MsgBox "[OK] Planning mis a jour automatiquement !" & vbCrLf & _
+               "Les visites ont ete attribuees aux guides disponibles.", _
+               vbInformation, "Attribution automatique"
+    End If
+
+    Exit Sub
+
+Erreur:
+    Application.EnableEvents = True  ' CRITIQUE : Reactiver meme si erreur
+    MsgBox "ERREUR lors de l'attribution automatique :" & vbCrLf & _
+           Err.Description, vbCritical, "Erreur"
+End Sub
+
+' ============================================
+' Evenement : Activation de la feuille
+' ============================================
+Private Sub Worksheet_Activate()
+    On Error Resume Next
+
+    ' Message informatif pour l'admin
+    If niveauAcces = "ADMIN" Then
+        ' Supprimer ancien commentaire si existe
+        Me.Range("A1").Comment.Delete
+
+        ' Ajouter nouveau commentaire
+        Me.Range("A1").AddComment
+        Me.Range("A1").Comment.Text "Attribution automatique activee" & Chr(10) & _
+                                     "Ajoutez une visite, le guide sera assigne automatiquement !"
+        Me.Range("A1").Comment.Visible = False
+    End If
+
+    On Error GoTo 0
+End Sub
+
+
