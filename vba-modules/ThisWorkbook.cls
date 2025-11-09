@@ -75,14 +75,11 @@ Private Sub VerifierActionsAutomatiques()
     moisActuel = Month(Date)
     dernierJourDuMois = DateSerial(Year(Date), Month(Date) + 1, 0)
 
-    ' 1. ENVOI PLANNING MENSUEL (1er du mois a 9h)
+    ' 1. ENVOI PLANNING MENSUEL (1er du mois a 9h) - AUTOMATIQUE
     If jourActuel = 1 And Hour(Now) >= 9 And Not planningEnvoyeCeMois Then
-        If MsgBox("C'est le 1er du mois !" & vbCrLf & vbCrLf & _
-                  "Voulez-vous envoyer les plannings mensuels aux guides ?", _
-                  vbQuestion + vbYesNo, "Envoi automatique planning") = vbYes Then
-            Call EnvoyerPlanningMensuel
-            planningEnvoyeCeMois = True
-        End If
+        ' Envoi automatique du planning mensuel
+        Call EnvoyerPlanningMensuel
+        planningEnvoyeCeMois = True
     End If
 
     ' Reinitialiser le flag si changement de mois
@@ -90,13 +87,11 @@ Private Sub VerifierActionsAutomatiques()
         planningEnvoyeCeMois = False
     End If
 
-    ' 2. NOTIFICATIONS QUOTIDIENNES (8h-18h)
+    ' 2. NOTIFICATIONS QUOTIDIENNES (8h-18h) - AUTOMATIQUE
     If Hour(Now) >= 8 And Hour(Now) < 18 And Not notificationsEnvoyeesAujourdhui Then
-        If MsgBox("Voulez-vous envoyer les notifications de rappel aux guides ?", _
-                  vbQuestion + vbYesNo, "Notifications automatiques") = vbYes Then
-            Call EnvoyerNotificationsAutomatiques
-            notificationsEnvoyeesAujourdhui = True
-        End If
+        ' Envoi automatique sans confirmation
+        Call EnvoyerNotificationsAutomatiques
+        notificationsEnvoyeesAujourdhui = True
     End If
 
     ' Reinitialiser notifications chaque jour

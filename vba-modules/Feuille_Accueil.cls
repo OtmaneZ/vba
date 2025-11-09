@@ -9,9 +9,11 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
     ligneAdmin = Me.Range("Z2").Value
 
     ' Clic sur le bloc GUIDE
-    If Target.Row >= ligneGuide And Target.Row <= ligneGuide + 2 Then
-        If Target.Column >= 2 And Target.Column <= 5 Then
-            Call SeConnecter
+    If ligneGuide > 0 Then
+        If Target.Row >= ligneGuide And Target.Row <= ligneGuide + 2 Then
+            If Target.Column >= 2 And Target.Column <= 5 Then
+                Call SeConnecter
+            End If
         End If
     End If
 

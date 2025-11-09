@@ -6,7 +6,7 @@ Option Explicit
 ' ============================================
 
 Private Sub Worksheet_Change(ByVal Target As Range)
-    On Error Resume Next
+    On Error GoTo Erreur
 
     ' Ne rien faire si pas admin connecte
     If niveauAcces <> "ADMIN" Then Exit Sub
@@ -27,7 +27,12 @@ Private Sub Worksheet_Change(ByVal Target As Range)
                vbInformation, "Attribution automatique"
     End If
 
-    On Error GoTo 0
+    Exit Sub
+
+Erreur:
+    Application.EnableEvents = True  ' CRITIQUE : Reactiver meme si erreur
+    MsgBox "ERREUR lors de l'attribution automatique :" & vbCrLf & _
+           Err.Description, vbCritical, "Erreur"
 End Sub
 
 ' ============================================
@@ -38,6 +43,10 @@ Private Sub Worksheet_Activate()
 
     ' Message informatif pour l'admin
     If niveauAcces = "ADMIN" Then
+        ' Supprimer ancien commentaire si existe
+        Me.Range("A1").Comment.Delete
+
+        ' Ajouter nouveau commentaire
         Me.Range("A1").AddComment
         Me.Range("A1").Comment.Text "Attribution automatique activee" & Chr(10) & _
                                      "Ajoutez une visite, le guide sera assigne automatiquement !"
