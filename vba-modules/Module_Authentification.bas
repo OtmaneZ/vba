@@ -242,7 +242,7 @@ Sub AjouterBoutonsGuide(ws As Worksheet)
     ' Bouton Exporter mon planning
     Set btnExporter = ws.Buttons.Add(280, 10, 120, 30)
     With btnExporter
-        .Caption = "📄 Exporter en PDF"
+        .Caption = "Exporter en PDF"
         .OnAction = "ExporterPlanningGuide"
     End With
 End Sub
@@ -424,7 +424,7 @@ Sub AfficherInterfaceAdmin()
     Set wsPlanning = ThisWorkbook.Sheets(FEUILLE_PLANNING)
     wsPlanning.Activate
 
-    MsgBox "🎛️ Interface administrateur activee." & vbCrLf & vbCrLf & _
+    MsgBox "Interface administrateur activee." & vbCrLf & vbCrLf & _
            "Vous avez acces a :" & vbCrLf & _
            "- Tous les plannings" & vbCrLf & _
            "- Generation automatique" & vbCrLf & _
@@ -453,7 +453,7 @@ Sub SeDeconnecter()
     ' Retourner a la feuille d'accueil
     ThisWorkbook.Sheets(1).Activate
 
-    MsgBox "👋 Vous etes deconnecte(e)." & vbCrLf & _
+    MsgBox "Vous etes deconnecte(e)." & vbCrLf & _
            "A bientot !", vbInformation, "Deconnexion"
 End Sub
 

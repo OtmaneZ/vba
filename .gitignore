@@ -3,6 +3,9 @@
 ~$*.xlsm
 *.tmp
 
+# Scripts Python temporaires et obsolètes
+creer_fichier_final.py
+
 # Environnement Python
 .venv/
 __pycache__/

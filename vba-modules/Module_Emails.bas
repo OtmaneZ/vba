@@ -128,7 +128,7 @@ Private Sub EnvoyerEmailPlanning(emailDest As String, nomGuide As String, visite
     corpsEmail = corpsEmail & "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" & vbCrLf
 
     For Each visite In visites
-        corpsEmail = corpsEmail & "📅 " & visite & vbCrLf
+        corpsEmail = corpsEmail & visite & vbCrLf
     Next visite
 
     corpsEmail = corpsEmail & "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" & vbCrLf & vbCrLf
@@ -275,7 +275,7 @@ Private Sub EnvoyerNotificationVisite(emailDest As String, nomGuide As String, i
     corpsEmail = corpsEmail & "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" & vbCrLf & vbCrLf
 
     If typeNotif = "J-1" Then
-        corpsEmail = corpsEmail & "🔔 N'oubliez pas de preparer votre visite !" & vbCrLf & vbCrLf
+        corpsEmail = corpsEmail & "N'oubliez pas de preparer votre visite !" & vbCrLf & vbCrLf
     End If
 
     corpsEmail = corpsEmail & "Cordialement," & vbCrLf
@@ -286,7 +286,7 @@ Private Sub EnvoyerNotificationVisite(emailDest As String, nomGuide As String, i
     ' Configurer l'email
     With OutlookMail
         .To = emailDest
-        .Subject = "🔔 Rappel Visite " & typeNotif
+        .Subject = "Rappel Visite " & typeNotif
         .Body = corpsEmail
 
         ' Importance haute pour J-1

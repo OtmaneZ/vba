@@ -110,7 +110,7 @@ Private Sub VerifierActionsAutomatiques()
             If MsgBox("Salaires calcules !" & vbCrLf & vbCrLf & _
                       "Generer les contrats maintenant ?", _
                       vbQuestion + vbYesNo, "Generation contrats") = vbYes Then
-                Call GenererContratsEnMasse(Format(Date, "mm/yyyy"))
+                Call GenererContratsEnMasse
             End If
         End If
     End If
