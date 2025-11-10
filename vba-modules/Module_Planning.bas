@@ -71,13 +71,28 @@ Public Sub GenererPlanningAutomatique()
 
         heureVisite = wsVisites.Cells(i, 3).Value & " - " & wsVisites.Cells(i, 4).Value
         musee = wsVisites.Cells(i, 5).Value
+        
+        ' Récupérer le type de visite et la catégorie
+        Dim typeVisite As String
+        Dim categorieVisite As String
+        typeVisite = wsVisites.Cells(i, 6).Value ' Colonne "Type"
+        categorieVisite = wsVisites.Cells(i, 9).Value ' Colonne "Catégorie" (nouvellement ajoutée colonne I)
 
-        ' Chercher un guide disponible
+        ' Chercher un guide disponible ET autorisé pour ce type de visite
         Set guidesDispos = ObtenirGuidesDisponibles(dateVisite)
+        
+        ' Filtrer les guides selon les spécialisations
+        Dim guidesAutorises As New Collection
+        Dim k As Long
+        For k = 1 To guidesDispos.Count
+            If GuideAutoriseVisite(guidesDispos(k), typeVisite) Then
+                guidesAutorises.Add guidesDispos(k)
+            End If
+        Next k
 
-        If guidesDispos.Count > 0 Then
-            ' Selectionner le premier guide disponible (ou algorithme plus complexe)
-            guideAssigne = guidesDispos(1)
+        If guidesAutorises.Count > 0 Then
+            ' Selectionner le premier guide disponible ET autorisé
+            guideAssigne = guidesAutorises(1)
 
             ' Verifier que le guide n'a pas deja une visite ce jour-la
             If Not GuideDejaOccupe(guideAssigne, dateVisite, derLignePlanning - 1) Then
@@ -89,20 +104,20 @@ Public Sub GenererPlanningAutomatique()
                 wsPlanning.Cells(derLignePlanning, 5).Value = guideAssigne
                 wsPlanning.Cells(derLignePlanning, 6).Value = ObtenirNomGuide(guideAssigne)
 
-                ' Colorer en vert
-                wsPlanning.Rows(derLignePlanning).Interior.Color = COULEUR_ASSIGNE
+                ' Appliquer le code couleur selon la catégorie
+                AppliquerCodeCouleurLigne wsPlanning, derLignePlanning, categorieVisite
 
                 derLignePlanning = derLignePlanning + 1
                 compteurAttribue = compteurAttribue + 1
             Else
-                ' Guide deja occupe, chercher le suivant
+                ' Guide deja occupe, chercher le suivant (parmi les autorisés)
                 Dim trouve As Boolean
                 trouve = False
                 Dim j As Integer
 
-                For j = 2 To guidesDispos.Count
-                    If Not GuideDejaOccupe(guidesDispos(j), dateVisite, derLignePlanning - 1) Then
-                        guideAssigne = guidesDispos(j)
+                For j = 2 To guidesAutorises.Count
+                    If Not GuideDejaOccupe(guidesAutorises(j), dateVisite, derLignePlanning - 1) Then
+                        guideAssigne = guidesAutorises(j)
                         trouve = True
                         Exit For
                     End If
@@ -115,30 +130,30 @@ Public Sub GenererPlanningAutomatique()
                     wsPlanning.Cells(derLignePlanning, 4).Value = musee
                     wsPlanning.Cells(derLignePlanning, 5).Value = guideAssigne
                     wsPlanning.Cells(derLignePlanning, 6).Value = ObtenirNomGuide(guideAssigne)
-                    wsPlanning.Rows(derLignePlanning).Interior.Color = COULEUR_ASSIGNE
+                    AppliquerCodeCouleurLigne wsPlanning, derLignePlanning, categorieVisite
                     derLignePlanning = derLignePlanning + 1
                     compteurAttribue = compteurAttribue + 1
                 Else
-                    ' Aucun guide disponible
+                    ' Aucun guide autorisé disponible
                     wsPlanning.Cells(derLignePlanning, 1).Value = idVisite
                     wsPlanning.Cells(derLignePlanning, 2).Value = dateVisite
                     wsPlanning.Cells(derLignePlanning, 3).Value = heureVisite
                     wsPlanning.Cells(derLignePlanning, 4).Value = musee
                     wsPlanning.Cells(derLignePlanning, 5).Value = "NON ATTRIBUE"
-                    wsPlanning.Cells(derLignePlanning, 6).Value = "Aucun guide disponible"
+                    wsPlanning.Cells(derLignePlanning, 6).Value = "Aucun guide autorisé disponible"
                     wsPlanning.Rows(derLignePlanning).Interior.Color = COULEUR_OCCUPE
                     derLignePlanning = derLignePlanning + 1
                     compteurNonAttribue = compteurNonAttribue + 1
                 End If
             End If
         Else
-            ' Aucun guide disponible pour cette date
+            ' Aucun guide autorisé disponible pour cette visite
             wsPlanning.Cells(derLignePlanning, 1).Value = idVisite
             wsPlanning.Cells(derLignePlanning, 2).Value = dateVisite
             wsPlanning.Cells(derLignePlanning, 3).Value = heureVisite
             wsPlanning.Cells(derLignePlanning, 4).Value = musee
             wsPlanning.Cells(derLignePlanning, 5).Value = "NON ATTRIBUE"
-            wsPlanning.Cells(derLignePlanning, 6).Value = "Aucun guide disponible"
+            wsPlanning.Cells(derLignePlanning, 6).Value = "Aucun guide autorisé pour ce type de visite"
 
             ' Colorer en rouge
             wsPlanning.Rows(derLignePlanning).Interior.Color = COULEUR_OCCUPE
