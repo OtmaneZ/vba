@@ -1,9 +1,16 @@
 Attribute VB_Name = "Module_Calculs"
 '===============================================================================
 ' MODULE: Calculs de Paie
-' DESCRIPTION: Calcul automatique des visites et des salaires
+' DESCRIPTION: Calcul automatique des visites et des salaires selon grille tarifaire client
 ' AUTEUR: Systeme de Gestion Planning Guides
 ' DATE: Novembre 2025
+'===============================================================================
+' LOGIQUE DE CALCUL:
+' - Tarifs par JOURNEE selon nombre de visites effectuees le meme jour
+' - 3 types de visites : Standards / Branly / Hors-les-murs
+' - Standards (45min): 1 visite=80€, 2 visites=110€, 3 visites=140€
+' - Branly (evenements): 2h=120€, 3h=150€, 4h=180€
+' - Hors-les-murs (deplacements): 1 visite=100€, 2 visites=130€, 3 visites=160€
 '===============================================================================
 
 Option Explicit
@@ -17,17 +24,19 @@ Public Sub CalculerVisitesEtSalaires()
     Dim wsCalculs As Worksheet
     Dim wsGuides As Worksheet
     Dim wsVisites As Worksheet
-    Dim dictGuides As Object ' Dictionary
+    Dim dictGuides As Object ' Dictionary pour chaque guide
+    Dim dictJours As Object ' Dictionary pour chaque jour
     Dim i As Long
     Dim guideID As String
     Dim guideNom As String
-    Dim nbVisites As Integer
+    Dim nbVisitesTotal As Integer
     Dim montantSalaire As Double
-    Dim tarifHeure As Double
-    Dim dureeVisite As Double
     Dim ligneCalcul As Long
     Dim moisFiltre As String
     Dim dateVisite As Date
+    Dim cleJour As String
+    Dim typeVisite As String
+    Dim dureeHeures As Double
 
     On Error GoTo Erreur
 
@@ -40,21 +49,18 @@ Public Sub CalculerVisitesEtSalaires()
     Set wsVisites = ThisWorkbook.Worksheets(FEUILLE_VISITES)
     Set dictGuides = CreateObject("Scripting.Dictionary")
 
-    ' Obtenir le tarif horaire
-    tarifHeure = ObtenirTarifHeure()
-
-    Application.ScréénUpdating = False
+    Application.ScreenUpdating = False
 
     ' Effacer les anciens calculs (conserver les en-tetes)
     Dim derLigneCalcul As Long
     derLigneCalcul = wsCalculs.Cells(wsCalculs.Rows.Count, 1).End(xlUp).Row
     If derLigneCalcul > 1 Then
-        wsCalculs.Range("A2:D" & derLigneCalcul).ClearContents
+        wsCalculs.Range("A2:E" & derLigneCalcul).ClearContents
     End If
 
-    ' Parcourir le planning et compter les visites par guide
+    ' Parcourir le planning et grouper par guide + jour
     For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
-        guideID = wsPlanning.Cells(i, 5).Value
+        guideID = Trim(wsPlanning.Cells(i, 5).Value)
 
         ' Ignorer si non attribue
         If guideID <> "NON ATTRIBUE" And guideID <> "" Then
@@ -76,24 +82,37 @@ Public Sub CalculerVisitesEtSalaires()
             End If
 
             If inclure And Err.Number = 0 Then
-                ' Calculer la duree de la visite en heures
+                ' Cle unique : Guide + Date
+                cleJour = guideID & "|" & Format(dateVisite, "yyyy-mm-dd")
+                
+                ' Obtenir type et duree de la visite
                 Dim idVisite As String
                 idVisite = wsPlanning.Cells(i, 1).Value
-                dureeVisite = ObtenirDureeVisite(idVisite)
+                typeVisite = IdentifierTypeVisite(idVisite)
+                dureeHeures = ObtenirDureeVisite(idVisite)
 
-                ' Ajouter au dictionnaire
+                ' Creer dictionnaire pour ce guide si n'existe pas
                 If Not dictGuides.exists(guideID) Then
-                    Dim infoGuide As Variant
-                    infoGuide = Array(0, 0) ' (nb_visites, total_heures)
-                    dictGuides.Add guideID, infoGuide
+                    Set dictJours = CreateObject("Scripting.Dictionary")
+                    dictGuides.Add guideID, dictJours
+                Else
+                    Set dictJours = dictGuides(guideID)
                 End If
 
-                ' Incrementer les compteurs
-                Dim temp As Variant
-                temp = dictGuides(guideID)
-                temp(0) = temp(0) + 1 ' Nombre de visites
-                temp(1) = temp(1) + dureeVisite ' Total heures
-                dictGuides(guideID) = temp
+                ' Ajouter ou mettre a jour ce jour
+                If Not dictJours.exists(cleJour) Then
+                    ' Creer nouvelle journee: [date, type, nb_visites, duree_totale]
+                    Dim infoJour As Variant
+                    infoJour = Array(dateVisite, typeVisite, 1, dureeHeures)
+                    dictJours.Add cleJour, infoJour
+                Else
+                    ' Incrementer les compteurs de cette journee
+                    Dim temp As Variant
+                    temp = dictJours(cleJour)
+                    temp(2) = temp(2) + 1 ' Nombre de visites
+                    temp(3) = temp(3) + dureeHeures ' Duree totale
+                    dictJours(cleJour) = temp
+                End If
             End If
 
             Err.Clear
@@ -101,35 +120,55 @@ Public Sub CalculerVisitesEtSalaires()
         End If
     Next i
 
-    ' Remplir la feuille Calculs_Paie
+    ' Calculer les salaires pour chaque guide
     ligneCalcul = 2
-    Dim key As Variant
+    Dim keyGuide As Variant
+    Dim keyJour As Variant
 
-    For Each key In dictGuides.Keys
-        guideID = CStr(key)
+    For Each keyGuide In dictGuides.Keys
+        guideID = CStr(keyGuide)
         guideNom = ObtenirNomCompletGuide(guideID)
+        
+        Set dictJours = dictGuides(guideID)
+        nbVisitesTotal = 0
+        montantSalaire = 0
 
-        Dim stats As Variant
-        stats = dictGuides(guideID)
-        nbVisites = stats(0)
+        ' Calculer le salaire pour chaque jour
+        For Each keyJour In dictJours.Keys
+            Dim infoJour As Variant
+            infoJour = dictJours(keyJour)
+            
+            Dim nbVisitesJour As Integer
+            Dim typeVisiteJour As String
+            Dim dureeJour As Double
+            Dim montantJour As Double
+            
+            typeVisiteJour = infoJour(1)
+            nbVisitesJour = infoJour(2)
+            dureeJour = infoJour(3)
+            
+            ' Calculer le montant pour cette journee
+            montantJour = CalculerTarifJournee(typeVisiteJour, nbVisitesJour, dureeJour)
+            
+            nbVisitesTotal = nbVisitesTotal + nbVisitesJour
+            montantSalaire = montantSalaire + montantJour
+        Next keyJour
 
-        ' Calcul du salaire avec GRILLE DEGRESSIVE
-        montantSalaire = CalculerSalaireDegressif(stats(1), tarifHeure)
-
-        ' Remplir la ligne
+        ' Remplir la ligne dans Calculs_Paie
         wsCalculs.Cells(ligneCalcul, 1).Value = guideID
         wsCalculs.Cells(ligneCalcul, 2).Value = guideNom
-        wsCalculs.Cells(ligneCalcul, 3).Value = nbVisites
-        wsCalculs.Cells(ligneCalcul, 4).Value = montantSalaire
-        wsCalculs.Cells(ligneCalcul, 4).NumberFormat = "#,##0.00 €"
+        wsCalculs.Cells(ligneCalcul, 3).Value = nbVisitesTotal
+        wsCalculs.Cells(ligneCalcul, 4).Value = dictJours.Count ' Nombre de jours travailles
+        wsCalculs.Cells(ligneCalcul, 5).Value = montantSalaire
+        wsCalculs.Cells(ligneCalcul, 5).NumberFormat = "#,##0.00 €"
 
         ' Formater
-        If nbVisites > 0 Then
+        If nbVisitesTotal > 0 Then
             wsCalculs.Rows(ligneCalcul).Interior.Color = COULEUR_DISPONIBLE
         End If
 
         ligneCalcul = ligneCalcul + 1
-    Next key
+    Next keyGuide
 
     ' Ajouter une ligne de total
     If ligneCalcul > 2 Then
@@ -138,16 +177,19 @@ Public Sub CalculerVisitesEtSalaires()
 
         wsCalculs.Cells(ligneCalcul, 3).Formula = "=SUM(C2:C" & ligneCalcul - 1 & ")"
         wsCalculs.Cells(ligneCalcul, 3).Font.Bold = True
-
+        
         wsCalculs.Cells(ligneCalcul, 4).Formula = "=SUM(D2:D" & ligneCalcul - 1 & ")"
-        wsCalculs.Cells(ligneCalcul, 4).NumberFormat = "#,##0.00 €"
         wsCalculs.Cells(ligneCalcul, 4).Font.Bold = True
+
+        wsCalculs.Cells(ligneCalcul, 5).Formula = "=SUM(E2:E" & ligneCalcul - 1 & ")"
+        wsCalculs.Cells(ligneCalcul, 5).NumberFormat = "#,##0.00 €"
+        wsCalculs.Cells(ligneCalcul, 5).Font.Bold = True
 
         wsCalculs.Rows(ligneCalcul).Interior.Color = RGB(255, 242, 204)
     End If
 
     wsCalculs.Columns.AutoFit
-    Application.ScréénUpdating = True
+    Application.ScreenUpdating = True
 
     Dim msgPeriode As String
     If moisFiltre <> "" Then
@@ -157,16 +199,131 @@ Public Sub CalculerVisitesEtSalaires()
     End If
 
     MsgBox "Calculs effectues avec succès" & msgPeriode & " !" & vbCrLf & vbCrLf & _
-           "Nombre de guides : " & dictGuides.Count & vbCrLf & _
-           "Tarif horaire : " & Format(tarifHeure, "#,##0.00 €"), _
+           "Nombre de guides : " & dictGuides.Count, _
            vbInformation, "Calculs Paie"
 
     Exit Sub
 
 Erreur:
-    Application.ScréénUpdating = True
+    Application.ScreenUpdating = True
     MsgBox "Erreur lors des calculs : " & Err.Description, vbCritical
 End Sub
+
+'===============================================================================
+' FONCTION: IdentifierTypeVisite
+' DESCRIPTION: Identifie si c'est une visite Standard, Branly ou Hors-les-murs
+'===============================================================================
+Private Function IdentifierTypeVisite(idVisite As String) As String
+    Dim wsVisites As Worksheet
+    Dim i As Long
+    Dim nomVisite As String
+    
+    Set wsVisites = ThisWorkbook.Worksheets(FEUILLE_VISITES)
+    IdentifierTypeVisite = "STANDARD" ' Par defaut
+    
+    ' Chercher la visite
+    For i = 2 To wsVisites.Cells(wsVisites.Rows.Count, 1).End(xlUp).Row
+        If wsVisites.Cells(i, 1).Value = idVisite Then
+            nomVisite = UCase(Trim(wsVisites.Cells(i, 2).Value))
+            
+            ' Identifier le type
+            If InStr(nomVisite, "BRANLY") > 0 Or _
+               InStr(nomVisite, "EVENEMENT BRANLY") > 0 Then
+                IdentifierTypeVisite = "BRANLY"
+            ElseIf InStr(nomVisite, "HORS-LES-MURS") > 0 Or _
+                   InStr(nomVisite, "HORS LES MURS") > 0 Or _
+                   InStr(nomVisite, "HORSLEMURS") > 0 Or _
+                   InStr(nomVisite, "VISIO") > 0 Then
+                IdentifierTypeVisite = "HORSLEMURS"
+            End If
+            
+            Exit Function
+        End If
+    Next i
+End Function
+
+'===============================================================================
+' FONCTION: CalculerTarifJournee
+' DESCRIPTION: Calcule le tarif pour une journee selon le type et nb de visites
+'===============================================================================
+Private Function CalculerTarifJournee(typeVisite As String, nbVisites As Integer, dureeHeures As Double) As Double
+    Dim wsConfig As Worksheet
+    Set wsConfig = ThisWorkbook.Worksheets("Configuration")
+    
+    ' Valeurs par defaut si parametres non trouves
+    CalculerTarifJournee = 0
+    
+    Select Case UCase(typeVisite)
+        Case "STANDARD"
+            ' Tarifs standards: 80€/110€/140€
+            Select Case nbVisites
+                Case 1
+                    CalculerTarifJournee = LireParametreConfig("TARIF_1_VISITE", 80)
+                Case 2
+                    CalculerTarifJournee = LireParametreConfig("TARIF_2_VISITES", 110)
+                Case Is >= 3
+                    CalculerTarifJournee = LireParametreConfig("TARIF_3_VISITES", 140)
+            End Select
+            
+        Case "BRANLY"
+            ' Tarifs Branly selon duree: 2h=120€, 3h=150€, 4h=180€
+            If dureeHeures <= 2 Then
+                CalculerTarifJournee = LireParametreConfig("TARIF_BRANLY_2H", 120)
+            ElseIf dureeHeures <= 3 Then
+                CalculerTarifJournee = LireParametreConfig("TARIF_BRANLY_3H", 150)
+            Else
+                CalculerTarifJournee = LireParametreConfig("TARIF_BRANLY_4H", 180)
+            End If
+            
+        Case "HORSLEMURS"
+            ' Tarifs hors-les-murs: 100€/130€/160€
+            Select Case nbVisites
+                Case 1
+                    CalculerTarifJournee = LireParametreConfig("TARIF_HORSLEMURS_1", 100)
+                Case 2
+                    CalculerTarifJournee = LireParametreConfig("TARIF_HORSLEMURS_2", 130)
+                Case Is >= 3
+                    CalculerTarifJournee = LireParametreConfig("TARIF_HORSLEMURS_3", 160)
+            End Select
+    End Select
+End Function
+
+'===============================================================================
+' FONCTION: LireParametreConfig
+' DESCRIPTION: Lit un parametre dans la feuille Configuration
+'===============================================================================
+Private Function LireParametreConfig(nomParam As String, valeurDefaut As Double) As Double
+    Dim wsConfig As Worksheet
+    Dim i As Long
+    
+    On Error Resume Next
+    Set wsConfig = ThisWorkbook.Worksheets("Configuration")
+    
+    If wsConfig Is Nothing Then
+        LireParametreConfig = valeurDefaut
+        Exit Function
+    End If
+    
+    ' Chercher le parametre
+    For i = 1 To wsConfig.Cells(wsConfig.Rows.Count, 1).End(xlUp).Row
+        If Trim(UCase(wsConfig.Cells(i, 1).Value)) = UCase(nomParam) Then
+            Dim valeur As Double
+            valeur = wsConfig.Cells(i, 2).Value
+            
+            If valeur > 0 Then
+                LireParametreConfig = valeur
+            Else
+                LireParametreConfig = valeurDefaut
+            End If
+            
+            Exit Function
+        End If
+    Next i
+    
+    ' Si non trouve, retourner valeur par defaut
+    LireParametreConfig = valeurDefaut
+    On Error GoTo 0
+End Function
 
 '===============================================================================
 ' FONCTION: ObtenirDureeVisite
@@ -179,7 +336,7 @@ Private Function ObtenirDureeVisite(idVisite As String) As Double
     Dim heureFin As Date
 
     Set wsVisites = ThisWorkbook.Worksheets(FEUILLE_VISITES)
-    ObtenirDureeVisite = 2 ' Duree par defaut si non trouvee (2 heures)
+    ObtenirDureeVisite = 1 ' Duree par defaut (1 heure)
 
     ' Chercher la visite
     For i = 2 To wsVisites.Cells(wsVisites.Rows.Count, 1).End(xlUp).Row
@@ -188,7 +345,7 @@ Private Function ObtenirDureeVisite(idVisite As String) As Double
             heureDebut = CDate(wsVisites.Cells(i, 3).Value)
             heureFin = CDate(wsVisites.Cells(i, 4).Value)
 
-            If Err.Number = 0 Then
+            If Err.Number = 0 And heureFin > heureDebut Then
                 ' Calculer la difference en heures
                 ObtenirDureeVisite = (heureFin - heureDebut) * 24
             End If
@@ -199,6 +356,7 @@ Private Function ObtenirDureeVisite(idVisite As String) As Double
     Next i
 End Function
 
+
 '===============================================================================
 ' FONCTION: ObtenirNomCompletGuide
 ' DESCRIPTION: Retourne le nom complet d'un guide
@@ -208,15 +366,16 @@ Private Function ObtenirNomCompletGuide(guideID As String) As String
     Dim i As Long
 
     Set wsGuides = ThisWorkbook.Worksheets(FEUILLE_GUIDES)
-    ObtenirNomCompletGuide = ""
+    ObtenirNomCompletGuide = guideID ' Par defaut retourner l'ID
 
     For i = 2 To wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
-        If wsGuides.Cells(i, 1).Value = guideID Then
-            ObtenirNomCompletGuide = wsGuides.Cells(i, 2).Value & " " & wsGuides.Cells(i, 3).Value
+        If Trim(wsGuides.Cells(i, 1).Value) = Trim(guideID) Then
+            ObtenirNomCompletGuide = Trim(wsGuides.Cells(i, 2).Value) & " " & Trim(wsGuides.Cells(i, 3).Value)
             Exit Function
         End If
     Next i
 End Function
+
 
 '===============================================================================
 ' FONCTION: GenererFichePaieGuide
@@ -233,10 +392,13 @@ Public Sub GenererFichePaieGuide()
     Dim ligne As Long
     Dim moisFiltre As String
     Dim dateVisite As Date
-    Dim totalHeures As Double
+    Dim totalVisites As Integer
     Dim totalMontant As Double
-    Dim tarifHeure As Double
     Dim fichier As String
+    Dim dictJours As Object
+    Dim cleJour As String
+    Dim typeVisite As String
+    Dim dureeHeures As Double
 
     On Error GoTo Erreur
 
@@ -246,7 +408,7 @@ Public Sub GenererFichePaieGuide()
 
     ' Verifier que le guide existe
     guideNom = ObtenirNomCompletGuide(guideID)
-    If guideNom = "" Then
+    If guideNom = guideID Then
         MsgBox "Guide non trouve.", vbExclamation
         Exit Sub
     End If
@@ -261,10 +423,48 @@ Public Sub GenererFichePaieGuide()
 
     Set wsPlanning = ThisWorkbook.Worksheets(FEUILLE_PLANNING)
     Set wsVisites = ThisWorkbook.Worksheets(FEUILLE_VISITES)
+    Set dictJours = CreateObject("Scripting.Dictionary")
 
-    tarifHeure = ObtenirTarifHeure()
+    Application.ScreenUpdating = False
 
-    Application.ScréénUpdating = False
+    ' Grouper les visites par jour
+    For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
+        If Trim(wsPlanning.Cells(i, 5).Value) = Trim(guideID) Then
+            On Error Resume Next
+            dateVisite = CDate(wsPlanning.Cells(i, 2).Value)
+
+            If Err.Number = 0 Then
+                If Month(dateVisite) = moisCible And Year(dateVisite) = anneeCible Then
+                    cleJour = Format(dateVisite, "yyyy-mm-dd")
+                    
+                    Dim idVisite As String
+                    idVisite = wsPlanning.Cells(i, 1).Value
+                    typeVisite = IdentifierTypeVisite(idVisite)
+                    dureeHeures = ObtenirDureeVisite(idVisite)
+
+                    If Not dictJours.exists(cleJour) Then
+                        Dim infoJour As Variant
+                        infoJour = Array(dateVisite, typeVisite, 1, dureeHeures)
+                        dictJours.Add cleJour, infoJour
+                    Else
+                        Dim temp As Variant
+                        temp = dictJours(cleJour)
+                        temp(2) = temp(2) + 1
+                        temp(3) = temp(3) + dureeHeures
+                        dictJours(cleJour) = temp
+                    End If
+                End If
+            End If
+            Err.Clear
+            On Error GoTo Erreur
+        End If
+    Next i
+
+    If dictJours.Count = 0 Then
+        MsgBox "Aucune visite trouvee pour ce guide ce mois-ci.", vbInformation
+        Application.ScreenUpdating = True
+        Exit Sub
+    End If
 
     ' Créer un nouveau classeur pour la fiche
     Set wbFiche = Workbooks.Add
@@ -287,71 +487,60 @@ Public Sub GenererFichePaieGuide()
         .Range("A5").Value = "Date d'edition :"
         .Range("B5").Value = Format(Date, "dd/mm/yyyy")
 
-        .Range("A7:E7").Value = Array("Date", "Horaires", "Musee", "Duree (h)", "Montant")
-        .Range("A7:E7").Font.Bold = True
-        .Range("A7:E7").Interior.Color = RGB(68, 114, 196)
-        .Range("A7:E7").Font.Color = RGB(255, 255, 255)
+        .Range("A7:F7").Value = Array("Date", "Type", "Nb visites", "Duree (h)", "Tarif journee", "Montant")
+        .Range("A7:F7").Font.Bold = True
+        .Range("A7:F7").Interior.Color = RGB(68, 114, 196)
+        .Range("A7:F7").Font.Color = RGB(255, 255, 255)
     End With
 
-    ' Lister les visites du guide
+    ' Lister les journees
     ligne = 8
-    totalHeures = 0
+    totalVisites = 0
     totalMontant = 0
+    
+    Dim keyJour As Variant
+    For Each keyJour In dictJours.Keys
+        Dim infoJour As Variant
+        infoJour = dictJours(keyJour)
+        
+        Dim nbVisitesJour As Integer
+        Dim typeJour As String
+        Dim dureeJour As Double
+        Dim montantJour As Double
+        
+        dateVisite = infoJour(0)
+        typeJour = infoJour(1)
+        nbVisitesJour = infoJour(2)
+        dureeJour = infoJour(3)
+        montantJour = CalculerTarifJournee(typeJour, nbVisitesJour, dureeJour)
 
-    For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
-        If wsPlanning.Cells(i, 5).Value = guideID Then
-            On Error Resume Next
-            dateVisite = CDate(wsPlanning.Cells(i, 2).Value)
+        wsFiche.Cells(ligne, 1).Value = Format(dateVisite, "dd/mm/yyyy")
+        wsFiche.Cells(ligne, 2).Value = typeJour
+        wsFiche.Cells(ligne, 3).Value = nbVisitesJour
+        wsFiche.Cells(ligne, 4).Value = dureeJour
+        wsFiche.Cells(ligne, 5).Value = montantJour & " €"
+        wsFiche.Cells(ligne, 6).Value = montantJour
+        wsFiche.Cells(ligne, 6).NumberFormat = "#,##0.00 €"
 
-            If Err.Number = 0 Then
-                If Month(dateVisite) = moisCible And Year(dateVisite) = anneeCible Then
-                    Dim idVisite As String
-                    Dim duree As Double
-                    Dim montant As Double
-
-                    idVisite = wsPlanning.Cells(i, 1).Value
-                    duree = ObtenirDureeVisite(idVisite)
-                    montant = duree * tarifHeure
-
-                    wsFiche.Cells(ligne, 1).Value = Format(dateVisite, "dd/mm/yyyy")
-                    wsFiche.Cells(ligne, 2).Value = wsPlanning.Cells(i, 3).Value
-                    wsFiche.Cells(ligne, 3).Value = wsPlanning.Cells(i, 4).Value
-                    wsFiche.Cells(ligne, 4).Value = duree
-                    wsFiche.Cells(ligne, 5).Value = montant
-                    wsFiche.Cells(ligne, 5).NumberFormat = "#,##0.00 €"
-
-                    totalHeures = totalHeures + duree
-                    totalMontant = totalMontant + montant
-                    ligne = ligne + 1
-                End If
-            End If
-            Err.Clear
-            On Error GoTo Erreur
-        End If
-    Next i
+        totalVisites = totalVisites + nbVisitesJour
+        totalMontant = totalMontant + montantJour
+        ligne = ligne + 1
+    Next keyJour
 
     ' Totaux
-    If ligne > 8 Then
-        wsFiche.Cells(ligne, 3).Value = "TOTAL"
-        wsFiche.Cells(ligne, 3).Font.Bold = True
-        wsFiche.Cells(ligne, 4).Value = totalHeures
-        wsFiche.Cells(ligne, 4).Font.Bold = True
-        wsFiche.Cells(ligne, 5).Value = totalMontant
-        wsFiche.Cells(ligne, 5).NumberFormat = "#,##0.00 €"
-        wsFiche.Cells(ligne, 5).Font.Bold = True
-        wsFiche.Range("A" & ligne & ":E" & ligne).Interior.Color = RGB(255, 242, 204)
+    wsFiche.Cells(ligne, 2).Value = "TOTAL"
+    wsFiche.Cells(ligne, 2).Font.Bold = True
+    wsFiche.Cells(ligne, 3).Value = totalVisites
+    wsFiche.Cells(ligne, 3).Font.Bold = True
+    wsFiche.Cells(ligne, 6).Value = totalMontant
+    wsFiche.Cells(ligne, 6).NumberFormat = "#,##0.00 €"
+    wsFiche.Cells(ligne, 6).Font.Bold = True
+    wsFiche.Range("A" & ligne & ":F" & ligne).Interior.Color = RGB(255, 242, 204)
 
-        ' Informations supplementaires
-        ligne = ligne + 2
-        wsFiche.Cells(ligne, 1).Value = "Tarif horaire :"
-        wsFiche.Cells(ligne, 2).Value = tarifHeure & " €/h"
-
-        ligne = ligne + 1
-        wsFiche.Cells(ligne, 1).Value = "Nombre de visites :"
-        wsFiche.Cells(ligne, 2).Value = ligne - 9
-    Else
-        wsFiche.Cells(8, 1).Value = "Aucune visite ce mois-ci"
-    End If
+    ' Informations supplementaires
+    ligne = ligne + 2
+    wsFiche.Cells(ligne, 1).Value = "Nombre de jours travailles :"
+    wsFiche.Cells(ligne, 2).Value = dictJours.Count
 
     wsFiche.Columns.AutoFit
 
@@ -364,15 +553,16 @@ Public Sub GenererFichePaieGuide()
     End If
 
     wbFiche.Close SaveChanges:=False
-    Application.ScréénUpdating = True
+    Application.ScreenUpdating = True
 
     Exit Sub
 
 Erreur:
-    Application.ScréénUpdating = True
+    Application.ScreenUpdating = True
     If Not wbFiche Is Nothing Then wbFiche.Close SaveChanges:=False
     MsgBox "Erreur lors de la generation de la fiche : " & Err.Description, vbCritical
 End Sub
+
 
 '===============================================================================
 ' FONCTION: ExporterRecapitulatifPaie
@@ -390,7 +580,7 @@ Public Sub ExporterRecapitulatifPaie()
 
     Set wsCalculs = ThisWorkbook.Worksheets(FEUILLE_CALCULS)
 
-    Application.ScréénUpdating = False
+    Application.ScreenUpdating = False
 
     ' Créer un nouveau classeur
     Set wbExport = Workbooks.Add
@@ -412,179 +602,14 @@ Public Sub ExporterRecapitulatifPaie()
     End If
 
     wbExport.Close SaveChanges:=False
-    Application.ScréénUpdating = True
+    Application.ScreenUpdating = True
 
     Exit Sub
 
 Erreur:
-    Application.ScréénUpdating = True
+    Application.ScreenUpdating = True
     If Not wbExport Is Nothing Then wbExport.Close SaveChanges:=False
     MsgBox "Erreur lors de l'export : " & Err.Description, vbCritical
 End Sub
 
-'===============================================================================
-' FONCTION: CalculerSalaireDegressif
-' DESCRIPTION: Calcule le salaire avec une grille tarifaire degressive
-' NOTE: GRILLE DE TEST - A ADAPTER SELON LES BESOINS DU CLIENT
-'===============================================================================
-Private Function CalculerSalaireDegressif(totalHeures As Double, tarifBase As Double) As Double
-    '===========================================================================
-    ' GRILLE TARIFAIRE DEGRESSIVE DE TEST
-    '===========================================================================
-    ' Cette grille est un EXEMPLE pour les tests.
-    ' Elle sera modifiee avec les vrais tarifs du client apres le call de mardi.
-    '
-    ' PRINCIPE : Plus un guide travaille d'heures dans le mois,
-    '            plus son tarif horaire diminue (degressivite)
-    '
-    ' GRILLE ACTUELLE (EXEMPLE) :
-    ' ┌──────────────────┬─────────────┬──────────────────────┐
-    ' │ Tranche d'heures │ Tarif/heure │ Exemple              │
-    ' ├──────────────────┼─────────────┼──────────────────────┤
-    ' │ 0 - 10h          │ 100% (30€)  │ 8h × 30€ = 240€      │
-    ' │ 10 - 20h         │ 90% (27€)   │ 15h -> 10×30 + 5×27   │
-    ' │ 20 - 40h         │ 80% (24€)   │ 25h -> 10×30 + 10×27  │
-    ' │ 40h+             │ 70% (21€)   │ + reste × 24€        │
-    ' └──────────────────┴─────────────┴──────────────────────┘
-    '
-    ' AVANTAGE : Encourage la disponibilite tout en controlant les couts
-    '===========================================================================
-
-    Dim montantTotal As Double
-    Dim heuresRestantes As Double
-    Dim tarifActuel As Double
-
-    montantTotal = 0
-    heuresRestantes = totalHeures
-
-    ' TRANCHE 1 : Premieres 10 heures a 100% du tarif
-    If heuresRestantes > 0 Then
-        If heuresRestantes <= 10 Then
-            montantTotal = heuresRestantes * tarifBase
-            heuresRestantes = 0
-        Else
-            montantTotal = 10 * tarifBase
-            heuresRestantes = heuresRestantes - 10
-        End If
-    End If
-
-    ' TRANCHE 2 : Heures 11 a 20 a 90% du tarif
-    If heuresRestantes > 0 Then
-        tarifActuel = tarifBase * 0.9
-        If heuresRestantes <= 10 Then
-            montantTotal = montantTotal + (heuresRestantes * tarifActuel)
-            heuresRestantes = 0
-        Else
-            montantTotal = montantTotal + (10 * tarifActuel)
-            heuresRestantes = heuresRestantes - 10
-        End If
-    End If
-
-    ' TRANCHE 3 : Heures 21 a 40 a 80% du tarif
-    If heuresRestantes > 0 Then
-        tarifActuel = tarifBase * 0.8
-        If heuresRestantes <= 20 Then
-            montantTotal = montantTotal + (heuresRestantes * tarifActuel)
-            heuresRestantes = 0
-        Else
-            montantTotal = montantTotal + (20 * tarifActuel)
-            heuresRestantes = heuresRestantes - 20
-        End If
-    End If
-
-    ' TRANCHE 4 : Heures 41+ a 70% du tarif
-    If heuresRestantes > 0 Then
-        tarifActuel = tarifBase * 0.7
-        montantTotal = montantTotal + (heuresRestantes * tarifActuel)
-    End If
-
-    CalculerSalaireDegressif = montantTotal
-
-    '===========================================================================
-    ' NOTES POUR LE DEVELOPPEUR :
-    '===========================================================================
-    ' Pour modifier cette grille apres le call client :
-    '
-    ' 1. GRILLE PAR TRANCHES (comme ci-dessus) :
-    '    - Modifier les seuils (10, 20, 40)
-    '    - Modifier les pourcentages (1.0, 0.9, 0.8, 0.7)
-    '
-    ' 2. GRILLE PAR FORFAIT :
-    '    If totalHeures <= 2 Then
-    '        CalculerSalaireDegressif = 50  ' Forfait visite courte
-    '    ElseIf totalHeures <= 4 Then
-    '        CalculerSalaireDegressif = 90  ' Forfait demi-journee
-    '    ElseIf totalHeures <= 8 Then
-    '        CalculerSalaireDegressif = 150 ' Forfait journee
-    '    Else
-    '        CalculerSalaireDegressif = 150 + ((totalHeures - 8) * 20)
-    '    End If
-    '
-    ' 3. GRILLE AVEC PALIERS ET BONUS :
-    '    Dim montantBase As Double
-    '    montantBase = totalHeures * tarifBase
-    '    If totalHeures > 40 Then
-    '        ' Bonus de 10% si plus de 40h dans le mois
-    '        CalculerSalaireDegressif = montantBase * 1.1
-    '    ElseIf totalHeures > 20 Then
-    '        ' Bonus de 5% si plus de 20h
-    '        CalculerSalaireDegressif = montantBase * 1.05
-    '    Else
-    '        CalculerSalaireDegressif = montantBase
-    '    End If
-    '===========================================================================
-End Function
-
-'===============================================================================
-' FONCTION: AfficherExempleGrilleTarifaire
-' DESCRIPTION: Affiche un exemple de calcul pour comprendre la grille
-'===============================================================================
-Public Sub AfficherExempleGrilleTarifaire()
-    Dim tarifBase As Double
-    Dim exemples() As Variant
-    Dim i As Integer
-    Dim message As String
-
-    tarifBase = 30 ' Tarif de base pour l'exemple (30€/h)
-
-    ' Exemples de calculs
-    exemples = Array(5, 8, 15, 25, 35, 50)
-
-    message = "GRILLE TARIFAIRE DEGRESSIVE - EXEMPLES" & vbCrLf & _
-              "Tarif de base : " & Format(tarifBase, "#,##0.00 €") & "/heure" & vbCrLf & vbCrLf & _
-              "┌────────────┬──────────────┬──────────────────────────────┐" & vbCrLf & _
-              "│ Heures     │ Montant      │ Detail du calcul             │" & vbCrLf & _
-              "├────────────┼──────────────┼──────────────────────────────┤" & vbCrLf
-
-    For i = LBound(exemples) To UBound(exemples)
-        Dim heures As Double
-        Dim montant As Double
-        Dim detail As String
-
-        heures = exemples(i)
-        montant = CalculerSalaireDegressif(heures, tarifBase)
-
-        ' Generer le detail
-        If heures <= 10 Then
-            detail = Format(heures, "0") & "h × " & Format(tarifBase, "0") & "€"
-        ElseIf heures <= 20 Then
-            detail = "10h×" & Format(tarifBase, "0") & "€ + " & Format(heures - 10, "0") & "h×" & Format(tarifBase * 0.9, "0") & "€"
-        ElseIf heures <= 40 Then
-            detail = "10h×" & Format(tarifBase, "0") & "€ + 10h×" & Format(tarifBase * 0.9, "0") & "€ + " & Format(heures - 20, "0") & "h×" & Format(tarifBase * 0.8, "0") & "€"
-        Else
-            detail = "Tranches 1-3 + " & Format(heures - 40, "0") & "h×" & Format(tarifBase * 0.7, "0") & "€"
-        End If
-
-        message = message & _
-                  "│ " & Format(heures, "0") & "h" & String(9 - Len(Format(heures, "0")), " ") & _
-                  "│ " & Format(montant, "#,##0.00 €") & String(11 - Len(Format(montant, "#,##0.00 €")), " ") & _
-                  "│ " & detail & String(28 - Len(detail), " ") & "│" & vbCrLf
-    Next i
-
-    message = message & _
-              "└────────────┴──────────────┴──────────────────────────────┘" & vbCrLf & vbCrLf & _
-              "[!] GRILLE DE TEST - A adapter selon les besoins du client"
-
-    MsgBox message, vbInformation, "Grille Tarifaire Degressive"
-End Sub
 
