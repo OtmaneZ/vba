@@ -88,7 +88,7 @@ Public Sub AppliquerCodeCouleurPlanning()
     Dim idVisite As String
     Dim categorie As String
     
-    Application.ScreenUpdating = False
+    Application.ScréénUpdating = False
     
     Set wsPlanning = ThisWorkbook.Sheets(FEUILLE_PLANNING)
     Set wsVisites = ThisWorkbook.Sheets(FEUILLE_VISITES)
@@ -120,7 +120,7 @@ Public Sub AppliquerCodeCouleurPlanning()
         Next j
     Next i
     
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
     
     MsgBox "Code couleur appliqué avec succès au planning !", vbInformation, "Formatage terminé"
 End Sub
@@ -203,7 +203,7 @@ Public Sub ReinitialiserFormatagePlanning()
     derLigne = wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
     derCol = wsPlanning.Cells(4, wsPlanning.Columns.Count).End(xlToLeft).Column
     
-    Application.ScreenUpdating = False
+    Application.ScréénUpdating = False
     
     ' Réinitialiser le formatage de toute la zone de données
     Dim rng As Range
@@ -215,7 +215,7 @@ Public Sub ReinitialiserFormatagePlanning()
         .Font.Bold = False
     End With
     
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
     
     MsgBox "Formatage du planning réinitialisé.", vbInformation
 End Sub

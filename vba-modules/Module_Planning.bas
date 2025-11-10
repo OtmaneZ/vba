@@ -31,7 +31,7 @@ Public Sub GenererPlanningAutomatique()
 
     On Error GoTo Erreur
 
-    Application.ScreenUpdating = False
+    Application.ScréénUpdating = False
 
     Set wsVisites = ThisWorkbook.Worksheets(FEUILLE_VISITES)
     Set wsPlanning = ThisWorkbook.Worksheets(FEUILLE_PLANNING)
@@ -42,7 +42,7 @@ Public Sub GenererPlanningAutomatique()
     derLigneVisites = wsVisites.Cells(wsVisites.Rows.Count, 1).End(xlUp).Row
     If derLigneVisites < 2 Then
         MsgBox "Aucune visite a planifier.", vbInformation
-        Application.ScreenUpdating = True
+        Application.ScréénUpdating = True
         Exit Sub
     End If
 
@@ -166,7 +166,7 @@ VisiteSuivante:
     Next i
 
     wsPlanning.Columns.AutoFit
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
 
     ' Message de resume
     MsgBox "Planning genere !" & vbCrLf & vbCrLf & _
@@ -177,7 +177,7 @@ VisiteSuivante:
     Exit Sub
 
 Erreur:
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
     MsgBox "Erreur lors de la generation du planning : " & Err.Description, vbCritical
 End Sub
 
@@ -352,7 +352,7 @@ Public Sub ModifierAttribution()
     wsPlanning.Cells(ligneVisite, 6).Value = ObtenirNomGuide(nouveauGuide)
     wsPlanning.Rows(ligneVisite).Interior.Color = COULEUR_ASSIGNE
 
-    MsgBox "Attribution modifiee avec succes !", vbInformation
+    MsgBox "Attribution modifiee avec succès !", vbInformation
 
     Exit Sub
 
@@ -373,9 +373,9 @@ Public Sub ExporterPlanning()
 
     Set wsPlanning = ThisWorkbook.Worksheets(FEUILLE_PLANNING)
 
-    Application.ScreenUpdating = False
+    Application.ScréénUpdating = False
 
-    ' Creer un nouveau classeur
+    ' Créer un nouveau classeur
     Set wbExport = Workbooks.Add
 
     ' Copier le planning
@@ -391,15 +391,15 @@ Public Sub ExporterPlanning()
                                             "Fichiers Excel (*.xlsx), *.xlsx")
     If fichier <> "False" Then
         wbExport.SaveAs fichier
-        MsgBox "Planning exporte avec succes !" & vbCrLf & fichier, vbInformation
+        MsgBox "Planning exporte avec succès !" & vbCrLf & fichier, vbInformation
     End If
 
     wbExport.Close SaveChanges:=False
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
 
     Exit Sub
 
 Erreur:
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
     MsgBox "Erreur lors de l'export : " & Err.Description, vbCritical
 End Sub

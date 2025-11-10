@@ -38,10 +38,10 @@ Public Const COULEUR_ASSIGNE As Long = 16777164       ' Bleu clair
 Public Sub InitialiserApplication()
     On Error GoTo Erreur
 
-    Application.ScreenUpdating = False
+    Application.ScréénUpdating = False
 
-    ' Verifier/Creer les feuilles necessaires
-    Call CreerFeuillesSiNonExistantes
+    ' Verifier/Créer les feuilles necessaires
+    Call CréerFeuillesSiNonExistantes
 
     ' Configurer les plages nommees
     Call ConfigurerPlagesNommees
@@ -50,22 +50,22 @@ Public Sub InitialiserApplication()
     Call MasquerFeuillesSensibles
 
     ' Message de confirmation
-    MsgBox "Application initialisee avec succes !" & vbCrLf & _
+    MsgBox "Application initialisee avec succès !" & vbCrLf & _
            "Toutes les feuilles sont pretes.", vbInformation, "Initialisation"
 
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
     Exit Sub
 
 Erreur:
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
     MsgBox "Erreur lors de l'initialisation : " & Err.Description, vbCritical
 End Sub
 
 '===============================================================================
-' FONCTION: CreerFeuillesSiNonExistantes
+' FONCTION: CréerFeuillesSiNonExistantes
 ' DESCRIPTION: Cree les feuilles manquantes
 '===============================================================================
-Private Sub CreerFeuillesSiNonExistantes()
+Private Sub CréerFeuillesSiNonExistantes()
     Dim feuilles() As String
     Dim i As Integer
     Dim ws As Worksheet
@@ -77,7 +77,7 @@ Private Sub CreerFeuillesSiNonExistantes()
                      FEUILLE_CALCULS & "," & FEUILLE_CONTRATS & "," & _
                      FEUILLE_CONFIG, ",")
 
-    ' Creer chaque feuille si elle n'existe pas
+    ' Créer chaque feuille si elle n'existe pas
     For i = LBound(feuilles) To UBound(feuilles)
         existe = False
 
@@ -89,7 +89,7 @@ Private Sub CreerFeuillesSiNonExistantes()
             End If
         Next ws
 
-        ' Creer si elle n'existe pas
+        ' Créer si elle n'existe pas
         If Not existe Then
             Set ws = ThisWorkbook.Worksheets.Add(After:=ThisWorkbook.Worksheets(ThisWorkbook.Worksheets.Count))
             ws.Name = feuilles(i)
@@ -162,7 +162,7 @@ Private Sub ConfigurerPlagesNommees()
     ThisWorkbook.Names("Liste_Guides").Delete
     ThisWorkbook.Names("Liste_Visites").Delete
 
-    ' Creer les nouvelles plages (a adapter selon les donnees)
+    ' Créer les nouvelles plages (a adapter selon les donnees)
     With ThisWorkbook.Worksheets(FEUILLE_GUIDES)
         If .Range("A2").Value <> "" Then
             ThisWorkbook.Names.Add Name:="Liste_Guides", _

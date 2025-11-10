@@ -32,8 +32,8 @@ End Sub
 Private Sub Worksheet_Activate()
     On Error Resume Next
 
-    If utilisateurConnecte <> "" Then
-        Me.Range("B25").Value = ">>> Connecte en tant que : " & utilisateurConnecte & " (" & niveauAcces & ")"
+    If utilisateurConnecté <> "" Then
+        Me.Range("B25").Value = ">>> Connecté en tant que : " & utilisateurConnecté & " (" & niveauAccès & ")"
         Me.Range("B25").Font.Bold = True
         Me.Range("B25").Font.Color = RGB(0, 128, 0)
     Else

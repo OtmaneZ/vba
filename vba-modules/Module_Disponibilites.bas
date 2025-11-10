@@ -58,7 +58,7 @@ Public Sub SaisirDisponibilites()
     Set ws = ThisWorkbook.Worksheets(FEUILLE_DISPONIBILITES)
 
     ' Proteger les donnees des autres guides
-    Application.ScreenUpdating = False
+    Application.ScréénUpdating = False
 
     ' Supprimer les anciennes disponibilites du guide pour cette periode
     Call SupprimerAnciennesDisponibilites(guideID, dateDebut, dateFin)
@@ -66,15 +66,15 @@ Public Sub SaisirDisponibilites()
     ' Afficher le formulaire de saisie jour par jour
     Call AfficherFormulaireDispo(guideID, guideNom, dateDebut, dateFin)
 
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
 
-    MsgBox "Vos disponibilites ont ete enregistrees avec succes !" & vbCrLf & _
+    MsgBox "Vos disponibilites ont ete enregistrees avec succès !" & vbCrLf & _
            "Elles restent confidentielles.", vbInformation, "Confirmation"
 
     Exit Sub
 
 Erreur:
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
     MsgBox "Erreur lors de la saisie : " & Err.Description, vbCritical
 End Sub
 
@@ -212,7 +212,7 @@ Public Sub ImporterDisponibilitesMasse()
     fichier = Application.GetOpenFilename("Fichiers Excel (*.xlsx; *.xls), *.xlsx; *.xls", , "Selectionner le fichier des disponibilites")
     If fichier = "False" Then Exit Sub
 
-    Application.ScreenUpdating = False
+    Application.ScréénUpdating = False
 
     ' Ouvrir le fichier source
     Set wbSource = Workbooks.Open(fichier)
@@ -231,14 +231,14 @@ Public Sub ImporterDisponibilitesMasse()
     ' Fermer le fichier source
     wbSource.Close SaveChanges:=False
 
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
     Application.CutCopyMode = False
 
     MsgBox "Import reussi !", vbInformation
     Exit Sub
 
 Erreur:
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
     If Not wbSource Is Nothing Then wbSource.Close SaveChanges:=False
     MsgBox "Erreur lors de l'import : " & Err.Description, vbCritical
 End Sub
@@ -296,9 +296,9 @@ Public Sub ExporterMesDisponibilites()
         Exit Sub
     End If
 
-    Application.ScreenUpdating = False
+    Application.ScréénUpdating = False
 
-    ' Creer un nouveau classeur
+    ' Créer un nouveau classeur
     Dim wbExport As Workbook
     Set wbExport = Workbooks.Add
     Set wsExport = wbExport.Worksheets(1)
@@ -331,11 +331,11 @@ Public Sub ExporterMesDisponibilites()
     End If
 
     wbExport.Close SaveChanges:=False
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
 
     Exit Sub
 
 Erreur:
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
     MsgBox "Erreur lors de l'export : " & Err.Description, vbCritical
 End Sub

@@ -43,7 +43,7 @@ Public Sub CalculerVisitesEtSalaires()
     ' Obtenir le tarif horaire
     tarifHeure = ObtenirTarifHeure()
 
-    Application.ScreenUpdating = False
+    Application.ScréénUpdating = False
 
     ' Effacer les anciens calculs (conserver les en-tetes)
     Dim derLigneCalcul As Long
@@ -147,7 +147,7 @@ Public Sub CalculerVisitesEtSalaires()
     End If
 
     wsCalculs.Columns.AutoFit
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
 
     Dim msgPeriode As String
     If moisFiltre <> "" Then
@@ -156,7 +156,7 @@ Public Sub CalculerVisitesEtSalaires()
         msgPeriode = " (toutes periodes)"
     End If
 
-    MsgBox "Calculs effectues avec succes" & msgPeriode & " !" & vbCrLf & vbCrLf & _
+    MsgBox "Calculs effectues avec succès" & msgPeriode & " !" & vbCrLf & vbCrLf & _
            "Nombre de guides : " & dictGuides.Count & vbCrLf & _
            "Tarif horaire : " & Format(tarifHeure, "#,##0.00 €"), _
            vbInformation, "Calculs Paie"
@@ -164,7 +164,7 @@ Public Sub CalculerVisitesEtSalaires()
     Exit Sub
 
 Erreur:
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
     MsgBox "Erreur lors des calculs : " & Err.Description, vbCritical
 End Sub
 
@@ -264,9 +264,9 @@ Public Sub GenererFichePaieGuide()
 
     tarifHeure = ObtenirTarifHeure()
 
-    Application.ScreenUpdating = False
+    Application.ScréénUpdating = False
 
-    ' Creer un nouveau classeur pour la fiche
+    ' Créer un nouveau classeur pour la fiche
     Set wbFiche = Workbooks.Add
     Set wsFiche = wbFiche.Worksheets(1)
     wsFiche.Name = "Fiche_Paie"
@@ -360,16 +360,16 @@ Public Sub GenererFichePaieGuide()
                                             "Fichiers Excel (*.xlsx), *.xlsx")
     If fichier <> "False" Then
         wbFiche.SaveAs fichier
-        MsgBox "Fiche de paie generee avec succes !" & vbCrLf & fichier, vbInformation
+        MsgBox "Fiche de paie generee avec succès !" & vbCrLf & fichier, vbInformation
     End If
 
     wbFiche.Close SaveChanges:=False
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
 
     Exit Sub
 
 Erreur:
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
     If Not wbFiche Is Nothing Then wbFiche.Close SaveChanges:=False
     MsgBox "Erreur lors de la generation de la fiche : " & Err.Description, vbCritical
 End Sub
@@ -390,9 +390,9 @@ Public Sub ExporterRecapitulatifPaie()
 
     Set wsCalculs = ThisWorkbook.Worksheets(FEUILLE_CALCULS)
 
-    Application.ScreenUpdating = False
+    Application.ScréénUpdating = False
 
-    ' Creer un nouveau classeur
+    ' Créer un nouveau classeur
     Set wbExport = Workbooks.Add
 
     ' Copier les calculs
@@ -408,16 +408,16 @@ Public Sub ExporterRecapitulatifPaie()
                                             "Fichiers Excel (*.xlsx), *.xlsx")
     If fichier <> "False" Then
         wbExport.SaveAs fichier
-        MsgBox "Recapitulatif exporte avec succes !" & vbCrLf & fichier, vbInformation
+        MsgBox "Recapitulatif exporte avec succès !" & vbCrLf & fichier, vbInformation
     End If
 
     wbExport.Close SaveChanges:=False
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
 
     Exit Sub
 
 Erreur:
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
     If Not wbExport Is Nothing Then wbExport.Close SaveChanges:=False
     MsgBox "Erreur lors de l'export : " & Err.Description, vbCritical
 End Sub

@@ -67,7 +67,7 @@ Public Sub GenererContratGuide()
     Set wsPlanning = ThisWorkbook.Worksheets(FEUILLE_PLANNING)
     Set wsContrats = ThisWorkbook.Worksheets(FEUILLE_CONTRATS)
 
-    Application.ScreenUpdating = False
+    Application.ScréénUpdating = False
 
     ' Collecter les visites du guide pour ce mois
     listeVisites = ""
@@ -106,11 +106,11 @@ Public Sub GenererContratGuide()
 
     If compteurVisites = 0 Then
         MsgBox "Aucune visite trouvee pour ce guide ce mois-ci.", vbInformation
-        Application.ScreenUpdating = True
+        Application.ScréénUpdating = True
         Exit Sub
     End If
 
-    ' Creer le document de contrat
+    ' Créer le document de contrat
     Set wbContrat = Workbooks.Add
     Set wsContrat = wbContrat.Worksheets(1)
     wsContrat.Name = "Contrat"
@@ -131,7 +131,7 @@ Public Sub GenererContratGuide()
 
     If fichier <> "False" Then
         wbContrat.SaveAs fichier
-        MsgBox "Contrat genere avec succes !" & vbCrLf & vbCrLf & _
+        MsgBox "Contrat genere avec succès !" & vbCrLf & vbCrLf & _
                "Guide : " & guideNom & vbCrLf & _
                "Periode : " & Format(DateSerial(anneeCible, moisCible, 1), "mmmm yyyy") & vbCrLf & _
                "Nombre de visites : " & compteurVisites & vbCrLf & _
@@ -140,12 +140,12 @@ Public Sub GenererContratGuide()
     End If
 
     wbContrat.Close SaveChanges:=False
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
 
     Exit Sub
 
 Erreur:
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
     If Not wbContrat Is Nothing Then wbContrat.Close SaveChanges:=False
     MsgBox "Erreur lors de la generation du contrat : " & Err.Description, vbCritical
 End Sub
@@ -357,7 +357,7 @@ Public Sub GenererContratsEnMasse()
     Set wsGuides = ThisWorkbook.Worksheets(FEUILLE_GUIDES)
     Set dictGuides = CreateObject("Scripting.Dictionary")
 
-    Application.ScreenUpdating = False
+    Application.ScréénUpdating = False
     Application.DisplayAlerts = False
 
     ' Identifier tous les guides ayant des visites ce mois
@@ -393,7 +393,7 @@ Public Sub GenererContratsEnMasse()
     Next key
 
     Application.DisplayAlerts = True
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
 
     MsgBox "Generation terminee !" & vbCrLf & vbCrLf & _
            "Nombre de contrats generes : " & compteur & vbCrLf & _
@@ -403,7 +403,7 @@ Public Sub GenererContratsEnMasse()
 
 Erreur:
     Application.DisplayAlerts = True
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
     MsgBox "Erreur lors de la generation en masse : " & Err.Description, vbCritical
 End Sub
 

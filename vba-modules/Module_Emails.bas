@@ -45,7 +45,7 @@ Public Sub EnvoyerPlanningMensuel()
     Set wsGuides = ThisWorkbook.Worksheets(FEUILLE_GUIDES)
     Set dictGuides = CreateObject("Scripting.Dictionary")
 
-    Application.ScreenUpdating = False
+    Application.ScréénUpdating = False
 
     ' Regrouper les visites par guide
     For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
@@ -92,13 +92,13 @@ Public Sub EnvoyerPlanningMensuel()
         End If
     Next key
 
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
 
     MsgBox "Plannings envoyes a " & compteur & " guide(s) !", vbInformation
     Exit Sub
 
 Erreur:
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
     MsgBox "Erreur lors de l'envoi : " & Err.Description, vbCritical
 End Sub
 
@@ -115,7 +115,7 @@ Private Sub EnvoyerEmailPlanning(emailDest As String, nomGuide As String, visite
 
     On Error GoTo Erreur
 
-    ' Creer l'objet Outlook
+    ' Créer l'objet Outlook
     Set OutlookApp = CreateObject("Outlook.Application")
     Set OutlookMail = OutlookApp.CreateItem(0) ' 0 = olMailItem
 
@@ -181,7 +181,7 @@ Public Sub EnvoyerNotificationsAutomatiques()
     compteurJ7 = 0
     compteurJ1 = 0
 
-    Application.ScreenUpdating = False
+    Application.ScréénUpdating = False
 
     ' Parcourir toutes les visites planifiees
     For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
@@ -230,7 +230,7 @@ Public Sub EnvoyerNotificationsAutomatiques()
         End If
     Next i
 
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
 
     MsgBox "Notifications envoyees :" & vbCrLf & _
            "- J-7 : " & compteurJ7 & " notification(s)" & vbCrLf & _
@@ -239,7 +239,7 @@ Public Sub EnvoyerNotificationsAutomatiques()
     Exit Sub
 
 Erreur:
-    Application.ScreenUpdating = True
+    Application.ScréénUpdating = True
     MsgBox "Erreur lors de l'envoi des notifications : " & Err.Description, vbCritical
 End Sub
 
@@ -255,7 +255,7 @@ Private Sub EnvoyerNotificationVisite(emailDest As String, nomGuide As String, i
 
     On Error GoTo Erreur
 
-    ' Creer l'objet Outlook
+    ' Créer l'objet Outlook
     Set OutlookApp = CreateObject("Outlook.Application")
     Set OutlookMail = OutlookApp.CreateItem(0)
 
@@ -360,7 +360,7 @@ Public Sub TestEnvoiEmail()
     emailTest = InputBox("Entrez votre email pour le test:", "Test envoi email")
     If emailTest = "" Then Exit Sub
 
-    ' Creer l'objet Outlook
+    ' Créer l'objet Outlook
     Set OutlookApp = CreateObject("Outlook.Application")
     Set OutlookMail = OutlookApp.CreateItem(0)
 

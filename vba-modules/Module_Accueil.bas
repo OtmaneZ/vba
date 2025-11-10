@@ -7,9 +7,9 @@ Attribute VB_Name = "Module_Accueil"
 Option Explicit
 
 ' ============================================
-' Creer la feuille d'accueil
+' Créer la feuille d'accueil
 ' ============================================
-Sub CreerFeuilleAccueil()
+Sub CréerFeuilleAccueil()
     Dim wsAccueil As Worksheet
     Dim ligneActuelle As Long
 
@@ -20,7 +20,7 @@ Sub CreerFeuilleAccueil()
     Application.DisplayAlerts = True
     On Error GoTo 0
 
-    ' Creer la nouvelle feuille d'accueil
+    ' Créer la nouvelle feuille d'accueil
     Set wsAccueil = ThisWorkbook.Worksheets.Add(Before:=ThisWorkbook.Worksheets(1))
     wsAccueil.Name = "Accueil"
 
@@ -32,8 +32,8 @@ Sub CreerFeuilleAccueil()
 
         ' Largeur des colonnes
         .Columns("A:A").ColumnWidth = 5
-        .Columns("B:E").ColumnWidth = 15
-        .Columns("F:F").ColumnWidth = 5
+        .Columns("B:E").ColumnWidth = 25
+        .Columns("F:Z").ColumnWidth = 15
 
         ' ===== TITRE =====
         ligneActuelle = 3
@@ -131,7 +131,7 @@ Sub CreerFeuilleAccueil()
 
         ligneActuelle = ligneActuelle + 1
         .Range("B" & ligneActuelle & ":E" & ligneActuelle).Merge
-        .Range("B" & ligneActuelle).Value = "Acces complet au systeme"
+        .Range("B" & ligneActuelle).Value = "Accès complet au systeme"
         With .Range("B" & ligneActuelle)
             .Font.Size = 11
             .Font.Italic = True
@@ -194,7 +194,7 @@ Sub CreerFeuilleAccueil()
         .Range("B3").Select
     End With
 
-    MsgBox "[OK] Feuille d'accueil creee avec succes !" & vbCrLf & vbCrLf & _
+    MsgBox "[OK] Feuille d'accueil créée avec succès !" & vbCrLf & vbCrLf & _
            "Les utilisateurs peuvent cliquer sur les blocs pour se connecter.", _
            vbInformation, "Accueil configure"
 End Sub
@@ -215,14 +215,14 @@ Public Sub GererClicAccueil(Target As Range, ws As Worksheet)
     ' Verifier si le clic est sur le bloc Guide
     If Target.Row = ligneGuide And Target.Column >= 2 And Target.Column <= 5 Then
         ' Lancer la connexion Guide
-        Call Module_Authentification.SeConnecter
+        Call Module_Authentification.SeConnectér
         Exit Sub
     End If
 
     ' Verifier si le clic est sur le bloc Admin
     If Target.Row = ligneAdmin And Target.Column >= 2 And Target.Column <= 5 Then
         ' Lancer la connexion Admin
-        Call Module_Authentification.SeConnecter
+        Call Module_Authentification.SeConnectér
         Exit Sub
     End If
 End Sub

@@ -9,7 +9,7 @@ Private Sub Worksheet_Change(ByVal Target As Range)
     On Error GoTo Erreur
 
     ' Ne rien faire si pas admin connecte
-    If niveauAcces <> "ADMIN" Then Exit Sub
+    If niveauAccès <> "ADMIN" Then Exit Sub
 
     ' Detecter ajout dans la colonne A (ID_Visite) ou B (Date)
     If Not Intersect(Target, Me.Range("A:B")) Is Nothing Then
@@ -42,13 +42,13 @@ Private Sub Worksheet_Activate()
     On Error Resume Next
 
     ' Message informatif pour l'admin
-    If niveauAcces = "ADMIN" Then
+    If niveauAccès = "ADMIN" Then
         ' Supprimer ancien commentaire si existe
         Me.Range("A1").Comment.Delete
 
         ' Ajouter nouveau commentaire
         Me.Range("A1").AddComment
-        Me.Range("A1").Comment.Text "Attribution automatique activee" & Chr(10) & _
+        Me.Range("A1").Comment.Text "Attribution automatique activée" & Chr(10) & _
                                      "Ajoutez une visite, le guide sera assigne automatiquement !"
         Me.Range("A1").Comment.Visible = False
     End If

@@ -1,14 +1,14 @@
 Attribute VB_Name = "Module_Authentification"
 ' ============================================
 ' MODULE D'AUTHENTIFICATION
-' Gestion des acces par mot de passe et consultation planning
+' Gestion des accès par mot de passe et consultation planning
 ' ============================================
 
 Option Explicit
 
 ' Variables globales de session
-Public utilisateurConnecte As String
-Public niveauAcces As String ' "ADMIN" ou "GUIDE"
+Public utilisateurConnecté As String
+Public niveauAccès As String ' "ADMIN" ou "GUIDE"
 Public emailUtilisateur As String
 
 ' ============================================
@@ -51,15 +51,15 @@ Sub SeConnecter()
     ' Verifier si c'est l'admin
     If UCase(nomGuide) = "ADMIN" Then
         If mdp = mdpAdmin Then
-            utilisateurConnecte = "ADMIN"
-            niveauAcces = "ADMIN"
+            utilisateurConnecté = "ADMIN"
+            niveauAccès = "ADMIN"
             emailUtilisateur = ObtenirConfig("EmailAdmin", "")
 
             ' Afficher toutes les feuilles pour l'admin
             Call AfficherToutesFeuillesAdmin
 
             MsgBox "[OK] Bienvenue Administrateur !" & vbCrLf & vbCrLf & _
-                   "Acces complet au systeme." & vbCrLf & _
+                   "Accès complet au systeme." & vbCrLf & _
                    "Vous pouvez gerer tous les plannings.", _
                    vbInformation, "Connexion reussie"
 
@@ -79,18 +79,18 @@ Sub SeConnecter()
         If UCase(wsGuides.Cells(i, 2).Value) = UCase(nomGuide) Then
             ' Verifier le mot de passe (colonne F)
             If wsGuides.Cells(i, 6).Value = mdp Then
-                utilisateurConnecte = wsGuides.Cells(i, 1).Value & " " & wsGuides.Cells(i, 2).Value ' Prenom + Nom
-                niveauAcces = "GUIDE"
+                utilisateurConnecté = wsGuides.Cells(i, 1).Value & " " & wsGuides.Cells(i, 2).Value ' Prenom + Nom
+                niveauAccès = "GUIDE"
                 emailUtilisateur = wsGuides.Cells(i, 3).Value ' Email
 
-                MsgBox "[OK] Bienvenue " & utilisateurConnecte & " !" & vbCrLf & vbCrLf & _
-                       "Acces a votre planning personnel.", _
+                MsgBox "[OK] Bienvenue " & utilisateurConnecté & " !" & vbCrLf & vbCrLf & _
+                       "Accès a votre planning personnel.", _
                        vbInformation, "Connexion reussie"
 
                 ' Afficher les vues filtrees du guide
-                Call AfficherMesVisites(utilisateurConnecte)
-                Call AfficherMesDisponibilites(utilisateurConnecte)
-                Call AfficherPlanningGuide(utilisateurConnecte)
+                Call AfficherMesVisites(utilisateurConnecté)
+                Call AfficherMesDisponibilites(utilisateurConnecté)
+                Call AfficherPlanningGuide(utilisateurConnecté)
                 Call AfficherListeGuidesLimitee
 
                 ' Masquer les feuilles originales (securite)
@@ -132,7 +132,7 @@ Sub AfficherPlanningGuide(nomGuide As String)
     Application.DisplayAlerts = True
     On Error GoTo 0
 
-    ' Creer la feuille temporaire du guide
+    ' Créer la feuille temporaire du guide
     Set wsPlanningGuide = ThisWorkbook.Sheets.Add
     wsPlanningGuide.Name = "Mon_Planning"
 
@@ -187,7 +187,14 @@ Sub AfficherPlanningGuide(nomGuide As String)
 
     ' Mise en forme
     With wsPlanningGuide
-        .Columns("A:H").AutoFit
+        .Columns("A:A").ColumnWidth = 12  ' ID
+        .Columns("B:B").ColumnWidth = 15  ' Date
+        .Columns("C:C").ColumnWidth = 20  ' Heure
+        .Columns("D:D").ColumnWidth = 25  ' Musée
+        .Columns("E:E").ColumnWidth = 30  ' Type
+        .Columns("F:F").ColumnWidth = 12  ' Durée
+        .Columns("G:G").ColumnWidth = 15  ' Statut
+        .Columns("H:H").ColumnWidth = 20  ' Action
         .Range("A1:H1").Font.Bold = True
         .Range("A1:H1").Interior.Color = RGB(70, 173, 71)
         .Range("A1:H1").Font.Color = RGB(255, 255, 255)
@@ -221,28 +228,31 @@ End Sub
 ' ============================================
 Sub AjouterBoutonsGuide(ws As Worksheet)
     Dim btnConfirmer As Button
-    Dim btnRefuser As Button
     Dim btnDeconnexion As Button
     Dim btnExporter As Button
+    
+    ' Calculer la largeur des colonnes en pixels (approximatif)
+    Dim leftPos As Double
+    leftPos = ws.Range("I1").Left  ' Position après la colonne H
 
     ' Bouton Confirmer toutes les visites
-    Set btnConfirmer = ws.Buttons.Add(10, 10, 150, 30)
+    Set btnConfirmer = ws.Buttons.Add(leftPos, 10, 180, 30)
     With btnConfirmer
         .Caption = "[OK] Confirmer TOUTES mes visites"
         .OnAction = "ConfirmerToutesVisites"
     End With
 
-    ' Bouton Deconnexion
-    Set btnDeconnexion = ws.Buttons.Add(170, 10, 100, 30)
+    ' Bouton Déconnexion
+    Set btnDeconnexion = ws.Buttons.Add(leftPos + 190, 10, 120, 30)
     With btnDeconnexion
-        .Caption = "[>] Deconnexion"
+        .Caption = "[>] Déconnexion"
         .OnAction = "SeDeconnecter"
     End With
 
     ' Bouton Exporter mon planning
-    Set btnExporter = ws.Buttons.Add(280, 10, 120, 30)
+    Set btnExporter = ws.Buttons.Add(leftPos + 320, 10, 140, 30)
     With btnExporter
-        .Caption = "Exporter en PDF"
+        .Caption = "📄 Exporter en PDF"
         .OnAction = "ExporterPlanningGuide"
     End With
 End Sub
@@ -294,7 +304,7 @@ Sub ConfirmerOuRefuserVisite()
     For i = 2 To lastRow
         If wsPlanning.Cells(i, 1).Value = dateVisite And _
            wsPlanning.Cells(i, 2).Value = heureVisite And _
-           InStr(1, UCase(wsPlanning.Cells(i, 5).Value), UCase(utilisateurConnecte), vbTextCompare) > 0 Then
+           InStr(1, UCase(wsPlanning.Cells(i, 5).Value), UCase(utilisateurConnecté), vbTextCompare) > 0 Then
 
             If reponse = vbYes Then
                 wsPlanning.Cells(i, 7).Value = "Confirme"
@@ -305,14 +315,14 @@ Sub ConfirmerOuRefuserVisite()
                        "L'administrateur en sera informe.", vbInformation
             Else
                 ' REFUS -> REATTRIBUTION AUTOMATIQUE
-                wsPlanning.Cells(i, 7).Value = "Refuse par " & utilisateurConnecte
+                wsPlanning.Cells(i, 7).Value = "Refuse par " & utilisateurConnecté
                 ws.Cells(ligneSelectionnee, 7).Value = "Refuse"
                 ws.Cells(ligneSelectionnee, 8).Value = "[X] Refuse"
                 ws.Cells(ligneSelectionnee, 8).Interior.Color = RGB(255, 199, 206)
 
                 ' Lancer la reattribution automatique
                 Dim nouveauGuide As String
-                nouveauGuide = ReattribuerVisiteAutomatiquement(i, wsPlanning, utilisateurConnecte)
+                nouveauGuide = ReattribuerVisiteAutomatiquement(i, wsPlanning, utilisateurConnecté)
 
                 If nouveauGuide <> "" Then
                     MsgBox "[X] Visite refusee." & vbCrLf & vbCrLf & _
@@ -371,7 +381,7 @@ Sub ConfirmerToutesVisites()
             For j = 2 To lastRowPlanning
                 If wsPlanning.Cells(j, 1).Value = dateVisite And _
                    wsPlanning.Cells(j, 2).Value = heureVisite And _
-                   InStr(1, UCase(wsPlanning.Cells(j, 5).Value), UCase(utilisateurConnecte), vbTextCompare) > 0 Then
+                   InStr(1, UCase(wsPlanning.Cells(j, 5).Value), UCase(utilisateurConnecté), vbTextCompare) > 0 Then
 
                     wsPlanning.Cells(j, 7).Value = "Confirme"
                     ws.Cells(i, 7).Value = "Confirme"
@@ -401,13 +411,13 @@ Sub ExporterPlanningGuide()
         Exit Sub
     End If
 
-    cheminFichier = ThisWorkbook.Path & "\Planning_" & Replace(utilisateurConnecte, " ", "_") & "_" & Format(Date, "yyyymmdd") & ".pdf"
+    cheminFichier = ThisWorkbook.Path & "\Planning_" & Replace(utilisateurConnecté, " ", "_") & "_" & Format(Date, "yyyymmdd") & ".pdf"
 
     On Error Resume Next
     ws.ExportAsFixedFormat Type:=xlTypePDF, Filename:=cheminFichier, Quality:=xlQualityStandard
 
     If Err.Number = 0 Then
-        MsgBox "[OK] Planning exporte avec succes :" & vbCrLf & vbCrLf & _
+        MsgBox "[OK] Planning exporte avec succès :" & vbCrLf & vbCrLf & _
                cheminFichier, vbInformation, "Export reussi"
     Else
         MsgBox "[X] Erreur lors de l'export PDF.", vbCritical
@@ -424,14 +434,14 @@ Sub AfficherInterfaceAdmin()
     Set wsPlanning = ThisWorkbook.Sheets(FEUILLE_PLANNING)
     wsPlanning.Activate
 
-    MsgBox "Interface administrateur activee." & vbCrLf & vbCrLf & _
-           "Vous avez acces a :" & vbCrLf & _
+    MsgBox "Interface administrateur activée." & vbCrLf & vbCrLf & _
+           "Vous avez accès à :" & vbCrLf & _
            "- Tous les plannings" & vbCrLf & _
-           "- Generation automatique" & vbCrLf & _
+           "- Génération automatique" & vbCrLf & _
            "- Envoi d'emails" & vbCrLf & _
            "- Gestion des guides" & vbCrLf & _
            "- Statistiques et calculs", _
-           vbInformation, "Acces Admin"
+           vbInformation, "Accès Admin"
 End Sub
 
 ' ============================================
@@ -439,8 +449,8 @@ End Sub
 ' ============================================
 Sub SeDeconnecter()
     ' Reinitialiser les variables de session
-    utilisateurConnecte = ""
-    niveauAcces = ""
+    utilisateurConnecté = ""
+    niveauAccès = ""
     emailUtilisateur = ""
 
     ' Supprimer la feuille temporaire si elle existe
@@ -461,7 +471,7 @@ End Sub
 ' Verifier si l'utilisateur est admin
 ' ============================================
 Function EstAdmin() As Boolean
-    EstAdmin = (niveauAcces = "ADMIN")
+    EstAdmin = (niveauAccès = "ADMIN")
 End Function
 
 ' ============================================
@@ -734,7 +744,7 @@ Sub AfficherMesVisites(nomGuide As String)
     Application.DisplayAlerts = True
     On Error GoTo 0
 
-    ' Creer la nouvelle feuille
+    ' Créer la nouvelle feuille
     Set wsMesVisites = ThisWorkbook.Sheets.Add
     wsMesVisites.Name = "Mes_Visites"
     wsMesVisites.Tab.Color = RGB(70, 173, 71)
@@ -812,7 +822,7 @@ Sub AfficherMesDisponibilites(nomGuide As String)
     Application.DisplayAlerts = True
     On Error GoTo 0
 
-    ' Creer la nouvelle feuille
+    ' Créer la nouvelle feuille
     Set wsMesDispos = ThisWorkbook.Sheets.Add
     wsMesDispos.Name = "Mes_Disponibilites"
     wsMesDispos.Tab.Color = RGB(52, 152, 219)
@@ -873,12 +883,12 @@ Sub AfficherListeGuidesLimitee()
     Application.DisplayAlerts = True
     On Error GoTo 0
 
-    ' Creer la nouvelle feuille
+    ' Créer la nouvelle feuille
     Set wsAnnuaire = ThisWorkbook.Sheets.Add
     wsAnnuaire.Name = "Annuaire"
     wsAnnuaire.Tab.Color = RGB(155, 89, 182)
 
-    ' Creer l'en-tete (seulement Prenom et Nom)
+    ' Créer l'en-tete (seulement Prenom et Nom)
     wsAnnuaire.Range("A1").Value = "Prenom"
     wsAnnuaire.Range("B1").Value = "Nom"
 
