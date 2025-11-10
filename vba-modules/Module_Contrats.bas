@@ -468,3 +468,392 @@ Public Sub AfficherContratsGeneres()
 
     MsgBox msg, vbInformation, "Historique des contrats"
 End Sub
+
+'===============================================================================
+' FONCTION: GenererContratDebutMois
+' DESCRIPTION: Genere contrat debut de mois avec pre-planning et tarif minimum
+'===============================================================================
+Public Sub GenererContratDebutMois()
+    Dim guideID As String
+    Dim guideNom As String, emailGuide As String, telGuide As String
+    Dim wsPlanning As Worksheet, wsGuides As Worksheet, wsConfig As Worksheet
+    Dim wbContrat As Workbook, wsContrat As Worksheet
+    Dim moisCible As Integer, anneeCible As Integer, moisFiltre As String
+    Dim i As Long, ligne As Long
+    Dim dateVisite As Date, nbJoursPrevus As Integer
+    Dim tarifMinimum As Double
+    Dim fichier As String
+    Dim listeVisites As String
+
+    On Error GoTo Erreur
+
+    ' Demander le guide
+    guideID = InputBox("Entrez l'ID du guide:", "Contrat Debut de Mois")
+    If guideID = "" Then Exit Sub
+
+    ' Demander le mois
+    moisFiltre = InputBox("Mois du contrat (MM/AAAA):", "Periode", Format(DateAdd("m", 1, Date), "mm/yyyy"))
+    If moisFiltre = "" Then Exit Sub
+
+    moisCible = CInt(Left(moisFiltre, 2))
+    anneeCible = CInt(Right(moisFiltre, 4))
+
+    Set wsGuides = ThisWorkbook.Worksheets(FEUILLE_GUIDES)
+    Set wsPlanning = ThisWorkbook.Worksheets(FEUILLE_PLANNING)
+    Set wsConfig = ThisWorkbook.Worksheets("Configuration")
+
+    ' Recuperer infos guide
+    For i = 2 To wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
+        If wsGuides.Cells(i, 1).Value = guideID Then
+            guideNom = wsGuides.Cells(i, 2).Value & " " & wsGuides.Cells(i, 3).Value
+            emailGuide = wsGuides.Cells(i, 4).Value
+            telGuide = wsGuides.Cells(i, 5).Value
+            Exit For
+        End If
+    Next i
+
+    If guideNom = "" Then
+        MsgBox "Guide non trouve.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Recuperer tarif minimum (80€ par defaut)
+    tarifMinimum = 80
+    For i = 1 To wsConfig.Cells(wsConfig.Rows.Count, 1).End(xlUp).Row
+        If UCase(Trim(wsConfig.Cells(i, 1).Value)) = "TARIF_MINIMUM" Then
+            tarifMinimum = wsConfig.Cells(i, 2).Value
+            Exit For
+        End If
+    Next i
+
+    Application.ScreenUpdating = False
+
+    ' Compter les jours prevus
+    nbJoursPrevus = 0
+    listeVisites = ""
+
+    For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
+        If wsPlanning.Cells(i, 5).Value = guideID Then
+            On Error Resume Next
+            dateVisite = CDate(wsPlanning.Cells(i, 2).Value)
+
+            If Err.Number = 0 And Month(dateVisite) = moisCible And Year(dateVisite) = anneeCible Then
+                If listeVisites <> "" Then listeVisites = listeVisites & vbCrLf
+                listeVisites = listeVisites & Format(dateVisite, "dd/mm/yyyy")
+                nbJoursPrevus = nbJoursPrevus + 1
+            End If
+
+            Err.Clear
+            On Error GoTo Erreur
+        End If
+    Next i
+
+    If nbJoursPrevus = 0 Then
+        MsgBox "Aucune visite prevue pour ce guide ce mois-ci.", vbInformation
+        Application.ScreenUpdating = True
+        Exit Sub
+    End If
+
+    ' Creer le contrat
+    Set wbContrat = Workbooks.Add
+    Set wsContrat = wbContrat.Worksheets(1)
+    wsContrat.Name = "Contrat_Provisoire"
+
+    ' Remplir le contrat
+    ligne = 1
+    wsContrat.Cells(ligne, 1).Value = "CONTRAT DE VACATION - VERSION PROVISOIRE"
+    wsContrat.Cells(ligne, 1).Font.Size = 16
+    wsContrat.Cells(ligne, 1).Font.Bold = True
+    wsContrat.Range("A1:D1").Merge
+    wsContrat.Range("A1").HorizontalAlignment = xlCenter
+
+    ligne = ligne + 2
+    wsContrat.Cells(ligne, 1).Value = "Guide :"
+    wsContrat.Cells(ligne, 1).Font.Bold = True
+    wsContrat.Cells(ligne, 2).Value = guideNom
+
+    ligne = ligne + 1
+    wsContrat.Cells(ligne, 1).Value = "Email :"
+    wsContrat.Cells(ligne, 2).Value = emailGuide
+
+    ligne = ligne + 1
+    wsContrat.Cells(ligne, 1).Value = "Telephone :"
+    wsContrat.Cells(ligne, 2).Value = telGuide
+
+    ligne = ligne + 2
+    wsContrat.Cells(ligne, 1).Value = "Periode :"
+    wsContrat.Cells(ligne, 1).Font.Bold = True
+    wsContrat.Cells(ligne, 2).Value = Format(DateSerial(anneeCible, moisCible, 1), "MMMM YYYY")
+
+    ligne = ligne + 2
+    wsContrat.Cells(ligne, 1).Value = "DATES PREVUES (PRE-PLANNING) :"
+    wsContrat.Cells(ligne, 1).Font.Bold = True
+    wsContrat.Cells(ligne, 1).Font.Underline = True
+
+    ligne = ligne + 1
+    wsContrat.Cells(ligne, 1).Value = listeVisites
+
+    ligne = ligne + 2
+    wsContrat.Cells(ligne, 1).Value = "REMUNERATION PREVUE :"
+    wsContrat.Cells(ligne, 1).Font.Bold = True
+    wsContrat.Cells(ligne, 1).Font.Underline = True
+
+    ligne = ligne + 1
+    wsContrat.Cells(ligne, 1).Value = "Nombre de jours prevus :"
+    wsContrat.Cells(ligne, 2).Value = nbJoursPrevus & " jours"
+
+    ligne = ligne + 1
+    wsContrat.Cells(ligne, 1).Value = "Tarif minimum par cachet :"
+    wsContrat.Cells(ligne, 2).Value = Format(tarifMinimum, "#,##0.00") & " €"
+
+    ligne = ligne + 1
+    wsContrat.Cells(ligne, 1).Value = "MONTANT MINIMUM ESTIME :"
+    wsContrat.Cells(ligne, 1).Font.Bold = True
+    wsContrat.Cells(ligne, 2).Value = Format(nbJoursPrevus * tarifMinimum, "#,##0.00") & " €"
+    wsContrat.Cells(ligne, 2).Font.Bold = True
+    wsContrat.Cells(ligne, 2).Font.Size = 12
+
+    ligne = ligne + 3
+    wsContrat.Cells(ligne, 1).Value = "Note : Ce contrat sera mis à jour en fin de mois avec les dates et montants exacts."
+    wsContrat.Cells(ligne, 1).Font.Italic = True
+    wsContrat.Cells(ligne, 1).Font.Color = RGB(255, 0, 0)
+    wsContrat.Range("A" & ligne & ":D" & ligne).Merge
+
+    wsContrat.Columns.AutoFit
+    Application.ScreenUpdating = True
+
+    ' Sauvegarder
+    fichier = Application.GetSaveAsFilename("Contrat_Provisoire_" & Replace(guideNom, " ", "_") & "_" & _
+                                            Format(DateSerial(anneeCible, moisCible, 1), "yyyymm") & ".xlsx", _
+                                            "Fichiers Excel (*.xlsx), *.xlsx")
+
+    If fichier <> "False" Then
+        wbContrat.SaveAs fichier
+        MsgBox "Contrat provisoire genere !" & vbCrLf & vbCrLf & _
+               "Guide : " & guideNom & vbCrLf & _
+               "Mois : " & Format(DateSerial(anneeCible, moisCible, 1), "MMMM YYYY") & vbCrLf & _
+               "Jours prevus : " & nbJoursPrevus & vbCrLf & _
+               "Montant minimum : " & Format(nbJoursPrevus * tarifMinimum, "#,##0.00") & " €", _
+               vbInformation
+    End If
+
+    wbContrat.Close SaveChanges:=False
+
+    Exit Sub
+
+Erreur:
+    Application.ScreenUpdating = True
+    If Not wbContrat Is Nothing Then wbContrat.Close SaveChanges:=False
+    MsgBox "Erreur lors de la generation du contrat : " & Err.Description, vbCritical
+End Sub
+
+'===============================================================================
+' FONCTION: GenererContratFinMois
+' DESCRIPTION: Genere contrat fin de mois avec dates reelles et cachets calcules
+'===============================================================================
+Public Sub GenererContratFinMois()
+    Dim guideID As String
+    Dim guideNom As String, emailGuide As String, telGuide As String
+    Dim wsPlanning As Worksheet, wsGuides As Worksheet, wsCalculs As Worksheet
+    Dim wbContrat As Workbook, wsContrat As Worksheet
+    Dim moisCible As Integer, anneeCible As Integer, moisFiltre As String
+    Dim i As Long, ligne As Long
+    Dim dateVisite As Date, heureVisite As String
+    Dim nbJoursReel As Integer, montantParCachet As Double, montantTotal As Double
+    Dim fichier As String
+    Dim dictJours As Object
+    Dim listeVisitesDetail As String
+
+    On Error GoTo Erreur
+
+    ' Demander le guide
+    guideID = InputBox("Entrez l'ID du guide:", "Contrat Fin de Mois")
+    If guideID = "" Then Exit Sub
+
+    ' Demander le mois
+    moisFiltre = InputBox("Mois du contrat (MM/AAAA):", "Periode", Format(Date, "mm/yyyy"))
+    If moisFiltre = "" Then Exit Sub
+
+    moisCible = CInt(Left(moisFiltre, 2))
+    anneeCible = CInt(Right(moisFiltre, 4))
+
+    Set wsGuides = ThisWorkbook.Worksheets(FEUILLE_GUIDES)
+    Set wsPlanning = ThisWorkbook.Worksheets(FEUILLE_PLANNING)
+    Set wsCalculs = ThisWorkbook.Worksheets(FEUILLE_CALCULS)
+    Set dictJours = CreateObject("Scripting.Dictionary")
+
+    ' Recuperer infos guide
+    For i = 2 To wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
+        If wsGuides.Cells(i, 1).Value = guideID Then
+            guideNom = wsGuides.Cells(i, 2).Value & " " & wsGuides.Cells(i, 3).Value
+            emailGuide = wsGuides.Cells(i, 4).Value
+            telGuide = wsGuides.Cells(i, 5).Value
+            Exit For
+        End If
+    Next i
+
+    If guideNom = "" Then
+        MsgBox "Guide non trouve.", vbExclamation
+        Exit Sub
+    End If
+
+    Application.ScreenUpdating = False
+
+    ' Collecter les visites reelles du mois
+    listeVisitesDetail = ""
+
+    For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
+        If wsPlanning.Cells(i, 5).Value = guideID Then
+            On Error Resume Next
+            dateVisite = CDate(wsPlanning.Cells(i, 2).Value)
+            heureVisite = wsPlanning.Cells(i, 3).Value
+
+            If Err.Number = 0 And Month(dateVisite) = moisCible And Year(dateVisite) = anneeCible Then
+                Dim cleJour As String
+                cleJour = Format(dateVisite, "yyyy-mm-dd")
+
+                If Not dictJours.exists(cleJour) Then
+                    dictJours.Add cleJour, dateVisite
+                End If
+
+                If listeVisitesDetail <> "" Then listeVisitesDetail = listeVisitesDetail & vbCrLf
+                listeVisitesDetail = listeVisitesDetail & Format(dateVisite, "dd/mm/yyyy") & " à " & heureVisite
+            End If
+
+            Err.Clear
+            On Error GoTo Erreur
+        End If
+    Next i
+
+    nbJoursReel = dictJours.Count
+
+    If nbJoursReel = 0 Then
+        MsgBox "Aucune visite realisee pour ce guide ce mois-ci.", vbInformation
+        Application.ScreenUpdating = True
+        Exit Sub
+    End If
+
+    ' Chercher les calculs de paie pour ce guide
+    montantParCachet = 0
+    montantTotal = 0
+
+    For i = 2 To wsCalculs.Cells(wsCalculs.Rows.Count, 1).End(xlUp).Row
+        If wsCalculs.Cells(i, 1).Value = guideID Then
+            montantParCachet = wsCalculs.Cells(i, 6).Value ' Colonne F
+            montantTotal = wsCalculs.Cells(i, 7).Value     ' Colonne G
+            Exit For
+        End If
+    Next i
+
+    If montantParCachet = 0 Then
+        MsgBox "Veuillez d'abord calculer les salaires (Module_Calculs.CalculerVisitesEtSalaires)", vbExclamation
+        Application.ScreenUpdating = True
+        Exit Sub
+    End If
+
+    ' Creer le contrat
+    Set wbContrat = Workbooks.Add
+    Set wsContrat = wbContrat.Worksheets(1)
+    wsContrat.Name = "Contrat_Final"
+
+    ' Remplir le contrat
+    ligne = 1
+    wsContrat.Cells(ligne, 1).Value = "CONTRAT DE VACATION - VERSION FINALE"
+    wsContrat.Cells(ligne, 1).Font.Size = 16
+    wsContrat.Cells(ligne, 1).Font.Bold = True
+    wsContrat.Range("A1:D1").Merge
+    wsContrat.Range("A1").HorizontalAlignment = xlCenter
+    wsContrat.Cells(ligne, 1).Interior.Color = RGB(146, 208, 80)
+
+    ligne = ligne + 2
+    wsContrat.Cells(ligne, 1).Value = "Guide :"
+    wsContrat.Cells(ligne, 1).Font.Bold = True
+    wsContrat.Cells(ligne, 2).Value = guideNom
+
+    ligne = ligne + 1
+    wsContrat.Cells(ligne, 1).Value = "Email :"
+    wsContrat.Cells(ligne, 2).Value = emailGuide
+
+    ligne = ligne + 1
+    wsContrat.Cells(ligne, 1).Value = "Telephone :"
+    wsContrat.Cells(ligne, 2).Value = telGuide
+
+    ligne = ligne + 2
+    wsContrat.Cells(ligne, 1).Value = "Periode :"
+    wsContrat.Cells(ligne, 1).Font.Bold = True
+    wsContrat.Cells(ligne, 2).Value = Format(DateSerial(anneeCible, moisCible, 1), "MMMM YYYY")
+
+    ligne = ligne + 2
+    wsContrat.Cells(ligne, 1).Value = "DATES ET HORAIRES REELS :"
+    wsContrat.Cells(ligne, 1).Font.Bold = True
+    wsContrat.Cells(ligne, 1).Font.Underline = True
+
+    ligne = ligne + 1
+    wsContrat.Cells(ligne, 1).Value = listeVisitesDetail
+    wsContrat.Range("A" & ligne & ":D" & ligne).Merge
+    wsContrat.Cells(ligne, 1).WrapText = True
+
+    ligne = ligne + 2
+    wsContrat.Cells(ligne, 1).Value = "REMUNERATION FINALE :"
+    wsContrat.Cells(ligne, 1).Font.Bold = True
+    wsContrat.Cells(ligne, 1).Font.Underline = True
+    wsContrat.Cells(ligne, 1).Interior.Color = RGB(255, 242, 204)
+
+    ligne = ligne + 1
+    wsContrat.Cells(ligne, 1).Value = "Nombre de jours travailles (cachets) :"
+    wsContrat.Cells(ligne, 1).Font.Bold = True
+    wsContrat.Cells(ligne, 2).Value = nbJoursReel & " cachets"
+    wsContrat.Cells(ligne, 2).Font.Bold = True
+
+    ligne = ligne + 1
+    wsContrat.Cells(ligne, 1).Value = "Montant par cachet :"
+    wsContrat.Cells(ligne, 1).Font.Bold = True
+    wsContrat.Cells(ligne, 2).Value = Format(montantParCachet, "#,##0.00") & " €"
+    wsContrat.Cells(ligne, 2).Font.Bold = True
+
+    ligne = ligne + 1
+    wsContrat.Cells(ligne, 1).Value = "MONTANT TOTAL DU :"
+    wsContrat.Cells(ligne, 1).Font.Bold = True
+    wsContrat.Cells(ligne, 1).Font.Size = 12
+    wsContrat.Cells(ligne, 2).Value = Format(montantTotal, "#,##0.00") & " €"
+    wsContrat.Cells(ligne, 2).Font.Bold = True
+    wsContrat.Cells(ligne, 2).Font.Size = 14
+    wsContrat.Cells(ligne, 2).Font.Color = RGB(0, 128, 0)
+
+    ligne = ligne + 2
+    wsContrat.Cells(ligne, 1).Value = "Calcul : " & nbJoursReel & " cachets × " & Format(montantParCachet, "#,##0.00") & " € = " & Format(montantTotal, "#,##0.00") & " €"
+    wsContrat.Cells(ligne, 1).Font.Italic = True
+    wsContrat.Range("A" & ligne & ":D" & ligne).Merge
+
+    ligne = ligne + 3
+    wsContrat.Cells(ligne, 1).Value = "Signature du guide :"
+    wsContrat.Cells(ligne, 3).Value = "Signature de l'association :"
+
+    wsContrat.Columns.AutoFit
+    Application.ScreenUpdating = True
+
+    ' Sauvegarder
+    fichier = Application.GetSaveAsFilename("Contrat_Final_" & Replace(guideNom, " ", "_") & "_" & _
+                                            Format(DateSerial(anneeCible, moisCible, 1), "yyyymm") & ".xlsx", _
+                                            "Fichiers Excel (*.xlsx), *.xlsx")
+
+    If fichier <> "False" Then
+        wbContrat.SaveAs fichier
+        MsgBox "Contrat final genere !" & vbCrLf & vbCrLf & _
+               "Guide : " & guideNom & vbCrLf & _
+               "Mois : " & Format(DateSerial(anneeCible, moisCible, 1), "MMMM YYYY") & vbCrLf & _
+               "Jours travailles : " & nbJoursReel & " cachets" & vbCrLf & _
+               "Montant par cachet : " & Format(montantParCachet, "#,##0.00") & " €" & vbCrLf & _
+               "TOTAL : " & Format(montantTotal, "#,##0.00") & " €", _
+               vbInformation
+    End If
+
+    wbContrat.Close SaveChanges:=False
+
+    Exit Sub
+
+Erreur:
+    Application.ScreenUpdating = True
+    If Not wbContrat Is Nothing Then wbContrat.Close SaveChanges:=False
+    MsgBox "Erreur lors de la generation du contrat : " & Err.Description, vbCritical
+End Sub

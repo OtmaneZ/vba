@@ -398,3 +398,101 @@ Public Sub ConfigurerTacheAutomatique()
            "Ou consultez le guide d'installation pour plus de details.", _
            vbInformation, "Configuration tache automatique"
 End Sub
+
+'===============================================================================
+' FONCTION: EnvoyerContratParEmail
+' DESCRIPTION: Envoie un contrat genere par email au guide
+'===============================================================================
+Public Sub EnvoyerContratParEmail()
+    Dim OutlookApp As Object
+    Dim OutlookMail As Object
+    Dim guideID As String, guideNom As String, guideMail As String
+    Dim wsGuides As Worksheet
+    Dim fichierContrat As String
+    Dim moisFiltre As String
+    Dim i As Long
+
+    On Error GoTo Erreur
+
+    ' Demander le guide
+    guideID = InputBox("Entrez l'ID du guide:", "Envoi contrat par email")
+    If guideID = "" Then Exit Sub
+
+    Set wsGuides = ThisWorkbook.Worksheets(FEUILLE_GUIDES)
+
+    ' Recuperer infos guide
+    For i = 2 To wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
+        If wsGuides.Cells(i, 1).Value = guideID Then
+            guideNom = wsGuides.Cells(i, 2).Value & " " & wsGuides.Cells(i, 3).Value
+            guideMail = wsGuides.Cells(i, 4).Value
+            Exit For
+        End If
+    Next i
+
+    If guideNom = "" Then
+        MsgBox "Guide non trouve.", vbExclamation
+        Exit Sub
+    End If
+
+    If guideMail = "" Then
+        MsgBox "Email du guide non renseigne.", vbExclamation
+        Exit Sub
+    End If
+
+    ' Demander le mois
+    moisFiltre = InputBox("Mois du contrat (MM/AAAA):", "Periode", Format(Date, "mm/yyyy"))
+    If moisFiltre = "" Then Exit Sub
+
+    ' Demander le type de contrat
+    Dim typeContrat As String
+    typeContrat = InputBox("Type de contrat (PROVISOIRE ou FINAL):", "Type", "PROVISOIRE")
+    If typeContrat = "" Then Exit Sub
+
+    typeContrat = UCase(Trim(typeContrat))
+
+    ' Demander le fichier contrat
+    fichierContrat = Application.GetOpenFilename("Fichiers Excel (*.xlsx; *.xls), *.xlsx; *.xls", , "Selectionner le contrat a envoyer")
+    If fichierContrat = "False" Or fichierContrat = "" Then Exit Sub
+
+    ' Creer l'email
+    Set OutlookApp = CreateObject("Outlook.Application")
+    Set OutlookMail = OutlookApp.CreateItem(0)
+
+    With OutlookMail
+        .To = guideMail
+
+        If typeContrat = "PROVISOIRE" Then
+            .Subject = "Contrat provisoire - " & moisFiltre & " - " & guideNom
+            .Body = "Bonjour " & guideNom & "," & vbCrLf & vbCrLf & _
+                    "Veuillez trouver ci-joint votre contrat provisoire pour le mois de " & moisFiltre & "." & vbCrLf & vbCrLf & _
+                    "Ce contrat contient le pre-planning avec le tarif minimum." & vbCrLf & _
+                    "Un contrat final avec les dates et montants exacts vous sera envoye en fin de mois." & vbCrLf & vbCrLf & _
+                    "Cordialement," & vbCrLf & _
+                    "L'Association"
+        Else
+            .Subject = "Contrat final - " & moisFiltre & " - " & guideNom
+            .Body = "Bonjour " & guideNom & "," & vbCrLf & vbCrLf & _
+                    "Veuillez trouver ci-joint votre contrat final pour le mois de " & moisFiltre & "." & vbCrLf & vbCrLf & _
+                    "Ce contrat contient les dates reelles et le montant exact de votre remuneration." & vbCrLf & _
+                    "Merci de le signer et de nous le retourner." & vbCrLf & vbCrLf & _
+                    "Cordialement," & vbCrLf & _
+                    "L'Association"
+        End If
+
+        .Attachments.Add fichierContrat
+        .Display ' Afficher pour verification avant envoi
+    End With
+
+    MsgBox "Email prepare avec succes !" & vbCrLf & vbCrLf & _
+           "Destinataire : " & guideMail & vbCrLf & _
+           "Contrat : " & fichierContrat & vbCrLf & vbCrLf & _
+           "Verifiez le contenu et cliquez sur Envoyer.", _
+           vbInformation
+
+    Set OutlookMail = Nothing
+    Set OutlookApp = Nothing
+    Exit Sub
+
+Erreur:
+    MsgBox "Erreur lors de l'envoi : " & Err.Description, vbCritical
+End Sub

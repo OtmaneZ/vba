@@ -84,7 +84,7 @@ Public Sub CalculerVisitesEtSalaires()
             If inclure And Err.Number = 0 Then
                 ' Cle unique : Guide + Date
                 cleJour = guideID & "|" & Format(dateVisite, "yyyy-mm-dd")
-                
+
                 ' Obtenir type et duree de la visite
                 Dim idVisite As String
                 idVisite = wsPlanning.Cells(i, 1).Value
@@ -120,7 +120,7 @@ Public Sub CalculerVisitesEtSalaires()
         End If
     Next i
 
-    ' Calculer les salaires pour chaque guide
+    ' Calculer les salaires pour chaque guide AVEC SYSTEME DE CACHETS
     ligneCalcul = 2
     Dim keyGuide As Variant
     Dim keyJour As Variant
@@ -128,39 +128,59 @@ Public Sub CalculerVisitesEtSalaires()
     For Each keyGuide In dictGuides.Keys
         guideID = CStr(keyGuide)
         guideNom = ObtenirNomCompletGuide(guideID)
-        
+
         Set dictJours = dictGuides(guideID)
         nbVisitesTotal = 0
         montantSalaire = 0
+        Dim nbJoursTravailles As Integer
+        nbJoursTravailles = dictJours.Count
 
-        ' Calculer le salaire pour chaque jour
+        ' Calculer le montant TOTAL du mois
         For Each keyJour In dictJours.Keys
             Dim infoJour As Variant
             infoJour = dictJours(keyJour)
-            
+
             Dim nbVisitesJour As Integer
             Dim typeVisiteJour As String
             Dim dureeJour As Double
             Dim montantJour As Double
-            
+
             typeVisiteJour = infoJour(1)
             nbVisitesJour = infoJour(2)
             dureeJour = infoJour(3)
-            
+
             ' Calculer le montant pour cette journee
             montantJour = CalculerTarifJournee(typeVisiteJour, nbVisitesJour, dureeJour)
-            
+
             nbVisitesTotal = nbVisitesTotal + nbVisitesJour
             montantSalaire = montantSalaire + montantJour
         Next keyJour
+
+        ' SYSTEME DE CACHETS : Montant par cachet = Total ÷ Nb jours (arrondi sup)
+        Dim montantParCachet As Double
+        If nbJoursTravailles > 0 Then
+            montantParCachet = Application.WorksheetFunction.RoundUp(montantSalaire / nbJoursTravailles, 2)
+        Else
+            montantParCachet = 0
+        End If
 
         ' Remplir la ligne dans Calculs_Paie
         wsCalculs.Cells(ligneCalcul, 1).Value = guideID
         wsCalculs.Cells(ligneCalcul, 2).Value = guideNom
         wsCalculs.Cells(ligneCalcul, 3).Value = nbVisitesTotal
-        wsCalculs.Cells(ligneCalcul, 4).Value = dictJours.Count ' Nombre de jours travailles
+        wsCalculs.Cells(ligneCalcul, 4).Value = nbJoursTravailles ' Nombre de jours = Nombre de cachets
         wsCalculs.Cells(ligneCalcul, 5).Value = montantSalaire
         wsCalculs.Cells(ligneCalcul, 5).NumberFormat = "#,##0.00 €"
+
+        ' NOUVELLE COLONNE F : Montant par cachet
+        wsCalculs.Cells(ligneCalcul, 6).Value = montantParCachet
+        wsCalculs.Cells(ligneCalcul, 6).NumberFormat = "#,##0.00 €"
+
+        ' NOUVELLE COLONNE G : Total recalculé (cachets × montant)
+        Dim totalRecalcule As Double
+        totalRecalcule = montantParCachet * nbJoursTravailles
+        wsCalculs.Cells(ligneCalcul, 7).Value = totalRecalcule
+        wsCalculs.Cells(ligneCalcul, 7).NumberFormat = "#,##0.00 €"
 
         ' Formater
         If nbVisitesTotal > 0 Then
@@ -170,6 +190,16 @@ Public Sub CalculerVisitesEtSalaires()
         ligneCalcul = ligneCalcul + 1
     Next keyGuide
 
+    ' Mettre à jour les en-têtes si besoin
+    If wsCalculs.Cells(1, 6).Value = "" Then
+        wsCalculs.Cells(1, 6).Value = "Montant/Cachet"
+        wsCalculs.Cells(1, 6).Font.Bold = True
+    End If
+    If wsCalculs.Cells(1, 7).Value = "" Then
+        wsCalculs.Cells(1, 7).Value = "Total Recalculé"
+        wsCalculs.Cells(1, 7).Font.Bold = True
+    End If
+
     ' Ajouter une ligne de total
     If ligneCalcul > 2 Then
         wsCalculs.Cells(ligneCalcul, 2).Value = "TOTAL"
@@ -177,13 +207,17 @@ Public Sub CalculerVisitesEtSalaires()
 
         wsCalculs.Cells(ligneCalcul, 3).Formula = "=SUM(C2:C" & ligneCalcul - 1 & ")"
         wsCalculs.Cells(ligneCalcul, 3).Font.Bold = True
-        
+
         wsCalculs.Cells(ligneCalcul, 4).Formula = "=SUM(D2:D" & ligneCalcul - 1 & ")"
         wsCalculs.Cells(ligneCalcul, 4).Font.Bold = True
 
         wsCalculs.Cells(ligneCalcul, 5).Formula = "=SUM(E2:E" & ligneCalcul - 1 & ")"
         wsCalculs.Cells(ligneCalcul, 5).NumberFormat = "#,##0.00 €"
         wsCalculs.Cells(ligneCalcul, 5).Font.Bold = True
+
+        wsCalculs.Cells(ligneCalcul, 7).Formula = "=SUM(G2:G" & ligneCalcul - 1 & ")"
+        wsCalculs.Cells(ligneCalcul, 7).NumberFormat = "#,##0.00 €"
+        wsCalculs.Cells(ligneCalcul, 7).Font.Bold = True
 
         wsCalculs.Rows(ligneCalcul).Interior.Color = RGB(255, 242, 204)
     End If
@@ -217,15 +251,15 @@ Private Function IdentifierTypeVisite(idVisite As String) As String
     Dim wsVisites As Worksheet
     Dim i As Long
     Dim nomVisite As String
-    
+
     Set wsVisites = ThisWorkbook.Worksheets(FEUILLE_VISITES)
     IdentifierTypeVisite = "STANDARD" ' Par defaut
-    
+
     ' Chercher la visite
     For i = 2 To wsVisites.Cells(wsVisites.Rows.Count, 1).End(xlUp).Row
         If wsVisites.Cells(i, 1).Value = idVisite Then
             nomVisite = UCase(Trim(wsVisites.Cells(i, 2).Value))
-            
+
             ' Identifier le type
             If InStr(nomVisite, "BRANLY") > 0 Or _
                InStr(nomVisite, "EVENEMENT BRANLY") > 0 Then
@@ -236,7 +270,7 @@ Private Function IdentifierTypeVisite(idVisite As String) As String
                    InStr(nomVisite, "VISIO") > 0 Then
                 IdentifierTypeVisite = "HORSLEMURS"
             End If
-            
+
             Exit Function
         End If
     Next i
@@ -249,10 +283,10 @@ End Function
 Private Function CalculerTarifJournee(typeVisite As String, nbVisites As Integer, dureeHeures As Double) As Double
     Dim wsConfig As Worksheet
     Set wsConfig = ThisWorkbook.Worksheets("Configuration")
-    
+
     ' Valeurs par defaut si parametres non trouves
     CalculerTarifJournee = 0
-    
+
     Select Case UCase(typeVisite)
         Case "STANDARD"
             ' Tarifs standards: 80€/110€/140€
@@ -264,7 +298,7 @@ Private Function CalculerTarifJournee(typeVisite As String, nbVisites As Integer
                 Case Is >= 3
                     CalculerTarifJournee = LireParametreConfig("TARIF_3_VISITES", 140)
             End Select
-            
+
         Case "BRANLY"
             ' Tarifs Branly selon duree: 2h=120€, 3h=150€, 4h=180€
             If dureeHeures <= 2 Then
@@ -274,7 +308,7 @@ Private Function CalculerTarifJournee(typeVisite As String, nbVisites As Integer
             Else
                 CalculerTarifJournee = LireParametreConfig("TARIF_BRANLY_4H", 180)
             End If
-            
+
         Case "HORSLEMURS"
             ' Tarifs hors-les-murs: 100€/130€/160€
             Select Case nbVisites
@@ -295,31 +329,31 @@ End Function
 Private Function LireParametreConfig(nomParam As String, valeurDefaut As Double) As Double
     Dim wsConfig As Worksheet
     Dim i As Long
-    
+
     On Error Resume Next
     Set wsConfig = ThisWorkbook.Worksheets("Configuration")
-    
+
     If wsConfig Is Nothing Then
         LireParametreConfig = valeurDefaut
         Exit Function
     End If
-    
+
     ' Chercher le parametre
     For i = 1 To wsConfig.Cells(wsConfig.Rows.Count, 1).End(xlUp).Row
         If Trim(UCase(wsConfig.Cells(i, 1).Value)) = UCase(nomParam) Then
             Dim valeur As Double
             valeur = wsConfig.Cells(i, 2).Value
-            
+
             If valeur > 0 Then
                 LireParametreConfig = valeur
             Else
                 LireParametreConfig = valeurDefaut
             End If
-            
+
             Exit Function
         End If
     Next i
-    
+
     ' Si non trouve, retourner valeur par defaut
     LireParametreConfig = valeurDefaut
     On Error GoTo 0
@@ -436,7 +470,7 @@ Public Sub GenererFichePaieGuide()
             If Err.Number = 0 Then
                 If Month(dateVisite) = moisCible And Year(dateVisite) = anneeCible Then
                     cleJour = Format(dateVisite, "yyyy-mm-dd")
-                    
+
                     Dim idVisite As String
                     idVisite = wsPlanning.Cells(i, 1).Value
                     typeVisite = IdentifierTypeVisite(idVisite)
@@ -497,17 +531,17 @@ Public Sub GenererFichePaieGuide()
     ligne = 8
     totalVisites = 0
     totalMontant = 0
-    
+
     Dim keyJour As Variant
     For Each keyJour In dictJours.Keys
         Dim infoJour As Variant
         infoJour = dictJours(keyJour)
-        
+
         Dim nbVisitesJour As Integer
         Dim typeJour As String
         Dim dureeJour As Double
         Dim montantJour As Double
-        
+
         dateVisite = infoJour(0)
         typeJour = infoJour(1)
         nbVisitesJour = infoJour(2)
@@ -562,6 +596,222 @@ Erreur:
     If Not wbFiche Is Nothing Then wbFiche.Close SaveChanges:=False
     MsgBox "Erreur lors de la generation de la fiche : " & Err.Description, vbCritical
 End Sub
+
+'===============================================================================
+' FONCTION: GenererDecompteMensuel
+' DESCRIPTION: Genere un decompte detaille avec statistiques par categorie
+'===============================================================================
+Public Sub GenererDecompteMensuel()
+    Dim wsPlanning As Worksheet
+    Dim wsVisites As Worksheet
+    Dim wbDecompte As Workbook
+    Dim wsDecompte As Worksheet
+    Dim moisFiltre As String
+    Dim moisCible As Integer, anneeCible As Integer
+    Dim dictGuides As Object
+    Dim dictStats As Object
+    Dim i As Long, ligne As Long
+    Dim guideID As String, dateVisite As Date, heureVisite As String
+    Dim categorieVisite As String, idVisite As String
+
+    On Error GoTo Erreur
+
+    ' Demander le mois
+    moisFiltre = InputBox("Mois pour le decompte (MM/AAAA):", "Decompte mensuel", Format(Date, "mm/yyyy"))
+    If moisFiltre = "" Then Exit Sub
+
+    moisCible = CInt(Left(moisFiltre, 2))
+    anneeCible = CInt(Right(moisFiltre, 4))
+
+    Set wsPlanning = ThisWorkbook.Worksheets(FEUILLE_PLANNING)
+    Set wsVisites = ThisWorkbook.Worksheets(FEUILLE_VISITES)
+    Set dictGuides = CreateObject("Scripting.Dictionary")
+    Set dictStats = CreateObject("Scripting.Dictionary")
+
+    ' Initialiser compteurs statistiques
+    dictStats.Add "Branly", 0
+    dictStats.Add "Marine", 0
+    dictStats.Add "Hors-les-murs", 0
+    dictStats.Add "Evenements", 0
+    dictStats.Add "Visio", 0
+    dictStats.Add "Autres", 0
+    dictStats.Add "Total", 0
+
+    Application.ScreenUpdating = False
+
+    ' Creer nouveau classeur
+    Set wbDecompte = Workbooks.Add
+    Set wsDecompte = wbDecompte.Worksheets(1)
+    wsDecompte.Name = "Decompte_" & Format(DateSerial(anneeCible, moisCible, 1), "yyyymm")
+
+    ' Titre
+    wsDecompte.Cells(1, 1).Value = "DECOMPTE DETAILLE - " & Format(DateSerial(anneeCible, moisCible, 1), "MMMM YYYY")
+    wsDecompte.Cells(1, 1).Font.Size = 14
+    wsDecompte.Cells(1, 1).Font.Bold = True
+    wsDecompte.Range("A1:G1").Merge
+
+    ' En-tetes
+    ligne = 3
+    wsDecompte.Cells(ligne, 1).Value = "Guide"
+    wsDecompte.Cells(ligne, 2).Value = "Date"
+    wsDecompte.Cells(ligne, 3).Value = "Heure"
+    wsDecompte.Cells(ligne, 4).Value = "Type Visite"
+    wsDecompte.Cells(ligne, 5).Value = "Categorie"
+    wsDecompte.Cells(ligne, 6).Value = "Nb Jours"
+    wsDecompte.Cells(ligne, 7).Value = "Montant Cachet"
+    wsDecompte.Range("A" & ligne & ":G" & ligne).Font.Bold = True
+    wsDecompte.Range("A" & ligne & ":G" & ligne).Interior.Color = RGB(200, 200, 200)
+    ligne = ligne + 1
+
+    ' Parcourir le planning
+    For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
+        guideID = Trim(wsPlanning.Cells(i, 5).Value)
+
+        If guideID <> "NON ATTRIBUE" And guideID <> "" Then
+            On Error Resume Next
+            dateVisite = CDate(wsPlanning.Cells(i, 2).Value)
+            heureVisite = wsPlanning.Cells(i, 3).Value
+            idVisite = wsPlanning.Cells(i, 1).Value
+
+            If Err.Number = 0 And Month(dateVisite) = moisCible And Year(dateVisite) = anneeCible Then
+                ' Identifier categorie
+                categorieVisite = IdentifierCategorieVisite(idVisite)
+
+                ' Incrementer stats
+                dictStats(categorieVisite) = dictStats(categorieVisite) + 1
+                dictStats("Total") = dictStats("Total") + 1
+
+                ' Ajouter ligne
+                wsDecompte.Cells(ligne, 1).Value = ObtenirNomCompletGuide(guideID)
+                wsDecompte.Cells(ligne, 2).Value = Format(dateVisite, "dd/mm/yyyy")
+                wsDecompte.Cells(ligne, 3).Value = heureVisite
+                wsDecompte.Cells(ligne, 4).Value = ObtenirNomVisite(idVisite)
+                wsDecompte.Cells(ligne, 5).Value = categorieVisite
+
+                ' Compter jours par guide
+                If Not dictGuides.exists(guideID) Then
+                    dictGuides.Add guideID, CreateObject("Scripting.Dictionary")
+                End If
+                Dim cleJour As String
+                cleJour = Format(dateVisite, "yyyy-mm-dd")
+                If Not dictGuides(guideID).exists(cleJour) Then
+                    dictGuides(guideID).Add cleJour, True
+                End If
+
+                ligne = ligne + 1
+            End If
+
+            Err.Clear
+            On Error GoTo Erreur
+        End If
+    Next i
+
+    ' Ajouter statistiques
+    ligne = ligne + 2
+    wsDecompte.Cells(ligne, 1).Value = "STATISTIQUES PAR CATEGORIE"
+    wsDecompte.Cells(ligne, 1).Font.Bold = True
+    wsDecompte.Cells(ligne, 1).Font.Size = 12
+    ligne = ligne + 1
+
+    wsDecompte.Cells(ligne, 1).Value = "Visites Branly :"
+    wsDecompte.Cells(ligne, 2).Value = dictStats("Branly")
+    ligne = ligne + 1
+
+    wsDecompte.Cells(ligne, 1).Value = "Visites Marine :"
+    wsDecompte.Cells(ligne, 2).Value = dictStats("Marine")
+    ligne = ligne + 1
+
+    wsDecompte.Cells(ligne, 1).Value = "Hors-les-murs :"
+    wsDecompte.Cells(ligne, 2).Value = dictStats("Hors-les-murs")
+    ligne = ligne + 1
+
+    wsDecompte.Cells(ligne, 1).Value = "Evenements :"
+    wsDecompte.Cells(ligne, 2).Value = dictStats("Evenements")
+    ligne = ligne + 1
+
+    wsDecompte.Cells(ligne, 1).Value = "Visio :"
+    wsDecompte.Cells(ligne, 2).Value = dictStats("Visio")
+    ligne = ligne + 1
+
+    wsDecompte.Cells(ligne, 1).Value = "Autres :"
+    wsDecompte.Cells(ligne, 2).Value = dictStats("Autres")
+    ligne = ligne + 1
+
+    wsDecompte.Cells(ligne, 1).Value = "TOTAL :"
+    wsDecompte.Cells(ligne, 2).Value = dictStats("Total")
+    wsDecompte.Cells(ligne, 1).Font.Bold = True
+    wsDecompte.Cells(ligne, 2).Font.Bold = True
+
+    ' Stats guides
+    ligne = ligne + 2
+    wsDecompte.Cells(ligne, 1).Value = "NOMBRE DE JOURS PAR GUIDE"
+    wsDecompte.Cells(ligne, 1).Font.Bold = True
+    ligne = ligne + 1
+
+    Dim keyGuide As Variant
+    For Each keyGuide In dictGuides.Keys
+        wsDecompte.Cells(ligne, 1).Value = ObtenirNomCompletGuide(CStr(keyGuide))
+        wsDecompte.Cells(ligne, 2).Value = dictGuides(keyGuide).Count & " jours"
+        ligne = ligne + 1
+    Next keyGuide
+
+    wsDecompte.Columns.AutoFit
+    Application.ScreenUpdating = True
+
+    MsgBox "Decompte mensuel genere avec succes !" & vbCrLf & vbCrLf & _
+           "Total visites : " & dictStats("Total") & vbCrLf & _
+           "Branly : " & dictStats("Branly") & vbCrLf & _
+           "Marine : " & dictStats("Marine"), _
+           vbInformation, "Decompte Mensuel"
+
+    Exit Sub
+
+Erreur:
+    Application.ScreenUpdating = True
+    MsgBox "Erreur lors de la generation du decompte : " & Err.Description, vbCritical
+End Sub
+
+'===============================================================================
+' FONCTION: IdentifierCategorieVisite
+' DESCRIPTION: Identifie la categorie d'une visite
+'===============================================================================
+Private Function IdentifierCategorieVisite(idVisite As String) As String
+    Dim nomVisite As String
+    nomVisite = UCase(Trim(ObtenirNomVisite(idVisite)))
+
+    If InStr(nomVisite, "BRANLY") > 0 Then
+        IdentifierCategorieVisite = "Branly"
+    ElseIf InStr(nomVisite, "MARINE") > 0 Then
+        IdentifierCategorieVisite = "Marine"
+    ElseIf InStr(nomVisite, "HORS-LES-MURS") > 0 Or InStr(nomVisite, "HORS LES MURS") > 0 Then
+        IdentifierCategorieVisite = "Hors-les-murs"
+    ElseIf InStr(nomVisite, "EVENEMENT") > 0 Or InStr(nomVisite, "EVENT") > 0 Then
+        IdentifierCategorieVisite = "Evenements"
+    ElseIf InStr(nomVisite, "VISIO") > 0 Then
+        IdentifierCategorieVisite = "Visio"
+    Else
+        IdentifierCategorieVisite = "Autres"
+    End If
+End Function
+
+'===============================================================================
+' FONCTION: ObtenirNomVisite
+' DESCRIPTION: Retourne le nom d'une visite
+'===============================================================================
+Private Function ObtenirNomVisite(idVisite As String) As String
+    Dim wsVisites As Worksheet
+    Dim i As Long
+
+    Set wsVisites = ThisWorkbook.Worksheets(FEUILLE_VISITES)
+    ObtenirNomVisite = idVisite
+
+    For i = 2 To wsVisites.Cells(wsVisites.Rows.Count, 1).End(xlUp).Row
+        If wsVisites.Cells(i, 1).Value = idVisite Then
+            ObtenirNomVisite = wsVisites.Cells(i, 2).Value
+            Exit Function
+        End If
+    Next i
+End Function
 
 
 '===============================================================================
