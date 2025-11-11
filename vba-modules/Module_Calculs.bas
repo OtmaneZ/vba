@@ -248,27 +248,26 @@ End Sub
 ' DESCRIPTION: Identifie si c'est une visite Standard, Branly ou Hors-les-murs
 '===============================================================================
 Private Function IdentifierTypeVisite(idVisite As String) As String
+    '===============================================================================
+    ' IDENTIFIE LE TYPE DE VISITE depuis la colonne Type_Visite de la feuille Visites
+    ' Retourne: BRANLY, MARINE, HORS-LES-MURS, EVENEMENT, VISIO, ou AUTRE
+    '===============================================================================
     Dim wsVisites As Worksheet
     Dim i As Long
-    Dim nomVisite As String
+    Dim typeVisite As String
 
     Set wsVisites = ThisWorkbook.Worksheets(FEUILLE_VISITES)
-    IdentifierTypeVisite = "STANDARD" ' Par defaut
+    IdentifierTypeVisite = "AUTRE" ' Par defaut
 
-    ' Chercher la visite
+    ' Chercher la visite dans la feuille Visites
     For i = 2 To wsVisites.Cells(wsVisites.Rows.Count, 1).End(xlUp).Row
         If wsVisites.Cells(i, 1).Value = idVisite Then
-            nomVisite = UCase(Trim(wsVisites.Cells(i, 2).Value))
+            ' Lire la colonne Type_Visite (colonne 5 dans structure attendue)
+            typeVisite = UCase(Trim(wsVisites.Cells(i, 5).Value))
 
-            ' Identifier le type
-            If InStr(nomVisite, "BRANLY") > 0 Or _
-               InStr(nomVisite, "EVENEMENT BRANLY") > 0 Then
-                IdentifierTypeVisite = "BRANLY"
-            ElseIf InStr(nomVisite, "HORS-LES-MURS") > 0 Or _
-                   InStr(nomVisite, "HORS LES MURS") > 0 Or _
-                   InStr(nomVisite, "HORSLEMURS") > 0 Or _
-                   InStr(nomVisite, "VISIO") > 0 Then
-                IdentifierTypeVisite = "HORSLEMURS"
+            ' Retourner le type tel quel (ou normalise)
+            If typeVisite <> "" Then
+                IdentifierTypeVisite = typeVisite
             End If
 
             Exit Function
@@ -281,48 +280,34 @@ End Function
 ' DESCRIPTION: Calcule le tarif pour une journee selon le type et nb de visites
 '===============================================================================
 Private Function CalculerTarifJournee(typeVisite As String, nbVisites As Integer, dureeHeures As Double) As Double
-    Dim wsConfig As Worksheet
-    Set wsConfig = ThisWorkbook.Worksheets("Configuration")
+    '===============================================================================
+    ' LOGIQUE TARIFAIRE CLIENT (exemple mail):
+    ' - 1 visite/jour = 80€
+    ' - 2 visites/jour = 110€
+    ' - 3+ visites/jour = 140€
+    ' - EXCEPTION: Hors-les-murs = 100€ (peu importe le nombre)
+    '===============================================================================
 
-    ' Valeurs par defaut si parametres non trouves
-    CalculerTarifJournee = 0
+    ' CAS SPECIAL : Hors-les-murs = 100€ fixe
+    If UCase(Trim(typeVisite)) = "HORS-LES-MURS" Or _
+       UCase(Trim(typeVisite)) = "HORS LES MURS" Or _
+       UCase(Trim(typeVisite)) = "HORSLEMURS" Then
+        CalculerTarifJournee = LireParametreConfig("TARIF_HORSLEMURS", 100)
+        Exit Function
+    End If
 
-    Select Case UCase(typeVisite)
-        Case "STANDARD"
-            ' Tarifs standards: 80/110/140
-            Select Case nbVisites
-                Case 1
-                    CalculerTarifJournee = LireParametreConfig("TARIF_1_VISITE", 80)
-                Case 2
-                    CalculerTarifJournee = LireParametreConfig("TARIF_2_VISITES", 110)
-                Case Is >= 3
-                    CalculerTarifJournee = LireParametreConfig("TARIF_3_VISITES", 140)
-            End Select
-
-        Case "BRANLY"
-            ' Tarifs Branly selon duree: 2h=120, 3h=150, 4h=180
-            If dureeHeures <= 2 Then
-                CalculerTarifJournee = LireParametreConfig("TARIF_BRANLY_2H", 120)
-            ElseIf dureeHeures <= 3 Then
-                CalculerTarifJournee = LireParametreConfig("TARIF_BRANLY_3H", 150)
-            Else
-                CalculerTarifJournee = LireParametreConfig("TARIF_BRANLY_4H", 180)
-            End If
-
-        Case "HORSLEMURS"
-            ' Tarifs hors-les-murs: 100/130/160
-            Select Case nbVisites
-                Case 1
-                    CalculerTarifJournee = LireParametreConfig("TARIF_HORSLEMURS_1", 100)
-                Case 2
-                    CalculerTarifJournee = LireParametreConfig("TARIF_HORSLEMURS_2", 130)
-                Case Is >= 3
-                    CalculerTarifJournee = LireParametreConfig("TARIF_HORSLEMURS_3", 160)
-            End Select
+    ' TARIFS STANDARDS selon nombre de visites PAR JOUR
+    Select Case nbVisites
+        Case 1
+            CalculerTarifJournee = LireParametreConfig("TARIF_1_VISITE", 80)
+        Case 2
+            CalculerTarifJournee = LireParametreConfig("TARIF_2_VISITES", 110)
+        Case Is >= 3
+            CalculerTarifJournee = LireParametreConfig("TARIF_3_VISITES", 140)
+        Case Else
+            CalculerTarifJournee = 0
     End Select
-End Function
-
-'===============================================================================
+End Function'===============================================================================
 ' FONCTION: LireParametreConfig
 ' DESCRIPTION: Lit un parametre dans la feuille Configuration
 '===============================================================================
