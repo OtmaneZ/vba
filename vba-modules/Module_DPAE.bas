@@ -116,11 +116,14 @@ Public Sub ExporterDonneesDPAE()
     For Each keyGuide In dictGuides.Keys
         guideID = CStr(keyGuide)
 
-        ' Recuperer infos guide
+        ' Recuperer infos guide (guideID contient "Prenom Nom")
         For i = 2 To wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
-            If wsGuides.Cells(i, 1).Value = guideID Then
-                guideNom = wsGuides.Cells(i, 3).Value  ' Nom
-                guidePrenom = wsGuides.Cells(i, 2).Value  ' Prenom
+            Dim nomComplet As String
+            nomComplet = Trim(wsGuides.Cells(i, 1).Value) & " " & Trim(wsGuides.Cells(i, 2).Value)
+
+            If UCase(nomComplet) = UCase(Trim(guideID)) Then
+                guidePrenom = wsGuides.Cells(i, 1).Value  ' Prenom (colonne A)
+                guideNom = wsGuides.Cells(i, 2).Value     ' Nom (colonne B)
 
                 Dim dates As Variant
                 dates = dictGuides(guideID)
@@ -131,8 +134,8 @@ Public Sub ExporterDonneesDPAE()
                 wsDPAE.Cells(ligne, 1).Value = guideID
                 wsDPAE.Cells(ligne, 2).Value = guideNom
                 wsDPAE.Cells(ligne, 3).Value = guidePrenom
-                wsDPAE.Cells(ligne, 4).Value = wsGuides.Cells(i, 4).Value  ' Email
-                wsDPAE.Cells(ligne, 5).Value = wsGuides.Cells(i, 5).Value  ' Tel
+                wsDPAE.Cells(ligne, 4).Value = wsGuides.Cells(i, 3).Value  ' Email (colonne C)
+                wsDPAE.Cells(ligne, 5).Value = wsGuides.Cells(i, 4).Value  ' Tel (colonne D)
                 wsDPAE.Cells(ligne, 6).Value = Format(dateDebut, "dd/mm/yyyy")
                 wsDPAE.Cells(ligne, 7).Value = Format(dateFin, "dd/mm/yyyy")
                 wsDPAE.Cells(ligne, 8).Value = "CDD d'usage"

@@ -93,7 +93,7 @@ Private Function RechercherGuide(guideID As String) As String
 
     If Not rng Is Nothing Then
         ligneGuide = rng.Row
-        RechercherGuide = ws.Cells(ligneGuide, 2).Value & " " & ws.Cells(ligneGuide, 3).Value
+        RechercherGuide = ws.Cells(ligneGuide, 1).Value & " " & ws.Cells(ligneGuide, 2).Value ' Prenom + Nom
     Else
         RechercherGuide = ""
     End If

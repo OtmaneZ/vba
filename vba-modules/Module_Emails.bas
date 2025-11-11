@@ -321,7 +321,7 @@ Private Function ObtenirEmailGuide(guideID As String) As String
 
     For i = 2 To wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
         If wsGuides.Cells(i, 1).Value = guideID Then
-            ObtenirEmailGuide = wsGuides.Cells(i, 4).Value ' Colonne Email
+            ObtenirEmailGuide = wsGuides.Cells(i, 3).Value ' Email en colonne C
             Exit Function
         End If
     Next i
@@ -340,7 +340,7 @@ Private Function ObtenirNomGuideEmail(guideID As String) As String
 
     For i = 2 To wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
         If wsGuides.Cells(i, 1).Value = guideID Then
-            ObtenirNomGuideEmail = wsGuides.Cells(i, 2).Value & " " & wsGuides.Cells(i, 3).Value
+            ObtenirNomGuideEmail = wsGuides.Cells(i, 1).Value & " " & wsGuides.Cells(i, 2).Value ' Prenom + Nom
             Exit Function
         End If
     Next i
@@ -423,8 +423,8 @@ Public Sub EnvoyerContratParEmail()
     ' Recuperer infos guide
     For i = 2 To wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
         If wsGuides.Cells(i, 1).Value = guideID Then
-            guideNom = wsGuides.Cells(i, 2).Value & " " & wsGuides.Cells(i, 3).Value
-            guideMail = wsGuides.Cells(i, 4).Value
+            guideNom = wsGuides.Cells(i, 1).Value & " " & wsGuides.Cells(i, 2).Value ' Prenom + Nom
+            guideMail = wsGuides.Cells(i, 3).Value ' Email en colonne C
             Exit For
         End If
     Next i

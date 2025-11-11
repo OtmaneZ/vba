@@ -71,16 +71,14 @@ Public Sub GenererPlanningAutomatique()
 
         heureVisite = wsVisites.Cells(i, 3).Value & " - " & wsVisites.Cells(i, 4).Value
         musee = wsVisites.Cells(i, 5).Value
-        
-        ' Recuperer le type de visite et la categorie
+
+        ' Recuperer le type de visite (pas de colonne Categorie dans FEUILLE_VISITES)
         Dim typeVisite As String
-        Dim categorieVisite As String
-        typeVisite = wsVisites.Cells(i, 6).Value ' Colonne "Type"
-        categorieVisite = wsVisites.Cells(i, 9).Value ' Colonne "Categorie" (nouvellement ajoutee colonne I)
+        typeVisite = wsVisites.Cells(i, 6).Value ' Colonne F = "Type_Visite"
 
         ' Chercher un guide disponible ET autorise pour ce type de visite
         Set guidesDispos = ObtenirGuidesDisponibles(dateVisite)
-        
+
         ' Filtrer les guides selon les specialisations
         Dim guidesAutorises As New Collection
         Dim k As Long
@@ -104,8 +102,8 @@ Public Sub GenererPlanningAutomatique()
                 wsPlanning.Cells(derLignePlanning, 5).Value = guideAssigne
                 wsPlanning.Cells(derLignePlanning, 6).Value = ObtenirNomGuide(guideAssigne)
 
-                ' Appliquer le code couleur selon la categorie
-                AppliquerCodeCouleurLigne wsPlanning, derLignePlanning, categorieVisite
+                ' Appliquer le code couleur selon le type de visite
+                AppliquerCodeCouleurLigne wsPlanning, derLignePlanning, typeVisite
 
                 derLignePlanning = derLignePlanning + 1
                 compteurAttribue = compteurAttribue + 1
@@ -130,7 +128,7 @@ Public Sub GenererPlanningAutomatique()
                     wsPlanning.Cells(derLignePlanning, 4).Value = musee
                     wsPlanning.Cells(derLignePlanning, 5).Value = guideAssigne
                     wsPlanning.Cells(derLignePlanning, 6).Value = ObtenirNomGuide(guideAssigne)
-                    AppliquerCodeCouleurLigne wsPlanning, derLignePlanning, categorieVisite
+                    AppliquerCodeCouleurLigne wsPlanning, derLignePlanning, typeVisite
                     derLignePlanning = derLignePlanning + 1
                     compteurAttribue = compteurAttribue + 1
                 Else
@@ -258,7 +256,7 @@ Private Function ObtenirNomGuide(guideID As String) As String
 
     For i = 2 To wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
         If wsGuides.Cells(i, 1).Value = guideID Then
-            ObtenirNomGuide = wsGuides.Cells(i, 2).Value & " " & wsGuides.Cells(i, 3).Value
+            ObtenirNomGuide = wsGuides.Cells(i, 1).Value & " " & wsGuides.Cells(i, 2).Value ' Prenom + Nom
             Exit Function
         End If
     Next i
