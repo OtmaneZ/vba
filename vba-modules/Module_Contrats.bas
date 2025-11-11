@@ -431,6 +431,7 @@ Public Sub GenererContratFinMois()
     Dim i As Long, ligne As Long
     Dim dateVisite As Date, heureVisite As String
     Dim nbJoursReel As Integer, montantParCachet As Double, montantTotal As Double
+    Dim defraiements As Double
     Dim fichier As String
     Dim dictJours As Object
     Dim listeVisitesDetail As String
@@ -507,11 +508,22 @@ Public Sub GenererContratFinMois()
     ' Chercher les calculs de paie pour ce guide
     montantParCachet = 0
     montantTotal = 0
+    Dim defraiements As Double
+    defraiements = 0
 
     For i = 2 To wsCalculs.Cells(wsCalculs.Rows.Count, 1).End(xlUp).Row
         If wsCalculs.Cells(i, 1).Value = guideID Then
-            montantParCachet = wsCalculs.Cells(i, 6).Value ' Colonne F
-            montantTotal = wsCalculs.Cells(i, 7).Value     ' Colonne G
+            montantParCachet = wsCalculs.Cells(i, 6).Value ' Colonne F (si ancien format)
+            montantTotal = wsCalculs.Cells(i, 7).Value     ' Colonne G (si ancien format)
+
+            ' Vérifier si colonnes défraiements existent (colonne N = 14)
+            On Error Resume Next
+            defraiements = wsCalculs.Cells(i, 14).Value
+            If Err.Number <> 0 Or IsEmpty(wsCalculs.Cells(i, 14).Value) Then
+                defraiements = 0
+            End If
+            On Error GoTo 0
+
             Exit For
         End If
     Next i
@@ -583,16 +595,39 @@ Public Sub GenererContratFinMois()
     wsContrat.Cells(ligne, 2).Font.Bold = True
 
     ligne = ligne + 1
+    wsContrat.Cells(ligne, 1).Value = "Sous-total cachets :"
+    wsContrat.Cells(ligne, 1).Font.Bold = True
+    wsContrat.Cells(ligne, 2).Value = Format(montantTotal, "#,##0.00") & " "
+    wsContrat.Cells(ligne, 2).Font.Bold = True
+
+    ' Ajouter ligne défraiements si montant > 0
+    If defraiements > 0 Then
+        ligne = ligne + 1
+        wsContrat.Cells(ligne, 1).Value = "Défraiements :"
+        wsContrat.Cells(ligne, 1).Font.Bold = True
+        wsContrat.Cells(ligne, 2).Value = Format(defraiements, "#,##0.00") & " "
+        wsContrat.Cells(ligne, 2).Font.Bold = True
+        wsContrat.Cells(ligne, 2).Font.Color = RGB(0, 100, 200)
+    End If
+
+    ligne = ligne + 1
     wsContrat.Cells(ligne, 1).Value = "MONTANT TOTAL DU :"
     wsContrat.Cells(ligne, 1).Font.Bold = True
     wsContrat.Cells(ligne, 1).Font.Size = 12
-    wsContrat.Cells(ligne, 2).Value = Format(montantTotal, "#,##0.00") & " "
+    Dim montantTotalAvecFrais As Double
+    montantTotalAvecFrais = montantTotal + defraiements
+    wsContrat.Cells(ligne, 2).Value = Format(montantTotalAvecFrais, "#,##0.00") & " "
     wsContrat.Cells(ligne, 2).Font.Bold = True
     wsContrat.Cells(ligne, 2).Font.Size = 14
     wsContrat.Cells(ligne, 2).Font.Color = RGB(0, 128, 0)
 
     ligne = ligne + 2
-    wsContrat.Cells(ligne, 1).Value = "Calcul : " & nbJoursReel & " cachets  " & Format(montantParCachet, "#,##0.00") & "  = " & Format(montantTotal, "#,##0.00") & " "
+    Dim detailCalcul As String
+    detailCalcul = "Calcul : " & nbJoursReel & " cachets × " & Format(montantParCachet, "#,##0.00") & " € = " & Format(montantTotal, "#,##0.00") & " €"
+    If defraiements > 0 Then
+        detailCalcul = detailCalcul & " + Défraiements " & Format(defraiements, "#,##0.00") & " € = " & Format(montantTotalAvecFrais, "#,##0.00") & " €"
+    End If
+    wsContrat.Cells(ligne, 1).Value = detailCalcul
     wsContrat.Cells(ligne, 1).Font.Italic = True
     wsContrat.Range("A" & ligne & ":D" & ligne).Merge
 

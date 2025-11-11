@@ -120,7 +120,11 @@ Private Sub InitialiserFeuille(ws As Worksheet)
                 .Range("A1:H1").Value = Array("ID_Visite", "Date", "Heure", "Type_Visite", "Guide_Attribue", "Guides_Disponibles", "Statut_Confirmation", "Historique")
 
             Case FEUILLE_CALCULS
-                .Range("A1:G1").Value = Array("ID_Guide", "Nom_Complet", "Nb_Visites", "Nb_Jours", "Montant_Total", "Montant/Cachet", "Total_Recalcule")
+                ' Structure existante dans Excel (15 colonnes) - ne pas écraser !
+                ' A:Guide, B:Nombre_Visites, C:Total_Heures, D:Montant_Salaire, E:Prenom, F:Nom
+                ' G:Nb_Visites, H:Nb_Heures, I:Total_Brut, J:Montant_Par_Cachet, K:Nb_Cachets
+                ' L:Total_Recalcule, M:Mois, N:Défraiements, O:Total_Avec_Frais
+                ' (En-têtes déjà présents - ne rien faire)
 
             Case FEUILLE_CONTRATS
                 .Range("A1:H1").Value = Array("ID_Guide", "Nom", "Mois", "Type_Contrat", "Dates_Visites", "Nb_Cachets", "Montant_Cachet", "Total")

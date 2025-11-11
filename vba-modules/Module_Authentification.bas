@@ -259,7 +259,7 @@ Sub AjouterBoutonsGuide(ws As Worksheet)
 
     ' Calculer la largeur des colonnes en pixels (approximatif)
     Dim leftPos As Double
-    leftPos = ws.Range("G1").Left  ' Position apres la colonne F
+    leftPos = ws.Range("I1").Left  ' Position apres la colonne H (ne cache plus G et H)
 
     ' Bouton Deconnexion
     Set btnDeconnexion = ws.Buttons.Add(leftPos, 10, 120, 30)

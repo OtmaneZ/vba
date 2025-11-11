@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>GUIDE_UTILISATEUR_COMPLET</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#guide-utilisateur---système-de-planning-musée"
+id="toc-guide-utilisateur---système-de-planning-musée">📘 Guide
+Utilisateur - Système de Planning Musée</a>
+<ul>
+<li><a href="#bienvenue" id="toc-bienvenue">🎯 Bienvenue !</a></li>
+<li><a href="#table-des-matières" id="toc-table-des-matières">📋 Table
+des matières</a></li>
+<li><a href="#premier-démarrage" id="toc-premier-démarrage">🚀 Premier
+démarrage</a>
+<ul>
+<li><a href="#étape-1-ouvrir-le-fichier"
+id="toc-étape-1-ouvrir-le-fichier">Étape 1 : Ouvrir le fichier</a></li>
+<li><a href="#étape-2-première-configuration"
+id="toc-étape-2-première-configuration">Étape 2 : Première
+configuration</a></li>
+<li><a href="#étape-3-ajouter-vos-guides"
+id="toc-étape-3-ajouter-vos-guides">Étape 3 : Ajouter vos
+guides</a></li>
+</ul></li>
+<li><a href="#connexion-au-système" id="toc-connexion-au-système">🔐
+Connexion au système</a>
+<ul>
+<li><a href="#pour-vous-administrateur"
+id="toc-pour-vous-administrateur">Pour vous (Administrateur)</a></li>
+<li><a href="#pour-les-guides" id="toc-pour-les-guides">Pour les
+guides</a></li>
+</ul></li>
+<li><a href="#gestion-des-guides" id="toc-gestion-des-guides">👥 Gestion
+des guides</a>
+<ul>
+<li><a href="#ajouter-un-nouveau-guide"
+id="toc-ajouter-un-nouveau-guide">Ajouter un nouveau guide</a></li>
+<li><a href="#modifier-un-guide" id="toc-modifier-un-guide">Modifier un
+guide</a></li>
+<li><a href="#supprimer-un-guide" id="toc-supprimer-un-guide">Supprimer
+un guide</a></li>
+</ul></li>
+<li><a href="#système-de-disponibilités"
+id="toc-système-de-disponibilités">📅 Système de disponibilités</a>
+<ul>
+<li><a href="#comment-ça-marche" id="toc-comment-ça-marche">Comment ça
+marche ?</a></li>
+<li><a href="#guide-déclare-ses-disponibilités"
+id="toc-guide-déclare-ses-disponibilités">Guide déclare ses
+disponibilités</a></li>
+<li><a href="#vous-consultez-les-disponibilités"
+id="toc-vous-consultez-les-disponibilités">Vous consultez les
+disponibilités</a></li>
+</ul></li>
+<li><a href="#créer-et-attribuer-des-visites"
+id="toc-créer-et-attribuer-des-visites">🎫 Créer et attribuer des
+visites</a>
+<ul>
+<li><a href="#étape-1-créer-une-visite"
+id="toc-étape-1-créer-une-visite">Étape 1 : Créer une visite</a></li>
+<li><a href="#étape-2-attribuer-un-guide"
+id="toc-étape-2-attribuer-un-guide">Étape 2 : Attribuer un
+guide</a></li>
+<li><a href="#étape-3-email-automatique-envoyé"
+id="toc-étape-3-email-automatique-envoyé">Étape 3 : Email automatique
+envoyé</a></li>
+<li><a href="#étape-4-guide-consulte-son-planning"
+id="toc-étape-4-guide-consulte-son-planning">Étape 4 : Guide consulte
+son planning</a></li>
+</ul></li>
+<li><a href="#calculs-de-paie-et-défraiements"
+id="toc-calculs-de-paie-et-défraiements">💰 Calculs de paie et
+défraiements</a>
+<ul>
+<li><a href="#comment-ça-marche-1" id="toc-comment-ça-marche-1">Comment
+ça marche ?</a></li>
+<li><a href="#lancer-le-calcul-de-paie"
+id="toc-lancer-le-calcul-de-paie">Lancer le calcul de paie</a></li>
+<li><a href="#ajouter-les-défraiements"
+id="toc-ajouter-les-défraiements">Ajouter les défraiements</a></li>
+<li><a href="#vérifier-les-calculs"
+id="toc-vérifier-les-calculs">Vérifier les calculs</a></li>
+</ul></li>
+<li><a href="#générer-les-contrats" id="toc-générer-les-contrats">📄
+Générer les contrats</a>
+<ul>
+<li><a href="#contrat-provisoire-début-de-mois"
+id="toc-contrat-provisoire-début-de-mois">Contrat provisoire (début de
+mois)</a></li>
+<li><a href="#contrat-final-fin-de-mois"
+id="toc-contrat-final-fin-de-mois">Contrat final (fin de mois)</a></li>
+<li><a href="#exporter-le-contrat" id="toc-exporter-le-contrat">Exporter
+le contrat</a></li>
+</ul></li>
+<li><a href="#configuration-email" id="toc-configuration-email">📧
+Configuration email</a>
+<ul>
+<li><a href="#prérequis" id="toc-prérequis">Prérequis</a></li>
+<li><a href="#créer-une-adresse-email-pour-le-planning-recommandé"
+id="toc-créer-une-adresse-email-pour-le-planning-recommandé">Créer une
+adresse email pour le planning (RECOMMANDÉ)</a></li>
+<li><a href="#configuration-de-la-réponse-automatique"
+id="toc-configuration-de-la-réponse-automatique">Configuration de la
+réponse automatique</a></li>
+<li><a href="#premier-envoi-autorisation-de-sécurité"
+id="toc-premier-envoi-autorisation-de-sécurité">Premier envoi :
+Autorisation de sécurité</a></li>
+</ul></li>
+<li><a href="#questions-fréquentes" id="toc-questions-fréquentes">❓
+Questions fréquentes</a>
+<ul>
+<li><a href="#le-bouton-adminguide-ne-fait-rien"
+id="toc-le-bouton-adminguide-ne-fait-rien">1. “Le bouton Admin/Guide ne
+fait rien”</a></li>
+<li><a href="#les-emails-ne-partent-pas"
+id="toc-les-emails-ne-partent-pas">2. “Les emails ne partent
+pas”</a></li>
+<li><a href="#un-guide-ne-voit-pas-ses-visites"
+id="toc-un-guide-ne-voit-pas-ses-visites">3. “Un guide ne voit pas ses
+visites”</a></li>
+<li><a href="#la-colonne-guides_disponibles-est-vide"
+id="toc-la-colonne-guides_disponibles-est-vide">4. “La colonne
+Guides_Disponibles est vide”</a></li>
+<li><a href="#les-calculs-de-paie-sont-incorrects"
+id="toc-les-calculs-de-paie-sont-incorrects">5. “Les calculs de paie
+sont incorrects”</a></li>
+<li><a href="#guide-dit-quil-sest-trompé-dans-ses-dispos"
+id="toc-guide-dit-quil-sest-trompé-dans-ses-dispos">6. “Guide dit qu’il
+s’est trompé dans ses dispos”</a></li>
+<li><a href="#les-contrats-ne-saffichent-pas-correctement"
+id="toc-les-contrats-ne-saffichent-pas-correctement">7. “Les contrats ne
+s’affichent pas correctement”</a></li>
+<li><a href="#comment-changer-le-mot-de-passe-admin"
+id="toc-comment-changer-le-mot-de-passe-admin">8. “Comment changer le
+mot de passe admin ?”</a></li>
+<li><a href="#un-guide-a-oublié-son-mot-de-passe"
+id="toc-un-guide-a-oublié-son-mot-de-passe">9. “Un guide a oublié son
+mot de passe”</a></li>
+<li><a href="#puis-je-utiliser-un-autre-logiciel-quoutlook"
+id="toc-puis-je-utiliser-un-autre-logiciel-quoutlook">10. “Puis-je
+utiliser un autre logiciel qu’Outlook ?”</a></li>
+</ul></li>
+<li><a href="#personnalisation" id="toc-personnalisation">🔧
+Personnalisation</a>
+<ul>
+<li><a href="#changer-les-tarifs" id="toc-changer-les-tarifs">Changer
+les tarifs</a></li>
+<li><a href="#ajouter-des-types-de-visites"
+id="toc-ajouter-des-types-de-visites">Ajouter des types de
+visites</a></li>
+<li><a href="#ajouter-des-musées" id="toc-ajouter-des-musées">Ajouter
+des musées</a></li>
+</ul></li>
+<li><a href="#aide-et-support" id="toc-aide-et-support">🆘 Aide et
+support</a>
+<ul>
+<li><a href="#pendant-les-7-premiers-jours"
+id="toc-pendant-les-7-premiers-jours">Pendant les 7 premiers
+jours</a></li>
+<li><a href="#après-les-7-jours" id="toc-après-les-7-jours">Après les 7
+jours</a></li>
+</ul></li>
+<li><a href="#récapitulatif-du-workflow-complet"
+id="toc-récapitulatif-du-workflow-complet">📊 Récapitulatif du workflow
+complet</a>
+<ul>
+<li><a href="#début-de-mois" id="toc-début-de-mois">📅 Début de
+mois</a></li>
+<li><a href="#pendant-le-mois" id="toc-pendant-le-mois">📆 Pendant le
+mois</a></li>
+<li><a href="#fin-de-mois" id="toc-fin-de-mois">💰 Fin de mois</a></li>
+</ul></li>
+<li><a href="#checklist-pour-bien-démarrer"
+id="toc-checklist-pour-bien-démarrer">✅ Checklist pour bien
+démarrer</a>
+<ul>
+<li><a href="#configuration-initiale-à-faire-une-seule-fois"
+id="toc-configuration-initiale-à-faire-une-seule-fois">Configuration
+initiale (à faire une seule fois)</a></li>
+<li><a href="#utilisation-mensuelle"
+id="toc-utilisation-mensuelle">Utilisation mensuelle</a></li>
+</ul></li>
+<li><a href="#félicitations" id="toc-félicitations">🎉 Félicitations
+!</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="guide-utilisateur---système-de-planning-musée">📘 Guide
+Utilisateur - Système de Planning Musée</h1>
+<h2 id="bienvenue">🎯 Bienvenue !</h2>
+<p>Ce guide vous explique comment utiliser votre nouveau système de
+gestion de planning pour les guides du musée.</p>
+<p><strong>Tout est automatisé pour vous faciliter la vie :</strong> -
+✅ Les guides déclarent leurs disponibilités - ✅ Vous créez les visites
+et attribuez les guides - ✅ Les emails sont envoyés automatiquement -
+✅ Les calculs de paie se font tout seuls - ✅ Les contrats sont générés
+en un clic</p>
+<hr />
+<h2 id="table-des-matières">📋 Table des matières</h2>
+<ol type="1">
+<li><a href="#premier-démarrage">Premier démarrage</a></li>
+<li><a href="#connexion-au-système">Connexion au système</a></li>
+<li><a href="#gestion-des-guides">Gestion des guides</a></li>
+<li><a href="#système-de-disponibilités">Système de
+disponibilités</a></li>
+<li><a href="#créer-et-attribuer-des-visites">Créer et attribuer des
+visites</a></li>
+<li><a href="#calculs-de-paie-et-défraiements">Calculs de paie et
+défraiements</a></li>
+<li><a href="#générer-les-contrats">Générer les contrats</a></li>
+<li><a href="#configuration-email">Configuration email</a></li>
+<li><a href="#questions-fréquentes">Questions fréquentes</a></li>
+<li><a href="#aide-et-support">Aide et support</a></li>
+</ol>
+<hr />
+<h2 id="premier-démarrage">🚀 Premier démarrage</h2>
+<h3 id="étape-1-ouvrir-le-fichier">Étape 1 : Ouvrir le fichier</h3>
+<ol type="1">
+<li><p>Double-cliquez sur
+<strong><code>PLANNING_MUSEE_FINAL_PROPRE.xlsm</code></strong></p></li>
+<li><p>Excel s’ouvre avec un bandeau jaune en haut :</p>
+<pre><code>⚠️ AVERTISSEMENT DE SÉCURITÉ
+Les macros ont été désactivées.
+[Activer le contenu]</code></pre></li>
+<li><p><strong>Cliquez sur “Activer le contenu”</strong> → C’est
+indispensable !</p></li>
+</ol>
+<h3 id="étape-2-première-configuration">Étape 2 : Première
+configuration</h3>
+<ol type="1">
+<li><p>Allez sur l’onglet <strong>“Accueil”</strong></p></li>
+<li><p>Vous voyez deux boutons :</p>
+<ul>
+<li>🔑 <strong>[Admin]</strong> → Pour vous</li>
+<li>👤 <strong>[Guide]</strong> → Pour les guides</li>
+</ul></li>
+<li><p>Allez sur l’onglet <strong>“Configuration”</strong></p></li>
+<li><p>Modifiez les informations :</p>
+<pre><code>Ligne 2, Colonne A : Email_Expediteur
+Ligne 2, Colonne B : votre-email@outlook.fr
+
+Ligne 3, Colonne A : Nom_Association
+Ligne 3, Colonne B : Votre nom d&#39;association</code></pre></li>
+</ol>
+<h3 id="étape-3-ajouter-vos-guides">Étape 3 : Ajouter vos guides</h3>
+<ol type="1">
+<li><p>Allez sur l’onglet <strong>“Guides”</strong></p></li>
+<li><p>Remplissez pour chaque guide :</p>
+<pre><code>Colonne A : Prénom (ex: Marie)
+Colonne B : Nom (ex: Dupont)
+Colonne C : Email (ex: marie.dupont@email.com)
+Colonne D : Téléphone (ex: 06 12 34 56 78)
+Colonne E : Spécialisations (ex: Art moderne, Histoire)
+Colonne F : Mot de passe (ex: marie123)</code></pre></li>
+</ol>
+<p><strong>Vous êtes prêt !</strong> 🎉</p>
+<hr />
+<h2 id="connexion-au-système">🔐 Connexion au système</h2>
+<h3 id="pour-vous-administrateur">Pour vous (Administrateur)</h3>
+<ol type="1">
+<li>Cliquez sur l’onglet <strong>“Accueil”</strong></li>
+<li>Cliquez sur le bouton <strong>[Admin]</strong></li>
+<li>Entrez le mot de passe : <code>admin123</code></li>
+<li><strong>Tous les onglets s’affichent</strong> :
+<ul>
+<li>Guides</li>
+<li>Disponibilités</li>
+<li>Visites</li>
+<li>Planning</li>
+<li>Calculs_Paie</li>
+<li>Contrats</li>
+<li>Configuration</li>
+</ul></li>
+</ol>
+<h3 id="pour-les-guides">Pour les guides</h3>
+<ol type="1">
+<li>Cliquez sur l’onglet <strong>“Accueil”</strong></li>
+<li>Cliquez sur le bouton <strong>[Guide]</strong></li>
+<li>Liste des guides s’affiche</li>
+<li>Guide sélectionne son nom</li>
+<li>Guide entre son mot de passe</li>
+<li><strong>Guide voit uniquement</strong> :
+<ul>
+<li>Mes_Disponibilites (pour déclarer ses dispos)</li>
+<li>Mon_Planning (lecture seule, voit ses visites)</li>
+</ul></li>
+</ol>
+<p><strong>Important :</strong> Chaque guide ne voit QUE ses propres
+données. Les autres guides restent invisibles (confidentialité).</p>
+<hr />
+<h2 id="gestion-des-guides">👥 Gestion des guides</h2>
+<h3 id="ajouter-un-nouveau-guide">Ajouter un nouveau guide</h3>
+<ol type="1">
+<li><p>Connectez-vous en admin</p></li>
+<li><p>Allez sur <strong>“Guides”</strong></p></li>
+<li><p>Ajoutez une nouvelle ligne :</p>
+<pre><code>A: Prénom
+B: Nom
+C: Email
+D: Téléphone
+E: Spécialisations (séparées par virgule)
+F: Mot de passe (simple, le guide pourra le changer)</code></pre></li>
+</ol>
+<h3 id="modifier-un-guide">Modifier un guide</h3>
+<ul>
+<li>Modifiez directement dans la feuille “Guides”</li>
+<li>Changements effectifs immédiatement</li>
+</ul>
+<h3 id="supprimer-un-guide">Supprimer un guide</h3>
+<p><strong>⚠️ ATTENTION : Ne supprimez JAMAIS une ligne !</strong></p>
+<p>Pour désactiver un guide : 1. Ajoutez une colonne “Actif” 2. Mettez
+“NON” pour les guides inactifs 3. Ou laissez la ligne vide</p>
+<p><strong>Pourquoi ?</strong> Les historiques de planning et de paie
+sont liés aux numéros de ligne.</p>
+<hr />
+<h2 id="système-de-disponibilités">📅 Système de disponibilités</h2>
+<h3 id="comment-ça-marche">Comment ça marche ?</h3>
+<ol type="1">
+<li><strong>Guides déclarent leurs disponibilités</strong> à
+l’avance</li>
+<li><strong>Système détecte automatiquement</strong> qui est dispo pour
+chaque visite</li>
+<li><strong>Vous voyez directement</strong> la liste des guides
+disponibles</li>
+<li><strong>Vous attribuez</strong> en connaissance de cause</li>
+</ol>
+<h3 id="guide-déclare-ses-disponibilités">Guide déclare ses
+disponibilités</h3>
+<p><strong>Le guide fait ça lui-même :</strong></p>
+<ol type="1">
+<li><p>Se connecte avec son login</p></li>
+<li><p>Va sur <strong>“Mes_Disponibilites”</strong></p></li>
+<li><p>Remplit ligne par ligne :</p>
+<pre><code>Colonne A : Son numéro de guide (1, 2, 3...)
+Colonne B : Date (format : 15/11/2025)
+Colonne C : Disponible (valeurs : OUI ou NON)
+Colonne D : Commentaire optionnel (ex: &quot;Préfère matin&quot;)</code></pre></li>
+</ol>
+<p><strong>Exemple :</strong></p>
+<pre><code>1 | 15/11/2025 | OUI | Disponible toute la journée
+1 | 16/11/2025 | NON | Rendez-vous médical
+1 | 17/11/2025 | OUI | Matin uniquement
+1 | 20/11/2025 | OUI |</code></pre>
+<p><strong>Points importants :</strong> - ✅ Guide peut remplir
+<strong>quand il veut</strong> (pas besoin d’attendre une date précise)
+- ✅ Guide peut ajouter <strong>autant de lignes</strong> qu’il veut -
+✅ Guide peut <strong>modifier</strong> ses dispos n’importe quand - ✅
+<strong>Une seule ligne par date</strong> pour éviter les confusions</p>
+<h3 id="vous-consultez-les-disponibilités">Vous consultez les
+disponibilités</h3>
+<p>En tant qu’admin, vous voyez <strong>TOUTES</strong> les
+disponibilités :</p>
+<ol type="1">
+<li>Allez sur <strong>“Disponibilites”</strong> (onglet visible pour
+vous uniquement)</li>
+<li>Vous voyez toutes les déclarations de tous les guides</li>
+<li>Colonne <strong>“Guides_Disponibles”</strong> dans Planning se
+remplit automatiquement</li>
+</ol>
+<p><strong>Le système fait le travail pour vous !</strong> 🎯</p>
+<hr />
+<h2 id="créer-et-attribuer-des-visites">🎫 Créer et attribuer des
+visites</h2>
+<h3 id="étape-1-créer-une-visite">Étape 1 : Créer une visite</h3>
+<ol type="1">
+<li><p>Connectez-vous en admin</p></li>
+<li><p>Allez sur <strong>“Visites”</strong></p></li>
+<li><p>Ajoutez une nouvelle ligne :</p>
+<pre><code>Colonne A : ID_Visite (numéro unique, ex: 1, 2, 3...)
+Colonne B : Date (format: 15/11/2025)
+Colonne C : Heure_Debut (format: 10:00)
+Colonne D : Heure_Fin (format: 12:00)
+Colonne E : Musée (ex: Louvre)
+Colonne F : Type_Visite (ex: Visite guidée, Atelier enfants)
+Colonne G : Nombre_Visiteurs (ex: 25)</code></pre></li>
+</ol>
+<h3 id="étape-2-attribuer-un-guide">Étape 2 : Attribuer un guide</h3>
+<ol type="1">
+<li><p>Allez sur <strong>“Planning”</strong></p></li>
+<li><p>La visite apparaît automatiquement</p></li>
+<li><p><strong>Regardez la colonne “Guides_Disponibles”</strong> → Le
+système affiche qui a dit OUI pour cette date !</p>
+<pre><code>Exemple : &quot;Marie Dupont, Jean Martin, Sophie Dubois&quot;</code></pre></li>
+<li><p><strong>Choisissez un guide</strong> dans la colonne
+“Guide_Attribue”</p>
+<ul>
+<li><p>Liste déroulante avec tous vos guides</p></li>
+<li><p><strong>Si vous choisissez quelqu’un qui n’est PAS dispo</strong>
+→ ⚠️ Message d’alerte :</p>
+<pre><code>⚠️ ATTENTION !
+Ce guide a déclaré ne PAS être disponible pour cette date.
+Voulez-vous quand même l&#39;attribuer ?</code></pre></li>
+</ul></li>
+<li><p><strong>Confirmez l’attribution</strong></p></li>
+</ol>
+<h3 id="étape-3-email-automatique-envoyé">Étape 3 : Email automatique
+envoyé</h3>
+<p><strong>Dès que vous attribuez</strong>, le guide reçoit un email
+:</p>
+<pre><code>De: votre-email@outlook.fr
+À: marie.dupont@email.com
+Objet: Nouvelle visite attribuée - 15/11/2025
+
+Bonjour Marie,
+
+Une visite vous a été attribuée :
+
+📅 Date : 15 novembre 2025
+🕐 Heure : 10h00 - 12h00
+🏛️ Musée : Louvre
+📝 Type : Visite guidée
+👥 Nombre : 25 personnes
+
+Cette visite vous est attribuée automatiquement.
+Pour toute modification, contactez l&#39;administrateur.
+
+Cordialement,
+Musée des Guides
+
+---
+⚠️ NE PAS REPONDRE À CET EMAIL
+Pour toute question, contactez-nous au : [votre téléphone]</code></pre>
+<h3 id="étape-4-guide-consulte-son-planning">Étape 4 : Guide consulte
+son planning</h3>
+<ol type="1">
+<li><p>Guide se connecte</p></li>
+<li><p>Va sur <strong>“Mon_Planning”</strong></p></li>
+<li><p><strong>Voit ses visites en lecture seule</strong> :</p>
+<pre><code>Date       | Heure      | Musée  | Type           | Statut
+15/11/2025 | 10:00-12:00| Louvre | Visite guidée  | Confirmée
+20/11/2025 | 14:00-16:00| Orsay  | Atelier enfants| Confirmée</code></pre></li>
+</ol>
+<p><strong>Le guide ne peut PAS refuser</strong> depuis l’interface.
+Tout changement passe par vous.</p>
+<hr />
+<h2 id="calculs-de-paie-et-défraiements">💰 Calculs de paie et
+défraiements</h2>
+<h3 id="comment-ça-marche-1">Comment ça marche ?</h3>
+<p>À la fin du mois, le système calcule automatiquement : - ✅ Nombre de
+visites par guide - ✅ Nombre d’heures travaillées - ✅ Montant total
+(système de cachets) - ✅ Défraiements (remboursements de frais) - ✅
+Total final avec frais</p>
+<h3 id="lancer-le-calcul-de-paie">Lancer le calcul de paie</h3>
+<ol type="1">
+<li><p>Connectez-vous en admin</p></li>
+<li><p>Allez sur <strong>“Calculs_Paie”</strong></p></li>
+<li><p>Cliquez sur le bouton <strong>“Calculer Paie du
+Mois”</strong></p></li>
+<li><p>Choisissez le mois (ex: Novembre 2025)</p></li>
+<li><p><strong>Le système remplit automatiquement</strong> :</p>
+<pre><code>Colonne A : Guide (nom complet)
+Colonne B : Nombre_Visites
+Colonne C : Total_Heures
+Colonne D : Montant_Salaire
+... (autres colonnes de détails)
+Colonne I : Total_Brut (salaire avant défraiements)
+Colonne N : Défraiements (à remplir manuellement)
+Colonne O : Total_Avec_Frais (calculé automatiquement)</code></pre></li>
+</ol>
+<h3 id="ajouter-les-défraiements">Ajouter les défraiements</h3>
+<p><strong>Les défraiements = Remboursements de frais (transport, repas,
+etc.)</strong></p>
+<ol type="1">
+<li><p>Dans la colonne <strong>N “Défraiements”</strong>, entrez le
+montant pour chaque guide</p>
+<pre><code>Exemple :
+Marie Dupont : 45.50 €
+Jean Martin : 0.00 €
+Sophie Dubois : 32.00 €</code></pre></li>
+<li><p>La colonne <strong>O “Total_Avec_Frais”</strong> se met à jour
+automatiquement</p>
+<pre><code>Formule : Total_Brut + Défraiements = Total_Avec_Frais</code></pre></li>
+</ol>
+<h3 id="vérifier-les-calculs">Vérifier les calculs</h3>
+<ul>
+<li><strong>Colonne J</strong> : Montant_Par_Cachet (montant unitaire
+par prestation)</li>
+<li><strong>Colonne K</strong> : Nb_Cachets (nombre de prestations)</li>
+<li><strong>Colonne L</strong> : Total_Recalcule (vérification :
+Nb_Cachets × Montant_Par_Cachet)</li>
+<li><strong>Colonne M</strong> : Mois (mois concerné)</li>
+</ul>
+<p><strong>Tout est vérifié et recalculé automatiquement !</strong></p>
+<hr />
+<h2 id="générer-les-contrats">📄 Générer les contrats</h2>
+<h3 id="contrat-provisoire-début-de-mois">Contrat provisoire (début de
+mois)</h3>
+<ol type="1">
+<li>Allez sur <strong>“Contrats”</strong></li>
+<li>Cliquez sur <strong>“Générer Contrat Provisoire”</strong></li>
+<li>Sélectionnez le guide</li>
+<li>Choisissez la période</li>
+<li><strong>Le contrat se génère automatiquement</strong> avec :
+<ul>
+<li>Informations du guide</li>
+<li>Liste des visites prévues</li>
+<li>Montant estimé (sans défraiements)</li>
+</ul></li>
+</ol>
+<h3 id="contrat-final-fin-de-mois">Contrat final (fin de mois)</h3>
+<ol type="1">
+<li><strong>Calculez d’abord la paie</strong> (étape précédente)</li>
+<li>Cliquez sur <strong>“Générer Contrat Final”</strong></li>
+<li>Sélectionnez le guide</li>
+<li><strong>Le contrat final inclut</strong> :
+<ul>
+<li>Nombre réel de visites</li>
+<li>Montant par cachet</li>
+<li><strong>Sous-total cachets</strong></li>
+<li><strong>Défraiements</strong> (si montant &gt; 0)</li>
+<li><strong>MONTANT TOTAL</strong> (avec frais inclus)</li>
+<li>Détail du calcul</li>
+</ul></li>
+</ol>
+<p><strong>Exemple d’affichage dans le contrat :</strong></p>
+<pre><code>Montant par cachet : 150,00 €
+Sous-total cachets : 750,00 €
+Défraiements : 45,50 €
+MONTANT TOTAL DU : 795,50 €
+
+Calcul : 5 cachets × 150,00 € = 750,00 € + Défraiements 45,50 € = 795,50 €</code></pre>
+<h3 id="exporter-le-contrat">Exporter le contrat</h3>
+<ol type="1">
+<li>Contrat généré dans un nouvel onglet</li>
+<li><strong>Clic droit</strong> sur l’onglet → <strong>“Déplacer ou
+copier…”</strong></li>
+<li>Cochez <strong>“Créer une copie”</strong> → Nouveau classeur</li>
+<li><strong>Fichier → Enregistrer sous</strong> → Format PDF</li>
+<li>Envoyez au guide par email</li>
+</ol>
+<hr />
+<h2 id="configuration-email">📧 Configuration email</h2>
+<h3 id="prérequis">Prérequis</h3>
+<p><strong>Vous avez besoin de :</strong> - ✅ Microsoft Outlook
+installé sur votre Mac - ✅ Un compte email configuré dans Outlook - ✅
+Outlook doit être <strong>votre client mail par défaut</strong></p>
+<h3 id="créer-une-adresse-email-pour-le-planning-recommandé">Créer une
+adresse email pour le planning (RECOMMANDÉ)</h3>
+<p><strong>Pourquoi ?</strong> Séparer les emails du planning de votre
+boîte personnelle.</p>
+<ol type="1">
+<li><strong>Créez un compte Outlook.com</strong> (gratuit) :
+<ul>
+<li>Allez sur https://outlook.com</li>
+<li>Cliquez sur “Créer un compte”</li>
+<li>Choisissez : <code>planning-musee@outlook.fr</code> (ou autre nom
+disponible)</li>
+<li>Mot de passe : un mot de passe fort</li>
+</ul></li>
+<li><strong>Ajoutez le compte dans Outlook</strong> (app Mac) :
+<ul>
+<li>Ouvrez Outlook</li>
+<li>Menu <strong>Outils</strong> → <strong>Comptes</strong></li>
+<li>Cliquez sur <strong>“+”</strong> (Ajouter un compte)</li>
+<li>Entrez : <code>planning-musee@outlook.fr</code></li>
+<li>Entrez le mot de passe</li>
+<li>Cliquez <strong>“Ajouter un compte”</strong></li>
+<li>Attendez la synchronisation</li>
+</ul></li>
+<li><strong>Configurez Excel</strong> :
+<ul>
+<li>Dans Excel, onglet <strong>“Configuration”</strong></li>
+<li>Ligne 2, Colonne B : <code>planning-musee@outlook.fr</code></li>
+</ul></li>
+</ol>
+<h3 id="configuration-de-la-réponse-automatique">Configuration de la
+réponse automatique</h3>
+<p><strong>Important</strong> : Les guides vont recevoir des emails de
+cette adresse, mais vous ne voulez pas lire leurs réponses.</p>
+<ol type="1">
+<li><p>Dans <strong>Outlook</strong>, menu <strong>Outils</strong> →
+<strong>Absence du bureau</strong> (ou <strong>Réponses
+automatiques</strong>)</p></li>
+<li><p>Activez les réponses automatiques</p></li>
+<li><p>Message :</p>
+<pre><code>Bonjour,
+
+Cette boîte mail est utilisée uniquement pour l&#39;envoi de notifications
+automatiques du planning.
+
+Vos réponses ne seront pas consultées.
+
+Pour toute question, contactez directement :
+[Votre nom]
+Email : [votre-email-principal@...]
+Téléphone : [votre numéro]
+
+Cordialement,
+[Nom de votre association]</code></pre></li>
+</ol>
+<h3 id="premier-envoi-autorisation-de-sécurité">Premier envoi :
+Autorisation de sécurité</h3>
+<p><strong>Au premier email envoyé depuis Excel</strong>, Outlook
+affichera :</p>
+<pre><code>⚠️ Microsoft Excel souhaite accéder à Outlook
+pour envoyer des emails.
+
+[Refuser] [Autoriser]</code></pre>
+<p><strong>Cliquez sur “Autoriser”</strong> → Cochez “Toujours
+autoriser”</p>
+<p><strong>C’est tout !</strong> Les emails partiront automatiquement
+ensuite.</p>
+<hr />
+<h2 id="questions-fréquentes">❓ Questions fréquentes</h2>
+<h3 id="le-bouton-adminguide-ne-fait-rien">1. “Le bouton Admin/Guide ne
+fait rien”</h3>
+<p><strong>Cause</strong> : Les macros ne sont pas activées</p>
+<p><strong>Solution</strong> : 1. Fermez Excel 2. Rouvrez le fichier 3.
+Cliquez sur <strong>“Activer le contenu”</strong> dans le bandeau
+jaune</p>
+<h3 id="les-emails-ne-partent-pas">2. “Les emails ne partent pas”</h3>
+<p><strong>Causes possibles</strong> :</p>
+<p><strong>a) Outlook n’est pas installé</strong> - Vérifiez que Outlook
+est bien installé - Ouvrez Outlook manuellement, vérifiez qu’il
+fonctionne</p>
+<p><strong>b) Compte email non configuré</strong> - Ouvrez Outlook →
+Menu <strong>Outils</strong> → <strong>Comptes</strong> - Vérifiez que
+votre compte email est présent et synchronisé</p>
+<p><strong>c) Excel n’a pas l’autorisation</strong> - Au prochain envoi,
+cliquez sur <strong>“Autoriser”</strong> - Cochez “Toujours
+autoriser”</p>
+<p><strong>d) Adresse email incorrecte dans Configuration</strong> -
+Vérifiez l’onglet <strong>“Configuration”</strong>, ligne 2, colonne B -
+Doit correspondre EXACTEMENT au compte configuré dans Outlook</p>
+<h3 id="un-guide-ne-voit-pas-ses-visites">3. “Un guide ne voit pas ses
+visites”</h3>
+<p><strong>Causes</strong> :</p>
+<p><strong>a) Guide ne s’est pas connecté</strong> - Guide doit cliquer
+sur <strong>[Guide]</strong> et se connecter - Vérifiez login/mot de
+passe</p>
+<p><strong>b) Visite attribuée à un autre guide</strong> - Vérifiez
+l’onglet <strong>“Planning”</strong>, colonne “Guide_Attribue” - Le nom
+doit correspondre EXACTEMENT (majuscules/minuscules)</p>
+<h3 id="la-colonne-guides_disponibles-est-vide">4. “La colonne
+Guides_Disponibles est vide”</h3>
+<p><strong>Cause</strong> : Aucun guide n’a déclaré être disponible pour
+cette date</p>
+<p><strong>Solution</strong> : 1. Rappelez aux guides de remplir leurs
+disponibilités 2. Vérifiez l’onglet <strong>“Disponibilites”</strong>
+(en admin) 3. Si vide, les guides doivent ajouter des lignes</p>
+<h3 id="les-calculs-de-paie-sont-incorrects">5. “Les calculs de paie
+sont incorrects”</h3>
+<p><strong>Vérifications</strong> :</p>
+<ol type="1">
+<li><strong>Dates correctes</strong> dans “Visites” ?</li>
+<li><strong>Guide bien attribué</strong> dans “Planning” ?</li>
+<li><strong>Tarif par cachet</strong> correct dans Configuration ?</li>
+<li><strong>Recalculer</strong> : Cliquez sur “Calculer Paie du Mois” à
+nouveau</li>
+</ol>
+<h3 id="guide-dit-quil-sest-trompé-dans-ses-dispos">6. “Guide dit qu’il
+s’est trompé dans ses dispos”</h3>
+<p><strong>Workflow</strong> :</p>
+<ol type="1">
+<li>Guide vous contacte (téléphone, email, WhatsApp)</li>
+<li><strong>Vous décidez</strong> :
+<ul>
+<li>Option A : <strong>Maintenir l’attribution</strong> (guide doit
+honorer)</li>
+<li>Option B : <strong>Réattribuer</strong> à un autre guide</li>
+</ul></li>
+<li><strong>Pour réattribuer</strong> :
+<ul>
+<li>Onglet <strong>“Planning”</strong></li>
+<li>Trouvez la ligne de la visite</li>
+<li>Utilisez la fonction <strong>“Refuser et Réattribuer”</strong>
+(bouton ou macro)</li>
+<li>Système cherche automatiquement un autre guide dispo</li>
+<li>Email envoyé au nouveau guide</li>
+</ul></li>
+</ol>
+<h3 id="les-contrats-ne-saffichent-pas-correctement">7. “Les contrats ne
+s’affichent pas correctement”</h3>
+<p><strong>Cause</strong> : Colonnes masquées ou feuille mal
+formatée</p>
+<p><strong>Solution</strong> : 1. Supprimez l’onglet du contrat généré
+2. Relancez la génération 3. Si problème persiste : vérifiez que
+<strong>“Calculs_Paie”</strong> est bien remplie</p>
+<h3 id="comment-changer-le-mot-de-passe-admin">8. “Comment changer le
+mot de passe admin ?”</h3>
+<ol type="1">
+<li><p>Ouvrez Excel</p></li>
+<li><p>Appuyez sur <strong>Alt + F11</strong> (ou <strong>Option +
+F11</strong> sur Mac) → Éditeur VBA</p></li>
+<li><p>Double-cliquez sur <strong>“Module_Config”</strong> (à
+gauche)</p></li>
+<li><p>Cherchez la ligne :</p>
+<div class="sourceCode" id="cb18"><pre
+class="sourceCode vb"><code class="sourceCode monobasic"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">Public</span> <span class="kw">Const</span> MOT_DE_PASSE_ADMIN <span class="kw">As</span> <span class="dt">String</span> = <span class="st">&quot;admin123&quot;</span></span></code></pre></div></li>
+<li><p>Changez <code>"admin123"</code> par votre nouveau mot de
+passe</p></li>
+<li><p><strong>Fichier → Enregistrer</strong> (Cmd+S)</p></li>
+<li><p>Fermez l’éditeur VBA</p></li>
+</ol>
+<h3 id="un-guide-a-oublié-son-mot-de-passe">9. “Un guide a oublié son
+mot de passe”</h3>
+<ol type="1">
+<li>Allez sur l’onglet <strong>“Guides”</strong></li>
+<li>Trouvez la ligne du guide</li>
+<li>Colonne F : changez le mot de passe</li>
+<li>Communiquez-lui le nouveau mot de passe</li>
+</ol>
+<h3 id="puis-je-utiliser-un-autre-logiciel-quoutlook">10. “Puis-je
+utiliser un autre logiciel qu’Outlook ?”</h3>
+<p><strong>Actuellement : NON</strong></p>
+<p>Le système est conçu pour Outlook uniquement. Pour utiliser Gmail,
+Thunderbird, etc., il faudrait modifier le code VBA (service
+payant).</p>
+<p><strong>Alternative</strong> : Désactiver les emails automatiques et
+envoyer manuellement.</p>
+<hr />
+<h2 id="personnalisation">🔧 Personnalisation</h2>
+<h3 id="changer-les-tarifs">Changer les tarifs</h3>
+<ol type="1">
+<li><p>Onglet <strong>“Configuration”</strong></p></li>
+<li><p>Ajoutez des lignes pour vos paramètres :</p>
+<pre><code>Tarif_Base_Horaire | 25.00
+Tarif_Par_Cachet | 150.00
+Majoration_Weekend | 1.25</code></pre></li>
+<li><p>Les calculs utilisent ces valeurs automatiquement</p></li>
+</ol>
+<h3 id="ajouter-des-types-de-visites">Ajouter des types de visites</h3>
+<ol type="1">
+<li>Onglet <strong>“Visites”</strong></li>
+<li>Colonne F “Type_Visite” : liste déroulante</li>
+<li>Pour modifier la liste :
+<ul>
+<li>Sélectionnez une cellule de la colonne</li>
+<li>Menu <strong>Données</strong> → <strong>Validation des
+données</strong></li>
+<li>Modifiez la liste :
+<code>Visite guidée, Atelier enfants, Conférence, ...</code></li>
+</ul></li>
+</ol>
+<h3 id="ajouter-des-musées">Ajouter des musées</h3>
+<p>Même principe que les types de visites : - Colonne E “Musée” -
+Validation des données - Liste personnalisée</p>
+<hr />
+<h2 id="aide-et-support">🆘 Aide et support</h2>
+<h3 id="pendant-les-7-premiers-jours">Pendant les 7 premiers jours</h3>
+<p><strong>Support inclus pendant 7 jours après la
+livraison.</strong></p>
+<p><strong>Contact :</strong> - Email : [Email du développeur] - Délai
+de réponse : 24-48h - Support disponible pour : - ✅ Bugs ou erreurs -
+✅ Questions sur le fonctionnement - ✅ Petites modifications - ✅
+Configuration email</p>
+<h3 id="après-les-7-jours">Après les 7 jours</h3>
+<p><strong>Vous êtes autonome !</strong></p>
+<p>Ce guide contient tout ce dont vous avez besoin pour : - Utiliser le
+système au quotidien - Résoudre les problèmes courants - Former vos
+guides</p>
+<p><strong>En cas de problème majeur</strong> : - Contactez le
+développeur pour un support payant</p>
+<hr />
+<h2 id="récapitulatif-du-workflow-complet">📊 Récapitulatif du workflow
+complet</h2>
+<h3 id="début-de-mois">📅 Début de mois</h3>
+<ol type="1">
+<li><strong>Guides remplissent leurs disponibilités</strong> (quand ils
+veulent)
+<ul>
+<li>Se connectent</li>
+<li>Onglet “Mes_Disponibilites”</li>
+<li>Ajoutent des lignes : Date | OUI/NON</li>
+</ul></li>
+<li><strong>Vous créez les visites</strong>
+<ul>
+<li>Onglet “Visites”</li>
+<li>Ajoutez : Date, Heure, Musée, Type</li>
+</ul></li>
+<li><strong>Vous attribuez les guides</strong>
+<ul>
+<li>Onglet “Planning”</li>
+<li>Regardez “Guides_Disponibles” (rempli automatiquement)</li>
+<li>Choisissez un guide</li>
+<li>Email envoyé automatiquement</li>
+</ul></li>
+<li><strong>Guides consultent leur planning</strong>
+<ul>
+<li>Se connectent</li>
+<li>Onglet “Mon_Planning”</li>
+<li>Voient leurs visites en lecture seule</li>
+</ul></li>
+</ol>
+<h3 id="pendant-le-mois">📆 Pendant le mois</h3>
+<ol start="5" type="1">
+<li><strong>Ajustements si nécessaire</strong>
+<ul>
+<li>Guide vous contacte pour changement</li>
+<li>Vous réattribuez si besoin</li>
+<li>Nouvel email envoyé automatiquement</li>
+</ul></li>
+</ol>
+<h3 id="fin-de-mois">💰 Fin de mois</h3>
+<ol start="6" type="1">
+<li><strong>Calcul de la paie</strong>
+<ul>
+<li>Onglet “Calculs_Paie”</li>
+<li>Bouton “Calculer Paie du Mois”</li>
+<li>Tout se remplit automatiquement</li>
+</ul></li>
+<li><strong>Ajout des défraiements</strong>
+<ul>
+<li>Colonne N : entrez les montants manuellement</li>
+<li>Colonne O : total se calcule automatiquement</li>
+</ul></li>
+<li><strong>Génération des contrats</strong>
+<ul>
+<li>Onglet “Contrats”</li>
+<li>“Générer Contrat Final”</li>
+<li>Contrats incluent cachets + défraiements</li>
+<li>Exportez en PDF</li>
+<li>Envoyez aux guides</li>
+</ul></li>
+<li><strong>Archivage</strong>
+<ul>
+<li>Copiez la feuille “Calculs_Paie” → nouveau fichier</li>
+<li>Nommez : <code>Paie_Novembre_2025.xlsx</code></li>
+<li>Conservez pour vos archives</li>
+</ul></li>
+</ol>
+<hr />
+<h2 id="checklist-pour-bien-démarrer">✅ Checklist pour bien
+démarrer</h2>
+<h3 id="configuration-initiale-à-faire-une-seule-fois">Configuration
+initiale (à faire une seule fois)</h3>
+<ul class="task-list">
+<li><label><input type="checkbox" />Fichier Excel ouvert avec “Activer
+le contenu”</label></li>
+<li><label><input type="checkbox" />Onglet “Configuration” rempli
+(email, nom association)</label></li>
+<li><label><input type="checkbox" />Compte email créé (ex:
+planning-musee@outlook.fr)</label></li>
+<li><label><input type="checkbox" />Compte ajouté dans
+Outlook</label></li>
+<li><label><input type="checkbox" />Outlook configuré en réponse
+automatique</label></li>
+<li><label><input type="checkbox" />Premier test d’email réussi
+(autorisation accordée)</label></li>
+<li><label><input type="checkbox" />Onglet “Guides” rempli (tous vos
+guides)</label></li>
+<li><label><input type="checkbox" />Mot de passe admin changé
+(optionnel)</label></li>
+</ul>
+<h3 id="utilisation-mensuelle">Utilisation mensuelle</h3>
+<ul class="task-list">
+<li><label><input type="checkbox" />Demander aux guides de remplir leurs
+dispos</label></li>
+<li><label><input type="checkbox" />Créer les visites du
+mois</label></li>
+<li><label><input type="checkbox" />Attribuer les guides (vérifier
+colonne “Guides_Disponibles”)</label></li>
+<li><label><input type="checkbox" />Vérifier que les emails sont
+partis</label></li>
+<li><label><input type="checkbox" />En fin de mois : calculer la
+paie</label></li>
+<li><label><input type="checkbox" />Ajouter les
+défraiements</label></li>
+<li><label><input type="checkbox" />Générer les contrats
+finaux</label></li>
+<li><label><input type="checkbox" />Archiver les données du
+mois</label></li>
+</ul>
+<hr />
+<h2 id="félicitations">🎉 Félicitations !</h2>
+<p>Vous êtes maintenant prêt à utiliser votre système de planning !</p>
+<p><strong>Rappelez-vous :</strong> - ✅ Le système fait 90% du travail
+pour vous - ✅ Les guides sont autonomes pour leurs dispos - ✅ Les
+emails et calculs sont automatiques - ✅ Tout est sécurisé et
+confidentiel</p>
+<p><strong>Support disponible pendant 7 jours pour toute
+question.</strong></p>
+<p><strong>Bonne gestion de vos plannings !</strong> 🚀</p>
+<hr />
+<p><em>Guide utilisateur - Version finale - Novembre 2025</em>
+<em>Système de gestion de planning pour guides de musée</em></p>
+</body>
+</html>

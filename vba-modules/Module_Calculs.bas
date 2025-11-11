@@ -182,6 +182,17 @@ Public Sub CalculerVisitesEtSalaires()
         wsCalculs.Cells(ligneCalcul, 7).Value = totalRecalcule
         wsCalculs.Cells(ligneCalcul, 7).NumberFormat = "#,##0.00 "
 
+        ' COLONNE N : Défraiements (initialisé à 0, à remplir manuellement)
+        If IsEmpty(wsCalculs.Cells(ligneCalcul, 14).Value) Then
+            wsCalculs.Cells(ligneCalcul, 14).Value = 0
+            wsCalculs.Cells(ligneCalcul, 14).NumberFormat = "#,##0.00 "
+        End If
+
+        ' COLONNE O : Total avec frais (Total_Brut + Défraiements)
+        ' Formule Excel automatique : =I[ligne]+N[ligne]
+        wsCalculs.Cells(ligneCalcul, 15).Formula = "=I" & ligneCalcul & "+N" & ligneCalcul
+        wsCalculs.Cells(ligneCalcul, 15).NumberFormat = "#,##0.00 "
+
         ' Formater
         If nbVisitesTotal > 0 Then
             wsCalculs.Rows(ligneCalcul).Interior.Color = COULEUR_DISPONIBLE
