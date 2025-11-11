@@ -163,7 +163,7 @@ Sub AfficherPlanningGuide(nomGuide As String)
         Application.EnableEvents = True
     End If
 
-    ' Creer/Verifier les en-tetes (structure attendue)
+    ' Creer/Verifier les en-tetes (structure attendue - LECTURE SEULE)
     With wsPlanningGuide
         .Cells(1, 1).Value = "Date"
         .Cells(1, 2).Value = "Heure"
@@ -171,8 +171,6 @@ Sub AfficherPlanningGuide(nomGuide As String)
         .Cells(1, 4).Value = "Type_Visite"
         .Cells(1, 5).Value = "Langue"
         .Cells(1, 6).Value = "Nb_Personnes"
-        .Cells(1, 7).Value = "Statut"
-        .Cells(1, 8).Value = "Action"
     End With
 
     ' Copier uniquement les lignes du guide (visites futures)
@@ -192,8 +190,8 @@ Sub AfficherPlanningGuide(nomGuide As String)
             On Error GoTo 0
 
             If dateVisite >= aujourdhui Then
-                ' Copier les donnees dans Mon_Planning
-                ' Structure Mon_Planning : Date, Heure, Musee, Type_Visite, Langue, Nb_Personnes, Statut, Action
+                ' Copier les donnees dans Mon_Planning (LECTURE SEULE - pas de confirmation requise)
+                ' Structure Mon_Planning : Date, Heure, Musee, Type_Visite, Langue, Nb_Personnes
                 ' Structure Planning REELLE : ID_Visite(1), Date(2), Heure(3), Musée(4), Type_Visite(5), Durée(6), Guide_Attribué(7), Guides_Disponibles(8), Statut_Confirmation(9), Historique(10), Heure_Debut(11), Heure_Fin(12), Langue(13), Nb_Personnes(14)
 
                 wsPlanningGuide.Cells(ligneDestination, 1).Value = wsPlanning.Cells(i, 2).Value ' Date
@@ -202,26 +200,6 @@ Sub AfficherPlanningGuide(nomGuide As String)
                 wsPlanningGuide.Cells(ligneDestination, 4).Value = wsPlanning.Cells(i, 5).Value ' Type_Visite
                 wsPlanningGuide.Cells(ligneDestination, 5).Value = wsPlanning.Cells(i, 13).Value ' Langue
                 wsPlanningGuide.Cells(ligneDestination, 6).Value = wsPlanning.Cells(i, 14).Value ' Nb_Personnes
-
-                ' Recuperer le statut de confirmation (colonne 9 du planning principal)
-                Dim statutConfirmation As String
-                statutConfirmation = wsPlanning.Cells(i, 9).Value
-
-                If statutConfirmation = "" Then statutConfirmation = "En attente"
-
-                wsPlanningGuide.Cells(ligneDestination, 7).Value = statutConfirmation
-
-                ' Ajouter un indicateur visuel selon le statut
-                If statutConfirmation = "Confirme" Then
-                    wsPlanningGuide.Cells(ligneDestination, 8).Value = "[OK] Confirme"
-                    wsPlanningGuide.Cells(ligneDestination, 8).Interior.Color = RGB(198, 239, 206)
-                ElseIf statutConfirmation = "Refuse" Then
-                    wsPlanningGuide.Cells(ligneDestination, 8).Value = "[X] Refuse"
-                    wsPlanningGuide.Cells(ligneDestination, 8).Interior.Color = RGB(255, 199, 206)
-                Else
-                    wsPlanningGuide.Cells(ligneDestination, 8).Value = "[!] A confirmer"
-                    wsPlanningGuide.Cells(ligneDestination, 8).Interior.Color = RGB(255, 235, 156)
-                End If
 
                 ligneDestination = ligneDestination + 1
             End If
@@ -236,17 +214,15 @@ Sub AfficherPlanningGuide(nomGuide As String)
         .Columns("D:D").ColumnWidth = 30  ' Type_Visite
         .Columns("E:E").ColumnWidth = 10  ' Langue
         .Columns("F:F").ColumnWidth = 12  ' Nb_Personnes
-        .Columns("G:G").ColumnWidth = 15  ' Statut
-        .Columns("H:H").ColumnWidth = 20  ' Action
-        .Range("A1:H1").Font.Bold = True
-        .Range("A1:H1").Interior.Color = RGB(70, 173, 71)
-        .Range("A1:H1").Font.Color = RGB(255, 255, 255)
-        .Range("A1:H1").HorizontalAlignment = xlCenter
+        .Range("A1:F1").Font.Bold = True
+        .Range("A1:F1").Interior.Color = RGB(70, 173, 71)
+        .Range("A1:F1").Font.Color = RGB(255, 255, 255)
+        .Range("A1:F1").HorizontalAlignment = xlCenter
 
         ' Bordures
         If ligneDestination > 2 Then
-            .Range("A1:H" & ligneDestination - 1).Borders.LineStyle = xlContinuous
-            .Range("A1:H" & ligneDestination - 1).Borders.Weight = xlThin
+            .Range("A1:F" & ligneDestination - 1).Borders.LineStyle = xlContinuous
+            .Range("A1:F" & ligneDestination - 1).Borders.Weight = xlThin
         End If
     End With
 
@@ -261,8 +237,7 @@ Sub AfficherPlanningGuide(nomGuide As String)
     Else
         MsgBox "[OK] Voici votre planning personnel." & vbCrLf & vbCrLf & _
                "Nombre de visites a venir : " & (ligneDestination - 2) & vbCrLf & vbCrLf & _
-               "[!] Confirmez vos visites en cliquant sur les cellules 'Action'." & vbCrLf & _
-               "    Seul l'administrateur peut refuser et reattribuer.", _
+               "[i] Pour toute modification, contactez l'administrateur.", _
                vbInformation, "Mon Planning"
     End If
 End Sub
@@ -271,7 +246,6 @@ End Sub
 ' Ajouter les boutons d'action pour le guide
 ' ============================================
 Sub AjouterBoutonsGuide(ws As Worksheet)
-    Dim btnConfirmer As Button
     Dim btnDeconnexion As Button
     Dim btnExporter As Button
     Dim btn As Button
@@ -285,24 +259,17 @@ Sub AjouterBoutonsGuide(ws As Worksheet)
 
     ' Calculer la largeur des colonnes en pixels (approximatif)
     Dim leftPos As Double
-    leftPos = ws.Range("I1").Left  ' Position apres la colonne H
-
-    ' Bouton Confirmer toutes les visites
-    Set btnConfirmer = ws.Buttons.Add(leftPos, 10, 180, 30)
-    With btnConfirmer
-        .Caption = "[OK] Confirmer TOUTES mes visites"
-        .OnAction = "ConfirmerToutesVisites"
-    End With
+    leftPos = ws.Range("G1").Left  ' Position apres la colonne F
 
     ' Bouton Deconnexion
-    Set btnDeconnexion = ws.Buttons.Add(leftPos + 190, 10, 120, 30)
+    Set btnDeconnexion = ws.Buttons.Add(leftPos, 10, 120, 30)
     With btnDeconnexion
         .Caption = "[>] Deconnexion"
         .OnAction = "SeDeconnecter"
     End With
 
     ' Bouton Exporter mon planning
-    Set btnExporter = ws.Buttons.Add(leftPos + 320, 10, 140, 30)
+    Set btnExporter = ws.Buttons.Add(leftPos + 130, 10, 140, 30)
     With btnExporter
         .Caption = " Exporter en PDF"
         .OnAction = "ExporterPlanningGuide"
@@ -310,123 +277,11 @@ Sub AjouterBoutonsGuide(ws As Worksheet)
 End Sub
 
 ' ============================================
-' Confirmer ou refuser une visite (clic sur cellule)
-' NOTE: Appelee depuis Feuille_Mon_Planning.cls (Worksheet_SelectionChange)
+' FONCTIONS DE CONFIRMATION SUPPRIMÉES
 ' ============================================
-Sub ConfirmerOuRefuserVisite()
-    Dim ws As Worksheet
-    Dim wsPlanning As Worksheet
-    Dim ligneSelectionnee As Long
-    Dim dateVisite As String
-    Dim heureVisite As String
-    Dim typeVisite As String
-    Dim reponse As VbMsgBoxResult
-    Dim lastRow As Long
-    Dim i As Long
-
-    Set ws = ActiveSheet
-
-    ' Verifier qu'on est sur la bonne feuille
-    If ws.Name <> "Mon_Planning" Then
-        MsgBox "Cette action n'est disponible que depuis votre planning personnel.", vbExclamation
-        Exit Sub
-    End If
-
-    ligneSelectionnee = ActiveCell.Row
-
-    If ligneSelectionnee < 2 Then Exit Sub
-
-    ' Recuperer les infos de la visite
-    dateVisite = ws.Cells(ligneSelectionnee, 1).Value
-    heureVisite = ws.Cells(ligneSelectionnee, 2).Value
-    typeVisite = ws.Cells(ligneSelectionnee, 3).Value
-
-    ' GUIDES : SEULEMENT CONFIRMER (pas de refus)
-    reponse = MsgBox("Visite du " & dateVisite & " a " & heureVisite & vbCrLf & _
-                     "Type : " & typeVisite & vbCrLf & vbCrLf & _
-                     "Voulez-vous CONFIRMER cette visite ?" & vbCrLf & vbCrLf & _
-                     "[i] Seul l'administrateur peut refuser et reattribuer une visite.", _
-                     vbYesNo + vbQuestion, "Confirmation de visite")
-
-    If reponse = vbNo Then Exit Sub  ' Annuler sans rien faire
-
-    ' Mettre a jour dans le planning principal
-    Set wsPlanning = ThisWorkbook.Sheets(FEUILLE_PLANNING)
-    lastRow = wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
-
-    For i = 2 To lastRow
-        If wsPlanning.Cells(i, 2).Value = dateVisite And _
-           wsPlanning.Cells(i, 3).Value = heureVisite And _
-           InStr(1, UCase(wsPlanning.Cells(i, 7).Value), UCase(utilisateurConnecte), vbTextCompare) > 0 Then
-
-            ' GUIDE : Seulement confirmation possible (reponse = vbYes)
-            wsPlanning.Cells(i, 9).Value = "Confirme"
-            ws.Cells(ligneSelectionnee, 7).Value = "Confirme"
-            ws.Cells(ligneSelectionnee, 8).Value = "[OK] Confirme"
-            ws.Cells(ligneSelectionnee, 8).Interior.Color = RGB(198, 239, 206)
-            MsgBox "[OK] Visite confirmee !" & vbCrLf & _
-                   "L'administrateur en sera informe.", vbInformation
-
-            Exit For
-        End If
-    Next i
-End Sub
-
-' ============================================
-' Confirmer toutes les visites en attente
-' ============================================
-Sub ConfirmerToutesVisites()
-    Dim ws As Worksheet
-    Dim wsPlanning As Worksheet
-    Dim lastRowGuide As Long
-    Dim lastRowPlanning As Long
-    Dim i As Long
-    Dim j As Long
-    Dim dateVisite As String
-    Dim heureVisite As String
-    Dim nbConfirmations As Long
-
-    Set ws = ActiveSheet
-
-    If ws.Name <> "Mon_Planning" Then
-        MsgBox "Cette action n'est disponible que depuis votre planning personnel.", vbExclamation
-        Exit Sub
-    End If
-
-    If MsgBox("Voulez-vous confirmer TOUTES vos visites en attente ?", _
-              vbYesNo + vbQuestion, "Confirmation globale") <> vbYes Then
-        Exit Sub
-    End If
-
-    Set wsPlanning = ThisWorkbook.Sheets(FEUILLE_PLANNING)
-    lastRowGuide = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
-    lastRowPlanning = wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
-    nbConfirmations = 0
-
-    For i = 2 To lastRowGuide
-        If ws.Cells(i, 7).Value <> "Confirme" And ws.Cells(i, 7).Value <> "Refuse" Then
-            dateVisite = ws.Cells(i, 1).Value
-            heureVisite = ws.Cells(i, 2).Value
-
-            ' Trouver la ligne correspondante dans le planning principal
-            For j = 2 To lastRowPlanning
-                If wsPlanning.Cells(j, 2).Value = dateVisite And _
-                   wsPlanning.Cells(j, 3).Value = heureVisite And _
-                   InStr(1, UCase(wsPlanning.Cells(j, 7).Value), UCase(utilisateurConnecte), vbTextCompare) > 0 Then
-
-                    wsPlanning.Cells(j, 9).Value = "Confirme"
-                    ws.Cells(i, 7).Value = "Confirme"
-                    ws.Cells(i, 8).Value = "[OK] Confirme"
-                    ws.Cells(i, 8).Interior.Color = RGB(198, 239, 206)
-                    nbConfirmations = nbConfirmations + 1
-                    Exit For
-                End If
-            Next j
-        End If
-    Next i
-
-    MsgBox "[OK] " & nbConfirmations & " visite(s) confirmee(s) !", vbInformation
-End Sub
+' Les guides n'ont plus besoin de confirmer leurs visites.
+' L'attribution par l'admin = engagement automatique.
+' Pour toute modification, le guide doit contacter l'admin directement.
 
 '===============================================================================
 ' FONCTION: RefuserEtReattribuerVisite (ADMIN SEULEMENT)
@@ -445,7 +300,8 @@ Sub RefuserEtReattribuerVisite()
     ' VERIFICATION : Seulement pour l'admin
     If niveauAcces <> "ADMIN" Then
         MsgBox "Cette fonction est reservee a l'administrateur." & vbCrLf & vbCrLf & _
-               "Les guides ne peuvent que CONFIRMER leurs visites.", vbExclamation, "Acces refuse"
+               "Les guides ne peuvent pas modifier le planning." & vbCrLf & _
+               "Contactez l'admin pour toute modification.", vbExclamation, "Acces refuse"
         Exit Sub
     End If
 
@@ -470,10 +326,19 @@ Sub RefuserEtReattribuerVisite()
     heureVisite = ws.Cells(ligneSelectionnee, 3).Value
     guideActuel = ws.Cells(ligneSelectionnee, 7).Value
     typeVisite = ws.Cells(ligneSelectionnee, 5).Value
+    Dim musee As String
+    musee = ws.Cells(ligneSelectionnee, 4).Value
     On Error GoTo 0
 
     If guideActuel = "" Or guideActuel = "NON ATTRIBUE" Then
-        MsgBox "Aucun guide n'est attribue a cette visite.", vbInformation
+        MsgBox "AUCUN GUIDE attribue pour cette visite :" & vbCrLf & vbCrLf & _
+               "Date : " & Format(dateVisite, "dd/mm/yyyy") & vbCrLf & _
+               "Heure : " & heureVisite & vbCrLf & _
+               "Musee : " & musee & vbCrLf & _
+               "Type : " & typeVisite & vbCrLf & vbCrLf & _
+               "Impossible de refuser une visite sans guide." & vbCrLf & _
+               "Veuillez d'abord attribuer un guide.", _
+               vbExclamation, "Visite non attribuee"
         Exit Sub
     End If
 
@@ -620,8 +485,6 @@ Sub SeDeconnecter()
         wsPlanningGuide.Cells(1, 4).Value = "Type_Visite"
         wsPlanningGuide.Cells(1, 5).Value = "Langue"
         wsPlanningGuide.Cells(1, 6).Value = "Nb_Personnes"
-        wsPlanningGuide.Cells(1, 7).Value = "Statut"
-        wsPlanningGuide.Cells(1, 8).Value = "Action"
         Application.EnableEvents = True
 
         ' Masquer la feuille après déconnexion

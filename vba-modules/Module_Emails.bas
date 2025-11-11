@@ -542,7 +542,9 @@ Public Sub EnvoyerNotificationReattribution(nouveauGuide As String, dateVisite A
                 "- Date : " & Format(dateVisite, "dddd dd mmmm yyyy") & vbCrLf & _
                 "- Heure : " & heureVisite & vbCrLf & _
                 "- Type : " & typeVisite & vbCrLf & vbCrLf & _
-                "Merci de confirmer votre disponibilite des que possible en vous connectant au systeme de planning." & vbCrLf & vbCrLf & _
+                "Cette visite vous est attribuee." & vbCrLf & _
+                "Vous pouvez consulter votre planning complet en vous connectant au systeme." & vbCrLf & vbCrLf & _
+                "Pour toute modification ou probleme, contactez l'administrateur." & vbCrLf & vbCrLf & _
                 "Cordialement," & vbCrLf & _
                 "L'equipe de gestion"
 
