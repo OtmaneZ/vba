@@ -87,11 +87,17 @@ Sub SeConnecter()
                        "Acces a votre planning personnel.", _
                        vbInformation, "Connexion reussie"
 
-                ' Afficher les vues filtrees du guide
+                ' Afficher les vues filtrees du guide (optimise - batch)
+                Application.ScreenUpdating = False
+                Application.EnableEvents = False
+
                 Call AfficherMesVisites(utilisateurConnecte)
                 Call AfficherMesDisponibilites(utilisateurConnecte)
                 Call AfficherPlanningGuide(utilisateurConnecte)
                 Call AfficherListeGuidesLimitee
+
+                Application.EnableEvents = True
+                Application.ScreenUpdating = True
 
                 ' Masquer les feuilles originales (securite)
                 Call MasquerFeuillesOriginalesPourGuide
@@ -259,6 +265,7 @@ End Sub
 
 ' ============================================
 ' Confirmer ou refuser une visite (clic sur cellule)
+' NOTE: Appelee depuis Feuille_Mon_Planning.cls (Worksheet_SelectionChange)
 ' ============================================
 Sub ConfirmerOuRefuserVisite()
     Dim ws As Worksheet
@@ -616,8 +623,8 @@ Function ReattribuerVisiteAutomatiquement(ligneVisite As Long, wsPlanning As Wor
         ' Marquer l'historique de reattribution
         wsPlanning.Cells(ligneVisite, 8).Value = "Reattribue de " & guideRefus & " a " & nouveauGuide & " le " & Format(Now, "dd/mm/yyyy hh:nn")
 
-        ' TODO: Envoyer un email au nouveau guide (a implementer dans Module_Emails)
-        ' Call EnvoyerNotificationReattribution(nouveauGuide, dateVisite, heureVisite, wsPlanning.Cells(ligneVisite, 3).Value)
+        ' Notifier le nouveau guide par email
+        EnvoyerNotificationReattribution nouveauGuide, dateVisite, heureVisite, wsPlanning.Cells(ligneVisite, 3).Value, guideRefus
     End If
 
     ReattribuerVisiteAutomatiquement = nouveauGuide

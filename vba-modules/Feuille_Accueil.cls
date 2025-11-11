@@ -17,9 +17,9 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
         End If
     End If
 
-    ' Clic sur le bloc ADMIN
+    ' Clic sur le bloc ADMIN (3 lignes: titre + sous-titre + description)
     If ligneAdmin > 0 Then
-        If Target.Row >= ligneAdmin And Target.Row <= ligneAdmin + 3 Then
+        If Target.Row >= ligneAdmin And Target.Row <= ligneAdmin + 2 Then
             If Target.Column >= 2 And Target.Column <= 5 Then
                 Call SeConnecter
             End If

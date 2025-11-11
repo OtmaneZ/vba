@@ -128,14 +128,66 @@ End Sub
 
 '===============================================================================
 ' FONCTION: GenererContratSilencieux
-' DESCRIPTION: Genere un contrat sans interaction utilisateur
+' DESCRIPTION: Genere un contrat sans interaction utilisateur (pour batch)
 '===============================================================================
 Private Sub GenererContratSilencieux(guideID As String, mois As Integer, annee As Integer, dossier As String)
-    ' Version simplifiee de GenererContratGuide pour l'automatisation
-    ' (Implementation similaire mais sans InputBox ni MsgBox)
+    Dim guideNom As String
+    Dim wsPlanning As Worksheet, wsGuides As Worksheet
+    Dim wbContrat As Workbook, wsContrat As Worksheet
+    Dim i As Long, nbVisites As Integer
+    Dim dateVisite As Date
+    Dim fichier As String
 
-    ' Cette fonction serait une copie adaptee de GenererContratGuide
-    ' Je la laisse commentee pour ne pas alourdir, mais elle suivrait la meme logique
+    On Error GoTo Erreur
+
+    Set wsGuides = ThisWorkbook.Worksheets(FEUILLE_GUIDES)
+    Set wsPlanning = ThisWorkbook.Worksheets(FEUILLE_PLANNING)
+
+    ' Recuperer nom du guide
+    For i = 2 To wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
+        If wsGuides.Cells(i, 1).Value = guideID Then
+            guideNom = wsGuides.Cells(i, 1).Value & " " & wsGuides.Cells(i, 2).Value
+            Exit For
+        End If
+    Next i
+
+    If guideNom = "" Then Exit Sub
+
+    ' Compter visites
+    nbVisites = 0
+    For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
+        If wsPlanning.Cells(i, 5).Value = guideID Then
+            On Error Resume Next
+            dateVisite = CDate(wsPlanning.Cells(i, 2).Value)
+            If Err.Number = 0 And Month(dateVisite) = mois And Year(dateVisite) = annee Then
+                nbVisites = nbVisites + 1
+            End If
+            Err.Clear
+            On Error GoTo Erreur
+        End If
+    Next i
+
+    If nbVisites = 0 Then Exit Sub
+
+    ' Creer contrat simple
+    Set wbContrat = Workbooks.Add
+    Set wsContrat = wbContrat.Worksheets(1)
+
+    wsContrat.Cells(1, 1).Value = "CONTRAT - " & guideNom
+    wsContrat.Cells(2, 1).Value = "Mois : " & Format(DateSerial(annee, mois, 1), "MMMM YYYY")
+    wsContrat.Cells(3, 1).Value = "Visites prevues : " & nbVisites
+
+    ' Sauvegarder
+    fichier = dossier & "\Contrat_" & Replace(guideNom, " ", "_") & "_" & _
+              Format(DateSerial(annee, mois, 1), "yyyymm") & ".xlsx"
+
+    wbContrat.SaveAs fichier
+    wbContrat.Close SaveChanges:=False
+
+    Exit Sub
+
+Erreur:
+    If Not wbContrat Is Nothing Then wbContrat.Close SaveChanges:=False
 End Sub
 
 '===============================================================================
@@ -224,9 +276,9 @@ Public Sub GenererContratDebutMois()
     ' Recuperer infos guide
     For i = 2 To wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
         If wsGuides.Cells(i, 1).Value = guideID Then
-            guideNom = wsGuides.Cells(i, 2).Value & " " & wsGuides.Cells(i, 3).Value
-            emailGuide = wsGuides.Cells(i, 4).Value
-            telGuide = wsGuides.Cells(i, 5).Value
+            guideNom = wsGuides.Cells(i, 1).Value & " " & wsGuides.Cells(i, 2).Value ' Prenom + Nom
+            emailGuide = wsGuides.Cells(i, 3).Value ' Email
+            telGuide = wsGuides.Cells(i, 4).Value ' Telephone
             Exit For
         End If
     Next i
@@ -404,9 +456,9 @@ Public Sub GenererContratFinMois()
     ' Recuperer infos guide
     For i = 2 To wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
         If wsGuides.Cells(i, 1).Value = guideID Then
-            guideNom = wsGuides.Cells(i, 2).Value & " " & wsGuides.Cells(i, 3).Value
-            emailGuide = wsGuides.Cells(i, 4).Value
-            telGuide = wsGuides.Cells(i, 5).Value
+            guideNom = wsGuides.Cells(i, 1).Value & " " & wsGuides.Cells(i, 2).Value ' Prenom + Nom
+            emailGuide = wsGuides.Cells(i, 3).Value ' Email
+            telGuide = wsGuides.Cells(i, 4).Value ' Telephone
             Exit For
         End If
     Next i

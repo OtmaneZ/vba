@@ -496,3 +496,65 @@ Public Sub EnvoyerContratParEmail()
 Erreur:
     MsgBox "Erreur lors de l'envoi : " & Err.Description, vbCritical
 End Sub
+
+'===============================================================================
+' FONCTION: EnvoyerNotificationReattribution
+' DESCRIPTION: Notifie un guide qu'une visite lui a ete reattribuee
+'===============================================================================
+Public Sub EnvoyerNotificationReattribution(nouveauGuide As String, dateVisite As Date, heureVisite As String, typeVisite As String, ancienGuide As String)
+    On Error GoTo Erreur
+
+    Dim OutlookApp As Object
+    Dim OutlookMail As Object
+    Dim wsGuides As Worksheet
+    Dim guideMail As String
+    Dim lastRow As Long
+    Dim i As Long
+
+    ' Recuperer l'email du nouveau guide
+    Set wsGuides = ThisWorkbook.Worksheets(FEUILLE_GUIDES)
+    lastRow = wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
+
+    For i = 2 To lastRow
+        Dim nomComplet As String
+        nomComplet = wsGuides.Cells(i, 1).Value & " " & wsGuides.Cells(i, 2).Value
+        If InStr(1, UCase(nomComplet), UCase(nouveauGuide), vbTextCompare) > 0 Then
+            guideMail = wsGuides.Cells(i, 3).Value ' Email en colonne C
+            Exit For
+        End If
+    Next i
+
+    If guideMail = "" Then
+        ' Pas d'email trouve - notification silencieuse
+        Exit Sub
+    End If
+
+    ' Creer l'email via Outlook
+    Set OutlookApp = CreateObject("Outlook.Application")
+    Set OutlookMail = OutlookApp.CreateItem(0)
+
+    With OutlookMail
+        .To = guideMail
+        .Subject = "[NOUVELLE VISITE] Reattribution - " & Format(dateVisite, "dd/mm/yyyy")
+        .Body = "Bonjour " & nouveauGuide & "," & vbCrLf & vbCrLf & _
+                "Une visite vous a ete reattribuee suite au refus de " & ancienGuide & "." & vbCrLf & vbCrLf & _
+                "DETAILS DE LA VISITE :" & vbCrLf & _
+                "- Date : " & Format(dateVisite, "dddd dd mmmm yyyy") & vbCrLf & _
+                "- Heure : " & heureVisite & vbCrLf & _
+                "- Type : " & typeVisite & vbCrLf & vbCrLf & _
+                "Merci de confirmer votre disponibilite des que possible en vous connectant au systeme de planning." & vbCrLf & vbCrLf & _
+                "Cordialement," & vbCrLf & _
+                "L'equipe de gestion"
+
+        ' Envoyer automatiquement (notification rapide)
+        .Send
+    End With
+
+    Set OutlookMail = Nothing
+    Set OutlookApp = Nothing
+    Exit Sub
+
+Erreur:
+    ' Erreur silencieuse - ne pas bloquer la reattribution
+    Debug.Print "Erreur email reattribution : " & Err.Description
+End Sub

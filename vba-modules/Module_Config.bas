@@ -11,6 +11,7 @@ Option Explicit
 ' ===== CONSTANTES GLOBALES =====
 
 ' Noms des feuilles Excel
+Public Const FEUILLE_ACCUEIL As String = "Accueil"
 Public Const FEUILLE_GUIDES As String = "Guides"
 Public Const FEUILLE_DISPONIBILITES As String = "Disponibilites"
 Public Const FEUILLE_VISITES As String = "Visites"
@@ -107,7 +108,7 @@ Private Sub InitialiserFeuille(ws As Worksheet)
     With ws
         Select Case .Name
             Case FEUILLE_GUIDES
-                .Range("A1:F1").Value = Array("Prenom", "Nom", "Email", "Telephone", "Tarif_Horaire", "Mot_De_Passe")
+                .Range("A1:F1").Value = Array("Prenom", "Nom", "Email", "Telephone", "Specialisations", "Mot_De_Passe")
 
             Case FEUILLE_DISPONIBILITES
                 .Range("A1:D1").Value = Array("ID_Guide", "Date", "Disponible", "Commentaire")
@@ -116,23 +117,32 @@ Private Sub InitialiserFeuille(ws As Worksheet)
                 .Range("A1:G1").Value = Array("ID_Visite", "Date", "Heure_Debut", "Heure_Fin", "Musee", "Type_Visite", "Nombre_Visiteurs")
 
             Case FEUILLE_PLANNING
-                .Range("A1:G1").Value = Array("Date", "Heure", "Type_Visite", "Duree", "Guide_Attribue", "Guides_Disponibles", "Statut_Confirmation")
+                .Range("A1:H1").Value = Array("ID_Visite", "Date", "Heure", "Type_Visite", "Guide_Attribue", "Guides_Disponibles", "Statut_Confirmation", "Historique")
 
             Case FEUILLE_CALCULS
-                .Range("A1:D1").Value = Array("ID_Guide", "Nom_Complet", "Nb_Visites", "Montant_Salaire")
+                .Range("A1:G1").Value = Array("ID_Guide", "Nom_Complet", "Nb_Visites", "Nb_Jours", "Montant_Total", "Montant/Cachet", "Total_Recalcule")
 
             Case FEUILLE_CONTRATS
-                .Range("A1:F1").Value = Array("ID_Guide", "Nom", "Mois", "Dates_Visites", "Horaires", "Total_Heures")
+                .Range("A1:H1").Value = Array("ID_Guide", "Nom", "Mois", "Type_Contrat", "Dates_Visites", "Nb_Cachets", "Montant_Cachet", "Total")
 
             Case FEUILLE_CONFIG
                 .Range("A1").Value = "Parametre"
                 .Range("B1").Value = "Valeur"
-                .Range("A2:B5").Value = Application.Transpose(Array( _
+                .Range("A2:B20").Value = Application.Transpose(Array( _
                     Array("Email_Expediteur", "votre.email@association.fr"), _
                     Array("Nom_Association", "Association des Guides"), _
                     Array("Notification_J7", "OUI"), _
                     Array("Notification_J1", "OUI"), _
-                    Array("MotDePasseAdmin", "admin123") _
+                    Array("MotDePasseAdmin", "admin123"), _
+                    Array("TARIF_1_VISITE", "80"), _
+                    Array("TARIF_2_VISITES", "110"), _
+                    Array("TARIF_3_VISITES", "140"), _
+                    Array("TARIF_BRANLY_2H", "120"), _
+                    Array("TARIF_BRANLY_3H", "150"), _
+                    Array("TARIF_BRANLY_4H", "180"), _
+                    Array("TARIF_HORSLEMURS_1", "100"), _
+                    Array("TARIF_HORSLEMURS_2", "130"), _
+                    Array("TARIF_HORSLEMURS_3", "160") _
                 ))
         End Select
 
@@ -164,7 +174,7 @@ Private Sub ConfigurerPlagesNommees()
     With ThisWorkbook.Worksheets(FEUILLE_GUIDES)
         If .Range("A2").Value <> "" Then
             ThisWorkbook.Names.Add Name:="Liste_Guides", _
-                RefersTo:=.Range("A2:E" & .Cells(.Rows.Count, 1).End(xlUp).Row)
+                RefersTo:=.Range("A2:F" & .Cells(.Rows.Count, 1).End(xlUp).Row)
         End If
     End With
 
@@ -208,11 +218,16 @@ Public Sub MasquerFeuillesSensibles()
     ThisWorkbook.Sheets(FEUILLE_CONFIG).Visible = xlSheetVeryHidden
     ThisWorkbook.Sheets(FEUILLE_CONTRATS).Visible = xlSheetVeryHidden
 
-    ' Les guides peuvent voir ces feuilles (mais en lecture seule via code)
+    ' Feuilles de travail visibles (mais protegees par code)
     ThisWorkbook.Sheets(FEUILLE_GUIDES).Visible = xlSheetVisible
     ThisWorkbook.Sheets(FEUILLE_DISPONIBILITES).Visible = xlSheetVisible
     ThisWorkbook.Sheets(FEUILLE_VISITES).Visible = xlSheetVisible
     ThisWorkbook.Sheets(FEUILLE_PLANNING).Visible = xlSheetVisible
+
+    ' Feuille d'accueil toujours visible
+    If Not ThisWorkbook.Sheets(FEUILLE_ACCUEIL) Is Nothing Then
+        ThisWorkbook.Sheets(FEUILLE_ACCUEIL).Visible = xlSheetVisible
+    End If
 
     On Error GoTo 0
 End Sub

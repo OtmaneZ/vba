@@ -1,7 +1,12 @@
 Attribute VB_Name = "Module_Accueil"
 ' ============================================
 ' MODULE ACCUEIL
-' Gestion de l'ecran d'accueil et evenements
+' Gestion de la creation de l'interface d'accueil
+' ============================================
+' FONCTIONNALITES:
+' - CreerFeuilleAccueil(): Cree/recree l'interface visuelle d'accueil
+' - Gestion des clics: Geree dans Feuille_Accueil.cls (Worksheet_SelectionChange)
+' - Positions cliquables: Stockees en Z1 (Guide) et Z2 (Admin)
 ' ============================================
 
 Option Explicit
@@ -185,9 +190,12 @@ Sub CreerFeuilleAccueil()
         ' Masquer les quadrillages
         ActiveWindow.DisplayGridlines = False
 
-        ' Proteger la feuille (navigation uniquement, clics autorises)
-        .Protect Password:="protection", UserInterfaceOnly:=True, _
-                 AllowFiltering:=True, AllowSorting:=True
+        ' Protection minimale de la feuille
+        ' UserInterfaceOnly: Permet macro de fonctionner
+        ' DrawingObjects/Contents/Scenarios: Empeche modifications utilisateur
+        ' Pas de mot de passe: Protection legere pour interface seulement
+        .Protect UserInterfaceOnly:=True, _
+                 DrawingObjects:=True, Contents:=True, Scenarios:=True
 
         ' Activer la feuille
         .Activate
@@ -200,29 +208,9 @@ Sub CreerFeuilleAccueil()
 End Sub
 
 ' ============================================
-' Gerer le clic sur la feuille d'accueil
+' NOTE: Gestion des clics sur la feuille Accueil
 ' ============================================
-' NOTE: Cette fonction doit etre appelee depuis l'evenement Worksheet_SelectionChange
-' de la feuille Accueil
-Public Sub GererClicAccueil(Target As Range, ws As Worksheet)
-    Dim ligneGuide As Long
-    Dim ligneAdmin As Long
-
-    ' Recuperer les lignes des boutons
-    ligneGuide = ws.Range("Z1").Value
-    ligneAdmin = ws.Range("Z2").Value
-
-    ' Verifier si le clic est sur le bloc Guide
-    If Target.Row = ligneGuide And Target.Column >= 2 And Target.Column <= 5 Then
-        ' Lancer la connexion Guide
-        Call Module_Authentification.SeConnecter
-        Exit Sub
-    End If
-
-    ' Verifier si le clic est sur le bloc Admin
-    If Target.Row = ligneAdmin And Target.Column >= 2 And Target.Column <= 5 Then
-        ' Lancer la connexion Admin
-        Call Module_Authentification.SeConnecter
-        Exit Sub
-    End If
-End Sub
+' La detection des clics est geree directement dans Feuille_Accueil.cls
+' via l'evenement Worksheet_SelectionChange
+' Les positions des blocs cliquables sont stockees en Z1 (Guide) et Z2 (Admin)
+' Ancienne fonction GererClicAccueil() supprimee (code mort, jamais appelee)

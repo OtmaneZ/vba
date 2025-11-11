@@ -51,11 +51,11 @@ Public Sub CalculerVisitesEtSalaires()
 
     Application.ScreenUpdating = False
 
-    ' Effacer les anciens calculs (conserver les en-tetes)
+    ' Effacer les anciens calculs (conserver les en-tetes) - INCLUT colonnes F et G
     Dim derLigneCalcul As Long
     derLigneCalcul = wsCalculs.Cells(wsCalculs.Rows.Count, 1).End(xlUp).Row
     If derLigneCalcul > 1 Then
-        wsCalculs.Range("A2:E" & derLigneCalcul).ClearContents
+        wsCalculs.Range("A2:G" & derLigneCalcul).ClearContents
     End If
 
     ' Parcourir le planning et grouper par guide + jour
@@ -393,18 +393,23 @@ End Function
 
 '===============================================================================
 ' FONCTION: ObtenirNomCompletGuide
-' DESCRIPTION: Retourne le nom complet d'un guide
+' DESCRIPTION: Retourne le nom complet d'un guide (Prenom Nom)
+' NOTE: guideID contient deja "Prenom Nom", on cherche juste a le valider
 '===============================================================================
 Private Function ObtenirNomCompletGuide(guideID As String) As String
     Dim wsGuides As Worksheet
     Dim i As Long
+    Dim nomComplet As String
 
     Set wsGuides = ThisWorkbook.Worksheets(FEUILLE_GUIDES)
     ObtenirNomCompletGuide = guideID ' Par defaut retourner l'ID
 
     For i = 2 To wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
-        If Trim(wsGuides.Cells(i, 1).Value) = Trim(guideID) Then
-            ObtenirNomCompletGuide = Trim(wsGuides.Cells(i, 2).Value) & " " & Trim(wsGuides.Cells(i, 3).Value)
+        ' Construire le nom complet : Prenom (col A) + Nom (col B)
+        nomComplet = Trim(wsGuides.Cells(i, 1).Value) & " " & Trim(wsGuides.Cells(i, 2).Value)
+
+        If UCase(nomComplet) = UCase(Trim(guideID)) Then
+            ObtenirNomCompletGuide = nomComplet
             Exit Function
         End If
     Next i
