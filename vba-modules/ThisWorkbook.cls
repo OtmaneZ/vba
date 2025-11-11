@@ -12,8 +12,10 @@ Private Sub Workbook_Open()
     ' Masquer TOUTES les feuilles sauf Accueil par defaut
     Call MasquerToutesFeuillesParDefaut
 
-    ' Activer la page d'accueil
-    ThisWorkbook.Sheets("Accueil").Activate
+    ' Activer la page d'accueil UNIQUEMENT si aucun utilisateur connecte
+    If utilisateurConnecte = "" Then
+        ThisWorkbook.Sheets("Accueil").Activate
+    End If
 
     ' AUTOMATISATION : Verifier si actions a faire
     Call VerifierActionsAutomatiques
@@ -40,6 +42,11 @@ End Sub
 ' Masquer toutes les feuilles sauf Accueil au demarrage
 Private Sub MasquerToutesFeuillesParDefaut()
     On Error Resume Next
+
+    ' Si un utilisateur est deja connecte, ne rien faire
+    If utilisateurConnecte <> "" Then
+        Exit Sub
+    End If
 
     Dim ws As Worksheet
 

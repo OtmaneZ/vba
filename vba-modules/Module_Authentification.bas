@@ -91,16 +91,20 @@ Sub SeConnecter()
                 Application.ScreenUpdating = False
                 Application.EnableEvents = False
 
+                ' Réafficher d'abord toutes les feuilles nécessaires avant de créer les vues
+                Call ReafficherFeuillesAvantConnexionGuide
+
                 Call AfficherMesVisites(utilisateurConnecte)
                 Call AfficherMesDisponibilites(utilisateurConnecte)
                 Call AfficherPlanningGuide(utilisateurConnecte)
-                Call AfficherListeGuidesLimitee
+                ' Annuaire supprimé pour raisons de confidentialité
+                ' Call AfficherListeGuidesLimitee
+
+                ' Masquer les feuilles originales (securite) et activer Mon_Planning
+                Call MasquerFeuillesOriginalesPourGuide
 
                 Application.EnableEvents = True
                 Application.ScreenUpdating = True
-
-                ' Masquer les feuilles originales (securite)
-                Call MasquerFeuillesOriginalesPourGuide
 
                 Exit Sub
             Else
@@ -115,6 +119,7 @@ Sub SeConnecter()
            "Verifiez l'orthographe de votre nom.", _
            vbCritical, "Erreur"
 End Sub
+
 
 ' ============================================
 ' Afficher le planning personnel d'un guide
@@ -131,16 +136,25 @@ Sub AfficherPlanningGuide(nomGuide As String)
     Set wsPlanning = ThisWorkbook.Sheets(FEUILLE_PLANNING)
     aujourdhui = Date
 
-    ' Utiliser la feuille Mon_Planning existante (ne pas la supprimer/recreer)
+    ' Utiliser la feuille Mon_Planning existante par son CodeName (Feuil3)
     On Error Resume Next
-    Set wsPlanningGuide = ThisWorkbook.Sheets("Mon_Planning")
+    Set wsPlanningGuide = Feuil3  ' Utiliser le CodeName direct au lieu du Name
     On Error GoTo 0
 
-    ' Si la feuille n'existe pas, la creer
+    ' Si la feuille n'existe pas, afficher une erreur (elle devrait toujours exister dans le fichier)
     If wsPlanningGuide Is Nothing Then
-        Set wsPlanningGuide = ThisWorkbook.Sheets.Add
-        wsPlanningGuide.Name = "Mon_Planning"
+        MsgBox "ERREUR : La feuille Mon_Planning (Feuil3) n'existe pas dans le fichier !" & vbCrLf & _
+               "Veuillez contacter l'administrateur.", vbCritical, "Erreur systeme"
+        Exit Sub
     Else
+        ' IMPORTANT : Rendre la feuille visible AVANT de l'utiliser
+        wsPlanningGuide.Visible = xlSheetVisible
+
+        ' S'assurer que le nom d'onglet est correct
+        On Error Resume Next
+        wsPlanningGuide.Name = "Mon_Planning"
+        On Error GoTo 0
+
         ' Vider le contenu de la feuille existante (sauf les en-tetes)
         Application.EnableEvents = False
         If wsPlanningGuide.UsedRange.Rows.Count > 1 Then
@@ -152,7 +166,7 @@ Sub AfficherPlanningGuide(nomGuide As String)
     ' Creer/Verifier les en-tetes (structure attendue)
     With wsPlanningGuide
         .Cells(1, 1).Value = "Date"
-        .Cells(1, 2).Value = "Heure_Debut"
+        .Cells(1, 2).Value = "Heure"
         .Cells(1, 3).Value = "Musee"
         .Cells(1, 4).Value = "Type_Visite"
         .Cells(1, 5).Value = "Langue"
@@ -166,28 +180,28 @@ Sub AfficherPlanningGuide(nomGuide As String)
     ligneDestination = 2
 
     For i = 2 To lastRow
-        ' Trouver la colonne Guide_Attribue (colonne 8 dans la nouvelle structure)
+        ' Trouver la colonne Guide_Attribue (colonne 7 selon structure Excel)
         Dim guideAttribue As String
-        guideAttribue = wsPlanning.Cells(i, 8).Value
+        guideAttribue = wsPlanning.Cells(i, 7).Value
 
         ' Verifier si le guide est attribue a cette visite
         If InStr(1, UCase(guideAttribue), UCase(nomGuide), vbTextCompare) > 0 Then
             ' Verifier si la visite est dans le futur
             On Error Resume Next
-            dateVisite = CDate(wsPlanning.Cells(i, 1).Value)
+            dateVisite = CDate(wsPlanning.Cells(i, 2).Value)  ' COLONNE 2 = Date
             On Error GoTo 0
 
             If dateVisite >= aujourdhui Then
                 ' Copier les donnees dans Mon_Planning
-                ' Structure Mon_Planning : Date, Heure_Debut, Musee, Type_Visite, Langue, Nb_Personnes, Statut, Action
-                ' Structure Planning    : Date, Heure_Debut, Heure_Fin, Musee, Type_Visite, Langue, Nb_Personnes, Guide_Attribue, Statut
+                ' Structure Mon_Planning : Date, Heure, Musee, Type_Visite, Langue, Nb_Personnes, Statut, Action
+                ' Structure Planning REELLE : ID_Visite(1), Date(2), Heure(3), Musée(4), Type_Visite(5), Durée(6), Guide_Attribué(7), Guides_Disponibles(8), Statut_Confirmation(9), Historique(10), Heure_Debut(11), Heure_Fin(12), Langue(13), Nb_Personnes(14)
 
-                wsPlanningGuide.Cells(ligneDestination, 1).Value = wsPlanning.Cells(i, 1).Value ' Date
-                wsPlanningGuide.Cells(ligneDestination, 2).Value = wsPlanning.Cells(i, 2).Value ' Heure_Debut
+                wsPlanningGuide.Cells(ligneDestination, 1).Value = wsPlanning.Cells(i, 2).Value ' Date
+                wsPlanningGuide.Cells(ligneDestination, 2).Value = wsPlanning.Cells(i, 3).Value ' Heure
                 wsPlanningGuide.Cells(ligneDestination, 3).Value = wsPlanning.Cells(i, 4).Value ' Musee
                 wsPlanningGuide.Cells(ligneDestination, 4).Value = wsPlanning.Cells(i, 5).Value ' Type_Visite
-                wsPlanningGuide.Cells(ligneDestination, 5).Value = wsPlanning.Cells(i, 6).Value ' Langue
-                wsPlanningGuide.Cells(ligneDestination, 6).Value = wsPlanning.Cells(i, 7).Value ' Nb_Personnes
+                wsPlanningGuide.Cells(ligneDestination, 5).Value = wsPlanning.Cells(i, 13).Value ' Langue
+                wsPlanningGuide.Cells(ligneDestination, 6).Value = wsPlanning.Cells(i, 14).Value ' Nb_Personnes
 
                 ' Recuperer le statut de confirmation (colonne 9 du planning principal)
                 Dim statutConfirmation As String
@@ -217,7 +231,7 @@ Sub AfficherPlanningGuide(nomGuide As String)
     ' Mise en forme
     With wsPlanningGuide
         .Columns("A:A").ColumnWidth = 12  ' Date
-        .Columns("B:B").ColumnWidth = 12  ' Heure_Debut
+        .Columns("B:B").ColumnWidth = 10  ' Heure
         .Columns("C:C").ColumnWidth = 25  ' Musee
         .Columns("D:D").ColumnWidth = 30  ' Type_Visite
         .Columns("E:E").ColumnWidth = 10  ' Langue
@@ -239,15 +253,16 @@ Sub AfficherPlanningGuide(nomGuide As String)
     ' Ajouter des boutons d'action
     AjouterBoutonsGuide wsPlanningGuide
 
-    ' Activer la feuille
-    wsPlanningGuide.Activate
+    ' S'assurer que la feuille est visible (activation sera faite dans SeConnecter)
+    wsPlanningGuide.Visible = xlSheetVisible
 
     If ligneDestination = 2 Then
         MsgBox "[i] Vous n'avez aucune visite programmee a venir.", vbInformation, "Planning vide"
     Else
         MsgBox "[OK] Voici votre planning personnel." & vbCrLf & vbCrLf & _
                "Nombre de visites a venir : " & (ligneDestination - 2) & vbCrLf & vbCrLf & _
-               "[!] Confirmez ou refusez chaque visite en cliquant sur les cellules de la colonne 'Action'.", _
+               "[!] Confirmez vos visites en cliquant sur les cellules 'Action'." & vbCrLf & _
+               "    Seul l'administrateur peut refuser et reattribuer.", _
                vbInformation, "Mon Planning"
     End If
 End Sub
@@ -326,53 +341,31 @@ Sub ConfirmerOuRefuserVisite()
     heureVisite = ws.Cells(ligneSelectionnee, 2).Value
     typeVisite = ws.Cells(ligneSelectionnee, 3).Value
 
-    ' Demander confirmation ou refus
+    ' GUIDES : SEULEMENT CONFIRMER (pas de refus)
     reponse = MsgBox("Visite du " & dateVisite & " a " & heureVisite & vbCrLf & _
                      "Type : " & typeVisite & vbCrLf & vbCrLf & _
-                     "Voulez-vous CONFIRMER cette visite ?" & vbCrLf & _
-                     "(Cliquez Non pour REFUSER)", _
-                     vbYesNoCancel + vbQuestion, "Confirmation de visite")
+                     "Voulez-vous CONFIRMER cette visite ?" & vbCrLf & vbCrLf & _
+                     "[i] Seul l'administrateur peut refuser et reattribuer une visite.", _
+                     vbYesNo + vbQuestion, "Confirmation de visite")
 
-    If reponse = vbCancel Then Exit Sub
+    If reponse = vbNo Then Exit Sub  ' Annuler sans rien faire
 
     ' Mettre a jour dans le planning principal
     Set wsPlanning = ThisWorkbook.Sheets(FEUILLE_PLANNING)
     lastRow = wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
 
     For i = 2 To lastRow
-        If wsPlanning.Cells(i, 1).Value = dateVisite And _
-           wsPlanning.Cells(i, 2).Value = heureVisite And _
-           InStr(1, UCase(wsPlanning.Cells(i, 5).Value), UCase(utilisateurConnecte), vbTextCompare) > 0 Then
+        If wsPlanning.Cells(i, 2).Value = dateVisite And _
+           wsPlanning.Cells(i, 3).Value = heureVisite And _
+           InStr(1, UCase(wsPlanning.Cells(i, 7).Value), UCase(utilisateurConnecte), vbTextCompare) > 0 Then
 
-            If reponse = vbYes Then
-                wsPlanning.Cells(i, 7).Value = "Confirme"
-                ws.Cells(ligneSelectionnee, 7).Value = "Confirme"
-                ws.Cells(ligneSelectionnee, 8).Value = "[OK] Confirme"
-                ws.Cells(ligneSelectionnee, 8).Interior.Color = RGB(198, 239, 206)
-                MsgBox "[OK] Visite confirmee !" & vbCrLf & _
-                       "L'administrateur en sera informe.", vbInformation
-            Else
-                ' REFUS -> REATTRIBUTION AUTOMATIQUE
-                wsPlanning.Cells(i, 7).Value = "Refuse par " & utilisateurConnecte
-                ws.Cells(ligneSelectionnee, 7).Value = "Refuse"
-                ws.Cells(ligneSelectionnee, 8).Value = "[X] Refuse"
-                ws.Cells(ligneSelectionnee, 8).Interior.Color = RGB(255, 199, 206)
-
-                ' Lancer la reattribution automatique
-                Dim nouveauGuide As String
-                nouveauGuide = ReattribuerVisiteAutomatiquement(i, wsPlanning, utilisateurConnecte)
-
-                If nouveauGuide <> "" Then
-                    MsgBox "[X] Visite refusee." & vbCrLf & vbCrLf & _
-                           "[OK] Le systeme a automatiquement reattribue cette visite a :" & vbCrLf & _
-                           "   " & nouveauGuide & vbCrLf & vbCrLf & _
-                           "Un email de notification lui sera envoye.", vbInformation, "Reattribution automatique"
-                Else
-                    MsgBox "[X] Visite refusee." & vbCrLf & vbCrLf & _
-                           "[!] Aucun autre guide n'est disponible pour cette date." & vbCrLf & _
-                           "L'administrateur en sera informe.", vbExclamation, "Pas de reattribution possible"
-                End If
-            End If
+            ' GUIDE : Seulement confirmation possible (reponse = vbYes)
+            wsPlanning.Cells(i, 9).Value = "Confirme"
+            ws.Cells(ligneSelectionnee, 7).Value = "Confirme"
+            ws.Cells(ligneSelectionnee, 8).Value = "[OK] Confirme"
+            ws.Cells(ligneSelectionnee, 8).Interior.Color = RGB(198, 239, 206)
+            MsgBox "[OK] Visite confirmee !" & vbCrLf & _
+                   "L'administrateur en sera informe.", vbInformation
 
             Exit For
         End If
@@ -417,11 +410,11 @@ Sub ConfirmerToutesVisites()
 
             ' Trouver la ligne correspondante dans le planning principal
             For j = 2 To lastRowPlanning
-                If wsPlanning.Cells(j, 1).Value = dateVisite And _
-                   wsPlanning.Cells(j, 2).Value = heureVisite And _
-                   InStr(1, UCase(wsPlanning.Cells(j, 5).Value), UCase(utilisateurConnecte), vbTextCompare) > 0 Then
+                If wsPlanning.Cells(j, 2).Value = dateVisite And _
+                   wsPlanning.Cells(j, 3).Value = heureVisite And _
+                   InStr(1, UCase(wsPlanning.Cells(j, 7).Value), UCase(utilisateurConnecte), vbTextCompare) > 0 Then
 
-                    wsPlanning.Cells(j, 7).Value = "Confirme"
+                    wsPlanning.Cells(j, 9).Value = "Confirme"
                     ws.Cells(i, 7).Value = "Confirme"
                     ws.Cells(i, 8).Value = "[OK] Confirme"
                     ws.Cells(i, 8).Interior.Color = RGB(198, 239, 206)
@@ -433,6 +426,90 @@ Sub ConfirmerToutesVisites()
     Next i
 
     MsgBox "[OK] " & nbConfirmations & " visite(s) confirmee(s) !", vbInformation
+End Sub
+
+'===============================================================================
+' FONCTION: RefuserEtReattribuerVisite (ADMIN SEULEMENT)
+' DESCRIPTION: Permet à l'admin de refuser une visite et la réattribuer automatiquement
+'===============================================================================
+Sub RefuserEtReattribuerVisite()
+    Dim ws As Worksheet
+    Dim ligneSelectionnee As Long
+    Dim dateVisite As Date
+    Dim heureVisite As String
+    Dim guideActuel As String
+    Dim typeVisite As String
+    Dim reponse As VbMsgBoxResult
+    Dim nouveauGuide As String
+
+    ' VERIFICATION : Seulement pour l'admin
+    If niveauAcces <> "ADMIN" Then
+        MsgBox "Cette fonction est reservee a l'administrateur." & vbCrLf & vbCrLf & _
+               "Les guides ne peuvent que CONFIRMER leurs visites.", vbExclamation, "Acces refuse"
+        Exit Sub
+    End If
+
+    Set ws = ActiveSheet
+
+    ' Verifier qu'on est sur la feuille Planning
+    If ws.Name <> FEUILLE_PLANNING Then
+        MsgBox "Cette action doit etre effectuee depuis la feuille Planning.", vbExclamation
+        Exit Sub
+    End If
+
+    ligneSelectionnee = ActiveCell.Row
+
+    If ligneSelectionnee < 2 Then
+        MsgBox "Veuillez selectionner une visite dans le planning.", vbInformation
+        Exit Sub
+    End If
+
+    ' Recuperer les infos de la visite
+    On Error Resume Next
+    dateVisite = ws.Cells(ligneSelectionnee, 2).Value
+    heureVisite = ws.Cells(ligneSelectionnee, 3).Value
+    guideActuel = ws.Cells(ligneSelectionnee, 7).Value
+    typeVisite = ws.Cells(ligneSelectionnee, 5).Value
+    On Error GoTo 0
+
+    If guideActuel = "" Or guideActuel = "NON ATTRIBUE" Then
+        MsgBox "Aucun guide n'est attribue a cette visite.", vbInformation
+        Exit Sub
+    End If
+
+    ' Confirmer le refus
+    reponse = MsgBox("REFUSER cette visite et la REATTRIBUER automatiquement ?" & vbCrLf & vbCrLf & _
+                     "Date : " & Format(dateVisite, "dd/mm/yyyy") & vbCrLf & _
+                     "Heure : " & heureVisite & vbCrLf & _
+                     "Type : " & typeVisite & vbCrLf & _
+                     "Guide actuel : " & guideActuel & vbCrLf & vbCrLf & _
+                     "Le systeme cherchera un autre guide disponible.", _
+                     vbYesNo + vbQuestion, "Refus et Reattribution")
+
+    If reponse <> vbYes Then Exit Sub
+
+    ' Marquer comme refuse
+    ws.Cells(ligneSelectionnee, 9).Value = "Refuse par Admin - " & guideActuel
+    ws.Cells(ligneSelectionnee, 15).Interior.Color = RGB(255, 199, 206) ' Colonne Statut en rouge
+
+    ' Lancer la reattribution automatique
+    nouveauGuide = ReattribuerVisiteAutomatiquement(ligneSelectionnee, ws, guideActuel)
+
+    If nouveauGuide <> "" Then
+        MsgBox "[OK] Visite reattribuee avec succes !" & vbCrLf & vbCrLf & _
+               "Ancien guide : " & guideActuel & vbCrLf & _
+               "Nouveau guide : " & nouveauGuide & vbCrLf & vbCrLf & _
+               "Un email de notification sera envoye au nouveau guide.", _
+               vbInformation, "Reattribution reussie"
+    Else
+        MsgBox "[!] ATTENTION : Aucun autre guide disponible trouve !" & vbCrLf & vbCrLf & _
+               "La visite reste NON ATTRIBUEE." & vbCrLf & _
+               "Vous devrez l'attribuer manuellement.", _
+               vbExclamation, "Reattribution impossible"
+
+        ws.Cells(ligneSelectionnee, 7).Value = "NON ATTRIBUE"
+        ws.Cells(ligneSelectionnee, 15).Interior.Color = RGB(255, 100, 100)
+    End If
 End Sub
 
 ' ============================================
@@ -469,12 +546,14 @@ End Sub
 Sub AfficherInterfaceAdmin()
     Dim wsPlanning As Worksheet
     Dim btnDeconnexion As Button
+    Dim btnRefuser As Button
 
     Set wsPlanning = ThisWorkbook.Sheets(FEUILLE_PLANNING)
 
-    ' Supprimer l'ancien bouton de deconnexion s'il existe
+    ' Supprimer les anciens boutons s'ils existent
     On Error Resume Next
     wsPlanning.Buttons("BtnDeconnexionAdmin").Delete
+    wsPlanning.Buttons("BtnRefuserReattribuer").Delete
     On Error GoTo 0
 
     ' Creer le bouton de deconnexion pour l'admin
@@ -483,6 +562,15 @@ Sub AfficherInterfaceAdmin()
         .Name = "BtnDeconnexionAdmin"
         .Caption = "[X] Deconnexion Admin"
         .OnAction = "SeDeconnecter"
+        .Font.Bold = True
+    End With
+
+    ' Creer le bouton Refuser et Reattribuer
+    Set btnRefuser = wsPlanning.Buttons.Add(170, 10, 200, 30)
+    With btnRefuser
+        .Name = "BtnRefuserReattribuer"
+        .Caption = "[!] Refuser et Reattribuer"
+        .OnAction = "RefuserEtReattribuerVisite"
         .Font.Bold = True
     End With
 
@@ -495,6 +583,9 @@ Sub AfficherInterfaceAdmin()
            "- Envoi d'emails" & vbCrLf & _
            "- Gestion des guides" & vbCrLf & _
            "- Statistiques et calculs" & vbCrLf & vbCrLf & _
+           "[NOUVEAU] Bouton [!] Refuser et Reattribuer :" & vbCrLf & _
+           "  Selectionnez une visite dans le Planning," & vbCrLf & _
+           "  puis cliquez pour refuser et reattribuer automatiquement." & vbCrLf & vbCrLf & _
            "Bouton [X] Deconnexion Admin disponible en haut a gauche.", _
            vbInformation, "Acces Admin"
 End Sub
@@ -518,13 +609,13 @@ Sub SeDeconnecter()
 
     ' Vider la feuille Mon_Planning au lieu de la supprimer (pour conserver le code VBA)
     On Error Resume Next
-    Set wsPlanningGuide = ThisWorkbook.Sheets("Mon_Planning")
+    Set wsPlanningGuide = Feuil3  ' Utiliser le CodeName direct
     If Not wsPlanningGuide Is Nothing Then
         Application.EnableEvents = False
         wsPlanningGuide.Cells.Clear
         ' Recréer les en-têtes pour la prochaine connexion
         wsPlanningGuide.Cells(1, 1).Value = "Date"
-        wsPlanningGuide.Cells(1, 2).Value = "Heure_Debut"
+        wsPlanningGuide.Cells(1, 2).Value = "Heure"
         wsPlanningGuide.Cells(1, 3).Value = "Musee"
         wsPlanningGuide.Cells(1, 4).Value = "Type_Visite"
         wsPlanningGuide.Cells(1, 5).Value = "Langue"
@@ -532,19 +623,29 @@ Sub SeDeconnecter()
         wsPlanningGuide.Cells(1, 7).Value = "Statut"
         wsPlanningGuide.Cells(1, 8).Value = "Action"
         Application.EnableEvents = True
+
+        ' Masquer la feuille après déconnexion
+        wsPlanningGuide.Visible = xlSheetVeryHidden
     End If
     On Error GoTo 0
 
-    ' Masquer toutes les feuilles sauf Accueil
+    ' Masquer toutes les feuilles sauf Accueil - SECURISE
+    On Error Resume Next
     For Each ws In ThisWorkbook.Worksheets
         If ws.Name <> "Accueil" Then
-            ws.Visible = xlSheetVeryHidden
+            ' Vérifier si la feuille n'est pas déjà masquée pour éviter l'erreur 1004
+            If ws.Visible <> xlSheetVeryHidden Then
+                ws.Visible = xlSheetVeryHidden
+            End If
         End If
     Next ws
+    On Error GoTo 0
 
     ' Retourner a la feuille d'accueil
+    On Error Resume Next
     ThisWorkbook.Sheets("Accueil").Visible = xlSheetVisible
     ThisWorkbook.Sheets("Accueil").Activate
+    On Error GoTo 0
 
     MsgBox "Vous etes deconnecte(e)." & vbCrLf & _
            "A bientot !", vbInformation, "Deconnexion"
@@ -600,7 +701,7 @@ Function ReattribuerVisiteAutomatiquement(ligneVisite As Long, wsPlanning As Wor
     Dim nouveauGuide As String
     Dim lastRowDispo As Long
     Dim j As Long
-    Dim guideTrouve As Boolean
+    ' Variable guideTrouve supprimée (non utilisée)
 
     On Error Resume Next
     Set wsDisponibilites = ThisWorkbook.Sheets(FEUILLE_DISPONIBILITES)
@@ -613,9 +714,9 @@ Function ReattribuerVisiteAutomatiquement(ligneVisite As Long, wsPlanning As Wor
     End If
 
     ' Recuperer les infos de la visite
-    dateVisite = wsPlanning.Cells(ligneVisite, 1).Value
-    heureVisite = wsPlanning.Cells(ligneVisite, 2).Value
-    guidesDisponibles = wsPlanning.Cells(ligneVisite, 6).Value ' Colonne "Guides_Disponibles"
+    dateVisite = wsPlanning.Cells(ligneVisite, 2).Value
+    heureVisite = wsPlanning.Cells(ligneVisite, 3).Value
+    guidesDisponibles = wsPlanning.Cells(ligneVisite, 8).Value ' Colonne "Guides_Disponibles"
 
     ' Si pas de liste de guides disponibles, utiliser la fonction de recherche
     If guidesDisponibles = "" Or IsEmpty(guidesDisponibles) Then
@@ -661,14 +762,14 @@ Function ReattribuerVisiteAutomatiquement(ligneVisite As Long, wsPlanning As Wor
 
     ' Si un nouveau guide est trouve, mettre a jour le planning
     If nouveauGuide <> "" Then
-        wsPlanning.Cells(ligneVisite, 5).Value = nouveauGuide ' Colonne "Guide_Attribue"
-        wsPlanning.Cells(ligneVisite, 7).Value = "En attente" ' Statut
+        wsPlanning.Cells(ligneVisite, 7).Value = nouveauGuide ' Colonne "Guide_Attribue"
+        wsPlanning.Cells(ligneVisite, 9).Value = "En attente" ' Statut
 
         ' Marquer l'historique de reattribution
-        wsPlanning.Cells(ligneVisite, 8).Value = "Reattribue de " & guideRefus & " a " & nouveauGuide & " le " & Format(Now, "dd/mm/yyyy hh:nn")
+        wsPlanning.Cells(ligneVisite, 10).Value = "Reattribue de " & guideRefus & " a " & nouveauGuide & " le " & Format(Now, "dd/mm/yyyy hh:nn")
 
         ' Notifier le nouveau guide par email
-        EnvoyerNotificationReattribution nouveauGuide, dateVisite, heureVisite, wsPlanning.Cells(ligneVisite, 3).Value, guideRefus
+        EnvoyerNotificationReattribution nouveauGuide, dateVisite, heureVisite, wsPlanning.Cells(ligneVisite, 5).Value, guideRefus
     End If
 
     ReattribuerVisiteAutomatiquement = nouveauGuide
@@ -693,14 +794,14 @@ Function CompterVisitesGuide(nomGuide As String, wsPlanning As Worksheet, dateRe
 
     For i = 2 To lastRow
         On Error Resume Next
-        dateVisite = CDate(wsPlanning.Cells(i, 1).Value)
+        dateVisite = CDate(wsPlanning.Cells(i, 2).Value)
         On Error GoTo 0
 
         ' Compter uniquement les visites du meme mois et confirmees ou en attente
         If Month(dateVisite) = moisReference And Year(dateVisite) = anneeReference Then
-            If InStr(1, UCase(wsPlanning.Cells(i, 5).Value), UCase(nomGuide), vbTextCompare) > 0 Then
+            If InStr(1, UCase(wsPlanning.Cells(i, 7).Value), UCase(nomGuide), vbTextCompare) > 0 Then
                 Dim statut As String
-                statut = wsPlanning.Cells(i, 7).Value
+                statut = wsPlanning.Cells(i, 9).Value
                 If statut = "Confirme" Or statut = "En attente" Then
                     compteur = compteur + 1
                 End If
@@ -751,7 +852,7 @@ Function ObtenirGuidesDisponiblesPourDate(dateVisite As Date, heureVisite As Str
             ' Verifier la disponibilite dans la feuille Disponibilites
             For j = 2 To lastRowDispo
                 Dim guideDispoNom As String
-                guideDispoNom = wsDisponibilites.Cells(j, 1).Value ' Colonne avec nom du guide
+                guideDispoNom = wsDisponibilites.Cells(j, 1).Value ' Colonne Guide (contient le nom complet)
 
                 If InStr(1, UCase(guideDispoNom), UCase(nomGuide), vbTextCompare) > 0 Then
                     Dim dateDispo As Date
@@ -820,16 +921,20 @@ Sub AfficherMesVisites(nomGuide As String)
 
     If wsVisites Is Nothing Then Exit Sub
 
-    ' Supprimer l'ancienne feuille si elle existe
+    ' Utiliser la feuille existante au lieu de supprimer/recreer
     On Error Resume Next
-    Application.DisplayAlerts = False
-    ThisWorkbook.Sheets("Mes_Visites").Delete
-    Application.DisplayAlerts = True
+    Set wsMesVisites = ThisWorkbook.Sheets("Mes_Visites")
     On Error GoTo 0
 
-    ' Creer la nouvelle feuille
-    Set wsMesVisites = ThisWorkbook.Sheets.Add
-    wsMesVisites.Name = "Mes_Visites"
+    ' Si la feuille n'existe pas, la creer
+    If wsMesVisites Is Nothing Then
+        Set wsMesVisites = ThisWorkbook.Sheets.Add(After:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.Count))
+        wsMesVisites.Name = "Mes_Visites"
+    End If
+
+    ' Rendre visible et vider le contenu
+    wsMesVisites.Visible = xlSheetVisible
+    wsMesVisites.Cells.Clear
     wsMesVisites.Tab.Color = RGB(70, 173, 71)
 
     ' Copier l'en-tete
@@ -847,7 +952,9 @@ Sub AfficherMesVisites(nomGuide As String)
     ligneDestination = 2
 
     For i = 2 To lastRow
-        ' Colonne 5 = Guide_Attribue (ou verifier selon votre structure)
+        ' Structure Visites : ID_Visite(1), Date(2), Heure(3), Musée(4), Type_Visite(5), Durée_Heures(6), Nombre_Visiteurs(7), Statut(8)
+        ' Note : La feuille Visites n'a pas de colonne Guide_Attribué, on ne peut pas filtrer ici
+        ' Cette fonction devrait probablement utiliser la feuille Planning au lieu de Visites
         If InStr(1, UCase(wsVisites.Cells(i, 5).Value), UCase(nomGuide), vbTextCompare) > 0 Then
             wsVisites.Rows(i).Copy wsMesVisites.Rows(ligneDestination)
             ligneDestination = ligneDestination + 1
@@ -863,6 +970,9 @@ Sub AfficherMesVisites(nomGuide As String)
         wsMesVisites.Range("A2").Font.Italic = True
         wsMesVisites.Range("A2").Font.Color = RGB(150, 150, 150)
     End If
+
+    ' IMPORTANT : Rendre la feuille visible
+    wsMesVisites.Visible = xlSheetVisible
 End Sub
 
 '===============================================================================
@@ -898,16 +1008,20 @@ Sub AfficherMesDisponibilites(nomGuide As String)
 
     If idGuide = 0 Then Exit Sub
 
-    ' Supprimer l'ancienne feuille si elle existe
+    ' Utiliser la feuille existante au lieu de supprimer/recreer
     On Error Resume Next
-    Application.DisplayAlerts = False
-    ThisWorkbook.Sheets("Mes_Disponibilites").Delete
-    Application.DisplayAlerts = True
+    Set wsMesDispos = ThisWorkbook.Sheets("Mes_Disponibilites")
     On Error GoTo 0
 
-    ' Creer la nouvelle feuille
-    Set wsMesDispos = ThisWorkbook.Sheets.Add
-    wsMesDispos.Name = "Mes_Disponibilites"
+    ' Si la feuille n'existe pas, la creer
+    If wsMesDispos Is Nothing Then
+        Set wsMesDispos = ThisWorkbook.Sheets.Add(After:=ThisWorkbook.Sheets(ThisWorkbook.Sheets.Count))
+        wsMesDispos.Name = "Mes_Disponibilites"
+    End If
+
+    ' Rendre visible et vider le contenu
+    wsMesDispos.Visible = xlSheetVisible
+    wsMesDispos.Cells.Clear
     wsMesDispos.Tab.Color = RGB(52, 152, 219)
 
     ' Copier l'en-tete
@@ -941,63 +1055,46 @@ Sub AfficherMesDisponibilites(nomGuide As String)
         wsMesDispos.Range("A2").Font.Italic = True
         wsMesDispos.Range("A2").Font.Color = RGB(150, 150, 150)
     End If
+
+    ' IMPORTANT : Rendre la feuille visible
+    wsMesDispos.Visible = xlSheetVisible
 End Sub
 
 '===============================================================================
 ' FONCTION: AfficherListeGuidesLimitee
-' DESCRIPTION: Affiche uniquement les noms des guides (pas infos privees)
+' DESCRIPTION: SUPPRIMÉE - Confidentialité : les guides ne doivent pas voir la liste des autres guides
 '===============================================================================
-Sub AfficherListeGuidesLimitee()
-    Dim wsGuides As Worksheet
-    Dim wsAnnuaire As Worksheet
-    Dim lastRow As Long
-    Dim i As Long
+' Sub AfficherListeGuidesLimitee()
+'     ' FONCTION DESACTIVÉE POUR RAISONS DE CONFIDENTIALITÉ
+'     ' La cliente ne souhaite pas que les guides voient la liste des autres guides
+' End Sub
 
+'===============================================================================
+' FONCTION: ReafficherFeuillesAvantConnexionGuide
+' DESCRIPTION: Réaffiche toutes les feuilles nécessaires avant la connexion guide
+'===============================================================================
+Sub ReafficherFeuillesAvantConnexionGuide()
     On Error Resume Next
-    Set wsGuides = ThisWorkbook.Sheets(FEUILLE_GUIDES)
+
+    ' Réafficher temporairement les feuilles source pour permettre la lecture des données
+    ThisWorkbook.Sheets(FEUILLE_VISITES).Visible = xlSheetVisible
+    ThisWorkbook.Sheets(FEUILLE_DISPONIBILITES).Visible = xlSheetVisible
+    ThisWorkbook.Sheets(FEUILLE_GUIDES).Visible = xlSheetVisible
+    ThisWorkbook.Sheets(FEUILLE_PLANNING).Visible = xlSheetVisible
+
+    ' Réafficher aussi les feuilles de destination pour guides
+    Feuil3.Visible = xlSheetVisible  ' Mon_Planning
+    Feuil3.Name = "Mon_Planning"
+
+    ' Si les feuilles Mes_Visites et Mes_Disponibilites existent déjà, les rendre visibles
+    Dim ws As Worksheet
+    For Each ws In ThisWorkbook.Worksheets
+        If ws.Name = "Mes_Visites" Or ws.Name = "Mes_Disponibilites" Then
+            ws.Visible = xlSheetVisible
+        End If
+    Next ws
+
     On Error GoTo 0
-
-    If wsGuides Is Nothing Then Exit Sub
-
-    ' Supprimer l'ancienne feuille si elle existe
-    On Error Resume Next
-    Application.DisplayAlerts = False
-    ThisWorkbook.Sheets("Annuaire").Delete
-    Application.DisplayAlerts = True
-    On Error GoTo 0
-
-    ' Creer la nouvelle feuille
-    Set wsAnnuaire = ThisWorkbook.Sheets.Add
-    wsAnnuaire.Name = "Annuaire"
-    wsAnnuaire.Tab.Color = RGB(155, 89, 182)
-
-    ' Creer l'en-tete (seulement Prenom et Nom)
-    wsAnnuaire.Range("A1").Value = "Prenom"
-    wsAnnuaire.Range("B1").Value = "Nom"
-
-    ' Formater l'en-tete
-    With wsAnnuaire.Range("A1:B1")
-        .Font.Bold = True
-        .Interior.Color = RGB(155, 89, 182)
-        .Font.Color = RGB(255, 255, 255)
-        .HorizontalAlignment = xlCenter
-    End With
-
-    ' Copier uniquement les prenoms et noms
-    lastRow = wsGuides.Cells(wsGuides.Rows.Count, 1).End(xlUp).Row
-
-    For i = 2 To lastRow
-        wsAnnuaire.Cells(i, 1).Value = wsGuides.Cells(i, 1).Value ' Prenom
-        wsAnnuaire.Cells(i, 2).Value = wsGuides.Cells(i, 2).Value ' Nom
-    Next i
-
-    ' Ajuster les colonnes
-    wsAnnuaire.Columns.AutoFit
-
-    ' Ajouter un message informatif
-    wsAnnuaire.Range("A" & lastRow + 2).Value = "[i] Pour contacter un collegue, demandez a l'administrateur"
-    wsAnnuaire.Range("A" & lastRow + 2).Font.Italic = True
-    wsAnnuaire.Range("A" & lastRow + 2).Font.Color = RGB(150, 150, 150)
 End Sub
 
 '===============================================================================
@@ -1005,24 +1102,79 @@ End Sub
 ' DESCRIPTION: Masque les feuilles sensibles pour les guides
 '===============================================================================
 Sub MasquerFeuillesOriginalesPourGuide()
+    Dim ws As Worksheet
+
     On Error Resume Next
 
-    ' Masquer les feuilles originales (donnees completes)
-    ThisWorkbook.Sheets(FEUILLE_VISITES).Visible = xlSheetVeryHidden
-    ThisWorkbook.Sheets(FEUILLE_DISPONIBILITES).Visible = xlSheetVeryHidden
-    ThisWorkbook.Sheets(FEUILLE_GUIDES).Visible = xlSheetVeryHidden
-    ThisWorkbook.Sheets(FEUILLE_PLANNING).Visible = xlSheetVeryHidden
+    ' Masquer la feuille d'accueil (plus necessaire apres connexion)
+    Set ws = Nothing
+    Set ws = ThisWorkbook.Sheets("Accueil")
+    If Not ws Is Nothing Then ws.Visible = xlSheetVeryHidden
+
+    ' Masquer les feuilles originales (donnees completes) - SECURISE
+    Set ws = Nothing
+    Set ws = ThisWorkbook.Sheets(FEUILLE_VISITES)
+    If Not ws Is Nothing And ws.Visible <> xlSheetVeryHidden Then ws.Visible = xlSheetVeryHidden
+
+    Set ws = Nothing
+    Set ws = ThisWorkbook.Sheets(FEUILLE_DISPONIBILITES)
+    If Not ws Is Nothing And ws.Visible <> xlSheetVeryHidden Then ws.Visible = xlSheetVeryHidden
+
+    Set ws = Nothing
+    Set ws = ThisWorkbook.Sheets(FEUILLE_GUIDES)
+    If Not ws Is Nothing And ws.Visible <> xlSheetVeryHidden Then ws.Visible = xlSheetVeryHidden
+
+    Set ws = Nothing
+    Set ws = ThisWorkbook.Sheets(FEUILLE_PLANNING)
+    If Not ws Is Nothing And ws.Visible <> xlSheetVeryHidden Then ws.Visible = xlSheetVeryHidden
 
     ' Les feuilles admin restent masquees (deja fait dans Module_Config)
-    ThisWorkbook.Sheets(FEUILLE_CALCULS).Visible = xlSheetVeryHidden
-    ThisWorkbook.Sheets(FEUILLE_CONTRATS).Visible = xlSheetVeryHidden
-    ThisWorkbook.Sheets(FEUILLE_CONFIG).Visible = xlSheetVeryHidden
+    Set ws = Nothing
+    Set ws = ThisWorkbook.Sheets(FEUILLE_CALCULS)
+    If Not ws Is Nothing And ws.Visible <> xlSheetVeryHidden Then ws.Visible = xlSheetVeryHidden
+
+    Set ws = Nothing
+    Set ws = ThisWorkbook.Sheets(FEUILLE_CONTRATS)
+    If Not ws Is Nothing And ws.Visible <> xlSheetVeryHidden Then ws.Visible = xlSheetVeryHidden
+
+    Set ws = Nothing
+    Set ws = ThisWorkbook.Sheets(FEUILLE_CONFIG)
+    If Not ws Is Nothing And ws.Visible <> xlSheetVeryHidden Then ws.Visible = xlSheetVeryHidden
+
+    ' S'assurer que toutes les feuilles du guide sont visibles
+    Dim wsGuide As Worksheet
+    For Each wsGuide In ThisWorkbook.Worksheets
+        Select Case wsGuide.Name
+            Case "Mon_Planning", "Mes_Visites", "Mes_Disponibilites"
+                If wsGuide.Visible <> xlSheetVisible Then wsGuide.Visible = xlSheetVisible
+        End Select
+    Next wsGuide
+
+    ' Supprimer l'Annuaire s'il existe (confidentialité)
+    On Error Resume Next
+    Dim wsAnnuaireTemp As Worksheet
+    Set wsAnnuaireTemp = ThisWorkbook.Sheets("Annuaire")
+    If Not wsAnnuaireTemp Is Nothing Then
+        Application.DisplayAlerts = False
+        wsAnnuaireTemp.Delete
+        Application.DisplayAlerts = True
+    End If
+    Set wsAnnuaireTemp = ThisWorkbook.Sheets("Annuaire_Guides")
+    If Not wsAnnuaireTemp Is Nothing Then
+        Application.DisplayAlerts = False
+        wsAnnuaireTemp.Delete
+        Application.DisplayAlerts = True
+    End If
+    On Error GoTo 0
 
     ' Rendre Mon_Planning visible (feuille principale pour les guides)
-    ThisWorkbook.Sheets("Mon_Planning").Visible = xlSheetVisible
-
-    ' Activer la feuille Mon_Planning
-    ThisWorkbook.Sheets("Mon_Planning").Activate
+    Set ws = Nothing
+    Set ws = Feuil3
+    If Not ws Is Nothing Then
+        If ws.Visible <> xlSheetVisible Then ws.Visible = xlSheetVisible
+        ws.Name = "Mon_Planning"
+        ws.Activate
+    End If
 
     On Error GoTo 0
 End Sub
