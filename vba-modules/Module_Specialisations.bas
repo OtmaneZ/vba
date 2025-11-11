@@ -1,17 +1,17 @@
 Attribute VB_Name = "Module_Specialisations"
 ' ============================================
-' MODULE GESTION SPÉCIALISATIONS GUIDES
+' MODULE GESTION SPECIALISATIONS GUIDES
 ' ============================================
-' Vérifie qu'un guide peut effectuer un type de visite donné
+' Verifie qu'un guide peut effectuer un type de visite donne
 ' ============================================
 
 Option Explicit
 
-' Fonction : Vérifie si un guide est autorisé à faire une visite
-' Paramètres :
+' Fonction : Verifie si un guide est autorise a faire une visite
+' Parametres :
 '   - nomGuide : Nom complet du guide (ex: "Peggy GENESTIE")
 '   - typeVisite : Type de visite (ex: "Maman Serpent")
-' Retour : True si autorisé, False sinon
+' Retour : True si autorise, False sinon
 Public Function GuideAutoriseVisite(nomGuide As String, typeVisite As String) As Boolean
     On Error GoTo Erreur
     
@@ -22,13 +22,13 @@ Public Function GuideAutoriseVisite(nomGuide As String, typeVisite As String) As
     Dim visiteSpec As String
     Dim trouve As Boolean
     
-    ' Par défaut, on autorise (pour les guides sans contraintes)
+    ' Par defaut, on autorise (pour les guides sans contraintes)
     GuideAutoriseVisite = True
     trouve = False
     
-    ' Récupérer la feuille Spécialisations
+    ' Recuperer la feuille Specialisations
     On Error Resume Next
-    Set ws = ThisWorkbook.Sheets("Spécialisations")
+    Set ws = ThisWorkbook.Sheets("Specialisations")
     On Error GoTo Erreur
     
     If ws Is Nothing Then
@@ -36,10 +36,10 @@ Public Function GuideAutoriseVisite(nomGuide As String, typeVisite As String) As
         Exit Function
     End If
     
-    ' Chercher le guide dans la feuille Spécialisations
+    ' Chercher le guide dans la feuille Specialisations
     derLigne = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
     
-    For i = 4 To derLigne ' Commence à ligne 4 (après en-têtes)
+    For i = 4 To derLigne ' Commence a ligne 4 (apres en-tetes)
         guideSpec = Trim(ws.Cells(i, 1).Value)
         visiteSpec = Trim(ws.Cells(i, 2).Value)
         
@@ -49,19 +49,19 @@ Public Function GuideAutoriseVisite(nomGuide As String, typeVisite As String) As
             
             trouve = True
             
-            ' Vérifier si cette visite est dans les autorisées
+            ' Verifier si cette visite est dans les autorisees
             If InStr(1, visiteSpec, typeVisite, vbTextCompare) > 0 Or _
                InStr(1, typeVisite, visiteSpec, vbTextCompare) > 0 Then
-                ' Visite trouvée dans les autorisées
+                ' Visite trouvee dans les autorisees
                 GuideAutoriseVisite = True
                 Exit Function
             End If
             
-            ' Cas spécial : "Tous sauf"
+            ' Cas special : "Tous sauf"
             If InStr(1, visiteSpec, "Tous sauf", vbTextCompare) > 0 Or _
                InStr(1, visiteSpec, "tous les autres", vbTextCompare) > 0 Then
                 ' Guide fait tout sauf certaines visites
-                ' Vérifier dans la colonne Notes (C) les exclusions
+                ' Verifier dans la colonne Notes (C) les exclusions
                 Dim notes As String
                 notes = Trim(ws.Cells(i, 3).Value)
                 
@@ -77,10 +77,10 @@ Public Function GuideAutoriseVisite(nomGuide As String, typeVisite As String) As
         End If
     Next i
     
-    ' Si guide trouvé dans Spécialisations mais visite pas listée = NON autorisé
+    ' Si guide trouve dans Specialisations mais visite pas listee = NON autorise
     ' (car c'est une liste RESTRICTIVE pour ces guides)
     If trouve Then
-        ' Vérifier si le guide a des entrées "UNIQUEMENT"
+        ' Verifier si le guide a des entrees "UNIQUEMENT"
         For i = 4 To derLigne
             guideSpec = Trim(ws.Cells(i, 1).Value)
             visiteSpec = Trim(ws.Cells(i, 2).Value)
@@ -104,14 +104,14 @@ Public Function GuideAutoriseVisite(nomGuide As String, typeVisite As String) As
     Exit Function
     
 Erreur:
-    ' En cas d'erreur, on autorise par sécurité
+    ' En cas d'erreur, on autorise par securite
     GuideAutoriseVisite = True
 End Function
 
-' Fonction : Retourne la liste des guides autorisés pour une visite
-' Paramètres :
+' Fonction : Retourne la liste des guides autorises pour une visite
+' Parametres :
 '   - typeVisite : Type de visite
-' Retour : Collection de noms de guides autorisés
+' Retour : Collection de noms de guides autorises
 Public Function ObtenirGuidesAutorises(typeVisite As String) As Collection
     On Error GoTo Erreur
     
@@ -129,7 +129,7 @@ Public Function ObtenirGuidesAutorises(typeVisite As String) As Collection
         nomGuide = Trim(wsGuides.Cells(i, 1).Value)
         
         If nomGuide <> "" Then
-            ' Vérifier si le guide peut faire cette visite
+            ' Verifier si le guide peut faire cette visite
             If GuideAutoriseVisite(nomGuide, typeVisite) Then
                 col.Add nomGuide
             End If
@@ -153,10 +153,10 @@ Public Sub AfficherContraintesGuide(nomGuide As String)
     Dim msg As String
     Dim guideSpec As String
     
-    Set ws = ThisWorkbook.Sheets("Spécialisations")
+    Set ws = ThisWorkbook.Sheets("Specialisations")
     
     If ws Is Nothing Then
-        MsgBox "Aucune contrainte définie pour ce guide.", vbInformation
+        MsgBox "Aucune contrainte definie pour ce guide.", vbInformation
         Exit Sub
     End If
     
@@ -171,7 +171,7 @@ Public Sub AfficherContraintesGuide(nomGuide As String)
         
         If InStr(1, guideSpec, nomGuide, vbTextCompare) > 0 Then
             trouve = True
-            msg = msg & "✓ " & ws.Cells(i, 2).Value
+            msg = msg & " " & ws.Cells(i, 2).Value
             If Trim(ws.Cells(i, 3).Value) <> "" Then
                 msg = msg & " (" & ws.Cells(i, 3).Value & ")"
             End If
@@ -180,7 +180,7 @@ Public Sub AfficherContraintesGuide(nomGuide As String)
     Next i
     
     If Not trouve Then
-        msg = msg & "Aucune contrainte spécifique." & vbCrLf
+        msg = msg & "Aucune contrainte specifique." & vbCrLf
         msg = msg & "Ce guide peut effectuer toutes les visites."
     End If
     

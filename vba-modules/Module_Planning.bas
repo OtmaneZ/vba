@@ -31,7 +31,7 @@ Public Sub GenererPlanningAutomatique()
 
     On Error GoTo Erreur
 
-    Application.ScréénUpdating = False
+    Application.ScreenUpdating = False
 
     Set wsVisites = ThisWorkbook.Worksheets(FEUILLE_VISITES)
     Set wsPlanning = ThisWorkbook.Worksheets(FEUILLE_PLANNING)
@@ -42,7 +42,7 @@ Public Sub GenererPlanningAutomatique()
     derLigneVisites = wsVisites.Cells(wsVisites.Rows.Count, 1).End(xlUp).Row
     If derLigneVisites < 2 Then
         MsgBox "Aucune visite a planifier.", vbInformation
-        Application.ScréénUpdating = True
+        Application.ScreenUpdating = True
         Exit Sub
     End If
 
@@ -72,16 +72,16 @@ Public Sub GenererPlanningAutomatique()
         heureVisite = wsVisites.Cells(i, 3).Value & " - " & wsVisites.Cells(i, 4).Value
         musee = wsVisites.Cells(i, 5).Value
         
-        ' Récupérer le type de visite et la catégorie
+        ' Recuperer le type de visite et la categorie
         Dim typeVisite As String
         Dim categorieVisite As String
         typeVisite = wsVisites.Cells(i, 6).Value ' Colonne "Type"
-        categorieVisite = wsVisites.Cells(i, 9).Value ' Colonne "Catégorie" (nouvellement ajoutée colonne I)
+        categorieVisite = wsVisites.Cells(i, 9).Value ' Colonne "Categorie" (nouvellement ajoutee colonne I)
 
-        ' Chercher un guide disponible ET autorisé pour ce type de visite
+        ' Chercher un guide disponible ET autorise pour ce type de visite
         Set guidesDispos = ObtenirGuidesDisponibles(dateVisite)
         
-        ' Filtrer les guides selon les spécialisations
+        ' Filtrer les guides selon les specialisations
         Dim guidesAutorises As New Collection
         Dim k As Long
         For k = 1 To guidesDispos.Count
@@ -91,7 +91,7 @@ Public Sub GenererPlanningAutomatique()
         Next k
 
         If guidesAutorises.Count > 0 Then
-            ' Selectionner le premier guide disponible ET autorisé
+            ' Selectionner le premier guide disponible ET autorise
             guideAssigne = guidesAutorises(1)
 
             ' Verifier que le guide n'a pas deja une visite ce jour-la
@@ -104,13 +104,13 @@ Public Sub GenererPlanningAutomatique()
                 wsPlanning.Cells(derLignePlanning, 5).Value = guideAssigne
                 wsPlanning.Cells(derLignePlanning, 6).Value = ObtenirNomGuide(guideAssigne)
 
-                ' Appliquer le code couleur selon la catégorie
+                ' Appliquer le code couleur selon la categorie
                 AppliquerCodeCouleurLigne wsPlanning, derLignePlanning, categorieVisite
 
                 derLignePlanning = derLignePlanning + 1
                 compteurAttribue = compteurAttribue + 1
             Else
-                ' Guide deja occupe, chercher le suivant (parmi les autorisés)
+                ' Guide deja occupe, chercher le suivant (parmi les autorises)
                 Dim trouve As Boolean
                 trouve = False
                 Dim j As Integer
@@ -134,26 +134,26 @@ Public Sub GenererPlanningAutomatique()
                     derLignePlanning = derLignePlanning + 1
                     compteurAttribue = compteurAttribue + 1
                 Else
-                    ' Aucun guide autorisé disponible
+                    ' Aucun guide autorise disponible
                     wsPlanning.Cells(derLignePlanning, 1).Value = idVisite
                     wsPlanning.Cells(derLignePlanning, 2).Value = dateVisite
                     wsPlanning.Cells(derLignePlanning, 3).Value = heureVisite
                     wsPlanning.Cells(derLignePlanning, 4).Value = musee
                     wsPlanning.Cells(derLignePlanning, 5).Value = "NON ATTRIBUE"
-                    wsPlanning.Cells(derLignePlanning, 6).Value = "Aucun guide autorisé disponible"
+                    wsPlanning.Cells(derLignePlanning, 6).Value = "Aucun guide autorise disponible"
                     wsPlanning.Rows(derLignePlanning).Interior.Color = COULEUR_OCCUPE
                     derLignePlanning = derLignePlanning + 1
                     compteurNonAttribue = compteurNonAttribue + 1
                 End If
             End If
         Else
-            ' Aucun guide autorisé disponible pour cette visite
+            ' Aucun guide autorise disponible pour cette visite
             wsPlanning.Cells(derLignePlanning, 1).Value = idVisite
             wsPlanning.Cells(derLignePlanning, 2).Value = dateVisite
             wsPlanning.Cells(derLignePlanning, 3).Value = heureVisite
             wsPlanning.Cells(derLignePlanning, 4).Value = musee
             wsPlanning.Cells(derLignePlanning, 5).Value = "NON ATTRIBUE"
-            wsPlanning.Cells(derLignePlanning, 6).Value = "Aucun guide autorisé pour ce type de visite"
+            wsPlanning.Cells(derLignePlanning, 6).Value = "Aucun guide autorise pour ce type de visite"
 
             ' Colorer en rouge
             wsPlanning.Rows(derLignePlanning).Interior.Color = COULEUR_OCCUPE
@@ -166,7 +166,7 @@ VisiteSuivante:
     Next i
 
     wsPlanning.Columns.AutoFit
-    Application.ScréénUpdating = True
+    Application.ScreenUpdating = True
 
     ' Message de resume
     MsgBox "Planning genere !" & vbCrLf & vbCrLf & _
@@ -177,7 +177,7 @@ VisiteSuivante:
     Exit Sub
 
 Erreur:
-    Application.ScréénUpdating = True
+    Application.ScreenUpdating = True
     MsgBox "Erreur lors de la generation du planning : " & Err.Description, vbCritical
 End Sub
 
@@ -352,7 +352,7 @@ Public Sub ModifierAttribution()
     wsPlanning.Cells(ligneVisite, 6).Value = ObtenirNomGuide(nouveauGuide)
     wsPlanning.Rows(ligneVisite).Interior.Color = COULEUR_ASSIGNE
 
-    MsgBox "Attribution modifiee avec succès !", vbInformation
+    MsgBox "Attribution modifiee avec succes !", vbInformation
 
     Exit Sub
 
@@ -373,9 +373,9 @@ Public Sub ExporterPlanning()
 
     Set wsPlanning = ThisWorkbook.Worksheets(FEUILLE_PLANNING)
 
-    Application.ScréénUpdating = False
+    Application.ScreenUpdating = False
 
-    ' Créer un nouveau classeur
+    ' Creer un nouveau classeur
     Set wbExport = Workbooks.Add
 
     ' Copier le planning
@@ -391,15 +391,15 @@ Public Sub ExporterPlanning()
                                             "Fichiers Excel (*.xlsx), *.xlsx")
     If fichier <> "False" Then
         wbExport.SaveAs fichier
-        MsgBox "Planning exporte avec succès !" & vbCrLf & fichier, vbInformation
+        MsgBox "Planning exporte avec succes !" & vbCrLf & fichier, vbInformation
     End If
 
     wbExport.Close SaveChanges:=False
-    Application.ScréénUpdating = True
+    Application.ScreenUpdating = True
 
     Exit Sub
 
 Erreur:
-    Application.ScréénUpdating = True
+    Application.ScreenUpdating = True
     MsgBox "Erreur lors de l'export : " & Err.Description, vbCritical
 End Sub

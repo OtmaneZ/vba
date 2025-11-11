@@ -67,7 +67,7 @@ Public Sub GenererContratGuide()
     Set wsPlanning = ThisWorkbook.Worksheets(FEUILLE_PLANNING)
     Set wsContrats = ThisWorkbook.Worksheets(FEUILLE_CONTRATS)
 
-    Application.ScréénUpdating = False
+    Application.ScreenUpdating = False
 
     ' Collecter les visites du guide pour ce mois
     listeVisites = ""
@@ -106,11 +106,11 @@ Public Sub GenererContratGuide()
 
     If compteurVisites = 0 Then
         MsgBox "Aucune visite trouvee pour ce guide ce mois-ci.", vbInformation
-        Application.ScréénUpdating = True
+        Application.ScreenUpdating = True
         Exit Sub
     End If
 
-    ' Créer le document de contrat
+    ' Creer le document de contrat
     Set wbContrat = Workbooks.Add
     Set wsContrat = wbContrat.Worksheets(1)
     wsContrat.Name = "Contrat"
@@ -131,7 +131,7 @@ Public Sub GenererContratGuide()
 
     If fichier <> "False" Then
         wbContrat.SaveAs fichier
-        MsgBox "Contrat genere avec succès !" & vbCrLf & vbCrLf & _
+        MsgBox "Contrat genere avec succes !" & vbCrLf & vbCrLf & _
                "Guide : " & guideNom & vbCrLf & _
                "Periode : " & Format(DateSerial(anneeCible, moisCible, 1), "mmmm yyyy") & vbCrLf & _
                "Nombre de visites : " & compteurVisites & vbCrLf & _
@@ -140,12 +140,12 @@ Public Sub GenererContratGuide()
     End If
 
     wbContrat.Close SaveChanges:=False
-    Application.ScréénUpdating = True
+    Application.ScreenUpdating = True
 
     Exit Sub
 
 Erreur:
-    Application.ScréénUpdating = True
+    Application.ScreenUpdating = True
     If Not wbContrat Is Nothing Then wbContrat.Close SaveChanges:=False
     MsgBox "Erreur lors de la generation du contrat : " & Err.Description, vbCritical
 End Sub
@@ -178,7 +178,7 @@ Private Sub RemplirModeleContrat(ws As Worksheet, nomGuide As String, idGuide As
         .Range("A5").Value = "[Adresse de l'association]"
         .Range("A6").Value = "[Code postal, Ville]"
 
-        .Range("A8").Value = "Ci-apres denommee « L'Association »"
+        .Range("A8").Value = "Ci-apres denommee  L'Association "
 
         .Range("A10").Value = "Et :"
         .Range("A11").Value = nomGuide
@@ -187,7 +187,7 @@ Private Sub RemplirModeleContrat(ws As Worksheet, nomGuide As String, idGuide As
         .Range("A13").Value = "Email : " & email
         .Range("A14").Value = "Telephone : " & tel
 
-        .Range("A16").Value = "Ci-apres denomme(e) « Le Guide »"
+        .Range("A16").Value = "Ci-apres denomme(e)  Le Guide "
 
         .Range("A18").Value = "Il a ete convenu ce qui suit :"
         .Range("A18").Font.Bold = True
@@ -226,9 +226,9 @@ Private Sub RemplirModeleContrat(ws As Worksheet, nomGuide As String, idGuide As
         .Range("A35").Font.Bold = True
         .Range("A35").Font.Underline = True
 
-        .Range("A36").Value = "Tarif horaire : " & Format(tarifHeure, "#,##0.00 €") & " / heure"
+        .Range("A36").Value = "Tarif horaire : " & Format(tarifHeure, "#,##0.00 ") & " / heure"
         .Range("A37").Value = "Volume horaire total : " & Format(heures, "0.0") & " heures"
-        .Range("A38").Value = "Montant total brut : " & Format(montantTotal, "#,##0.00 €")
+        .Range("A38").Value = "Montant total brut : " & Format(montantTotal, "#,##0.00 ")
         .Range("A38").Font.Bold = True
         .Range("A38").Font.Size = 12
         .Range("A38").Interior.Color = RGB(255, 242, 204)
@@ -357,7 +357,7 @@ Public Sub GenererContratsEnMasse()
     Set wsGuides = ThisWorkbook.Worksheets(FEUILLE_GUIDES)
     Set dictGuides = CreateObject("Scripting.Dictionary")
 
-    Application.ScréénUpdating = False
+    Application.ScreenUpdating = False
     Application.DisplayAlerts = False
 
     ' Identifier tous les guides ayant des visites ce mois
@@ -393,7 +393,7 @@ Public Sub GenererContratsEnMasse()
     Next key
 
     Application.DisplayAlerts = True
-    Application.ScréénUpdating = True
+    Application.ScreenUpdating = True
 
     MsgBox "Generation terminee !" & vbCrLf & vbCrLf & _
            "Nombre de contrats generes : " & compteur & vbCrLf & _
@@ -403,7 +403,7 @@ Public Sub GenererContratsEnMasse()
 
 Erreur:
     Application.DisplayAlerts = True
-    Application.ScréénUpdating = True
+    Application.ScreenUpdating = True
     MsgBox "Erreur lors de la generation en masse : " & Err.Description, vbCritical
 End Sub
 
@@ -517,7 +517,7 @@ Public Sub GenererContratDebutMois()
         Exit Sub
     End If
 
-    ' Recuperer tarif minimum (80€ par defaut)
+    ' Recuperer tarif minimum (80 par defaut)
     tarifMinimum = 80
     For i = 1 To wsConfig.Cells(wsConfig.Rows.Count, 1).End(xlUp).Row
         If UCase(Trim(wsConfig.Cells(i, 1).Value)) = "TARIF_MINIMUM" Then
@@ -604,17 +604,17 @@ Public Sub GenererContratDebutMois()
 
     ligne = ligne + 1
     wsContrat.Cells(ligne, 1).Value = "Tarif minimum par cachet :"
-    wsContrat.Cells(ligne, 2).Value = Format(tarifMinimum, "#,##0.00") & " €"
+    wsContrat.Cells(ligne, 2).Value = Format(tarifMinimum, "#,##0.00") & " "
 
     ligne = ligne + 1
     wsContrat.Cells(ligne, 1).Value = "MONTANT MINIMUM ESTIME :"
     wsContrat.Cells(ligne, 1).Font.Bold = True
-    wsContrat.Cells(ligne, 2).Value = Format(nbJoursPrevus * tarifMinimum, "#,##0.00") & " €"
+    wsContrat.Cells(ligne, 2).Value = Format(nbJoursPrevus * tarifMinimum, "#,##0.00") & " "
     wsContrat.Cells(ligne, 2).Font.Bold = True
     wsContrat.Cells(ligne, 2).Font.Size = 12
 
     ligne = ligne + 3
-    wsContrat.Cells(ligne, 1).Value = "Note : Ce contrat sera mis à jour en fin de mois avec les dates et montants exacts."
+    wsContrat.Cells(ligne, 1).Value = "Note : Ce contrat sera mis a jour en fin de mois avec les dates et montants exacts."
     wsContrat.Cells(ligne, 1).Font.Italic = True
     wsContrat.Cells(ligne, 1).Font.Color = RGB(255, 0, 0)
     wsContrat.Range("A" & ligne & ":D" & ligne).Merge
@@ -633,7 +633,7 @@ Public Sub GenererContratDebutMois()
                "Guide : " & guideNom & vbCrLf & _
                "Mois : " & Format(DateSerial(anneeCible, moisCible, 1), "MMMM YYYY") & vbCrLf & _
                "Jours prevus : " & nbJoursPrevus & vbCrLf & _
-               "Montant minimum : " & Format(nbJoursPrevus * tarifMinimum, "#,##0.00") & " €", _
+               "Montant minimum : " & Format(nbJoursPrevus * tarifMinimum, "#,##0.00") & " ", _
                vbInformation
     End If
 
@@ -717,7 +717,7 @@ Public Sub GenererContratFinMois()
                 End If
 
                 If listeVisitesDetail <> "" Then listeVisitesDetail = listeVisitesDetail & vbCrLf
-                listeVisitesDetail = listeVisitesDetail & Format(dateVisite, "dd/mm/yyyy") & " à " & heureVisite
+                listeVisitesDetail = listeVisitesDetail & Format(dateVisite, "dd/mm/yyyy") & " a " & heureVisite
             End If
 
             Err.Clear
@@ -808,20 +808,20 @@ Public Sub GenererContratFinMois()
     ligne = ligne + 1
     wsContrat.Cells(ligne, 1).Value = "Montant par cachet :"
     wsContrat.Cells(ligne, 1).Font.Bold = True
-    wsContrat.Cells(ligne, 2).Value = Format(montantParCachet, "#,##0.00") & " €"
+    wsContrat.Cells(ligne, 2).Value = Format(montantParCachet, "#,##0.00") & " "
     wsContrat.Cells(ligne, 2).Font.Bold = True
 
     ligne = ligne + 1
     wsContrat.Cells(ligne, 1).Value = "MONTANT TOTAL DU :"
     wsContrat.Cells(ligne, 1).Font.Bold = True
     wsContrat.Cells(ligne, 1).Font.Size = 12
-    wsContrat.Cells(ligne, 2).Value = Format(montantTotal, "#,##0.00") & " €"
+    wsContrat.Cells(ligne, 2).Value = Format(montantTotal, "#,##0.00") & " "
     wsContrat.Cells(ligne, 2).Font.Bold = True
     wsContrat.Cells(ligne, 2).Font.Size = 14
     wsContrat.Cells(ligne, 2).Font.Color = RGB(0, 128, 0)
 
     ligne = ligne + 2
-    wsContrat.Cells(ligne, 1).Value = "Calcul : " & nbJoursReel & " cachets × " & Format(montantParCachet, "#,##0.00") & " € = " & Format(montantTotal, "#,##0.00") & " €"
+    wsContrat.Cells(ligne, 1).Value = "Calcul : " & nbJoursReel & " cachets  " & Format(montantParCachet, "#,##0.00") & "  = " & Format(montantTotal, "#,##0.00") & " "
     wsContrat.Cells(ligne, 1).Font.Italic = True
     wsContrat.Range("A" & ligne & ":D" & ligne).Merge
 
@@ -843,8 +843,8 @@ Public Sub GenererContratFinMois()
                "Guide : " & guideNom & vbCrLf & _
                "Mois : " & Format(DateSerial(anneeCible, moisCible, 1), "MMMM YYYY") & vbCrLf & _
                "Jours travailles : " & nbJoursReel & " cachets" & vbCrLf & _
-               "Montant par cachet : " & Format(montantParCachet, "#,##0.00") & " €" & vbCrLf & _
-               "TOTAL : " & Format(montantTotal, "#,##0.00") & " €", _
+               "Montant par cachet : " & Format(montantParCachet, "#,##0.00") & " " & vbCrLf & _
+               "TOTAL : " & Format(montantTotal, "#,##0.00") & " ", _
                vbInformation
     End If
 

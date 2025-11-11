@@ -3,15 +3,15 @@ Attribute VB_Name = "Module_CodeCouleur"
 ' MODULE CODE COULEUR PLANNING
 ' ============================================
 ' Applique automatiquement les couleurs au planning
-' selon la catégorie de visite
+' selon la categorie de visite
 ' ============================================
 
 Option Explicit
 
-' Fonction : Applique le code couleur à une cellule selon la catégorie
-' Paramètres :
-'   - cell : La cellule à formater
-'   - categorie : La catégorie (Individuel, Groupe, Événement, Hors-les-murs, Marine)
+' Fonction : Applique le code couleur a une cellule selon la categorie
+' Parametres :
+'   - cell : La cellule a formater
+'   - categorie : La categorie (Individuel, Groupe, Evenement, Hors-les-murs, Marine)
 Public Sub AppliquerCodeCouleur(cell As Range, categorie As String)
     On Error Resume Next
     
@@ -34,7 +34,7 @@ Public Sub AppliquerCodeCouleur(cell As Range, categorie As String)
             cell.Font.Color = RGB(0, 0, 0) ' Noir
             cell.Font.Bold = False
             
-        Case "ÉVÉNEMENT", "EVENEMENT"
+        Case "EVENEMENT", "EVENEMENT"
             ' Rose
             With cell.Interior
                 .Color = RGB(255, 192, 203)
@@ -53,7 +53,7 @@ Public Sub AppliquerCodeCouleur(cell As Range, categorie As String)
             cell.Font.Bold = False
             
         Case "MARINE"
-            ' Bleu foncé + GRAS + MAJUSCULES
+            ' Bleu fonce + GRAS + MAJUSCULES
             With cell.Interior
                 .Color = RGB(0, 32, 96)
                 .Pattern = xlSolid
@@ -68,14 +68,14 @@ Public Sub AppliquerCodeCouleur(cell As Range, categorie As String)
             End If
             
         Case Else
-            ' Pas de catégorie ou inconnue : pas de formatage
+            ' Pas de categorie ou inconnue : pas de formatage
             cell.Interior.ColorIndex = xlNone
             cell.Font.Color = RGB(0, 0, 0)
             cell.Font.Bold = False
     End Select
 End Sub
 
-' Fonction : Applique le code couleur à toute la feuille Planning
+' Fonction : Applique le code couleur a toute la feuille Planning
 Public Sub AppliquerCodeCouleurPlanning()
     On Error Resume Next
     
@@ -88,7 +88,7 @@ Public Sub AppliquerCodeCouleurPlanning()
     Dim idVisite As String
     Dim categorie As String
     
-    Application.ScréénUpdating = False
+    Application.ScreenUpdating = False
     
     Set wsPlanning = ThisWorkbook.Sheets(FEUILLE_PLANNING)
     Set wsVisites = ThisWorkbook.Sheets(FEUILLE_VISITES)
@@ -97,14 +97,14 @@ Public Sub AppliquerCodeCouleurPlanning()
     derLignePlanning = wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
     derColPlanning = wsPlanning.Cells(4, wsPlanning.Columns.Count).End(xlToLeft).Column
     
-    ' Parcourir toutes les cellules du planning (à partir de ligne 5, colonne 2)
+    ' Parcourir toutes les cellules du planning (a partir de ligne 5, colonne 2)
     For i = 5 To derLignePlanning
         For j = 2 To derColPlanning
             Set cellPlanning = wsPlanning.Cells(i, j)
             
-            ' Si la cellule contient une donnée
+            ' Si la cellule contient une donnee
             If Not IsEmpty(cellPlanning.Value) And cellPlanning.Value <> "" Then
-                ' Chercher la catégorie correspondante dans Visites
+                ' Chercher la categorie correspondante dans Visites
                 ' On suppose que l'ID ou type de visite est dans la cellule
                 Dim typeVisite As String
                 typeVisite = Trim(cellPlanning.Value)
@@ -120,15 +120,15 @@ Public Sub AppliquerCodeCouleurPlanning()
         Next j
     Next i
     
-    Application.ScréénUpdating = True
+    Application.ScreenUpdating = True
     
-    MsgBox "Code couleur appliqué avec succès au planning !", vbInformation, "Formatage terminé"
+    MsgBox "Code couleur applique avec succes au planning !", vbInformation, "Formatage termine"
 End Sub
 
-' Fonction : Cherche la catégorie d'une visite dans la feuille Visites
-' Paramètres :
+' Fonction : Cherche la categorie d'une visite dans la feuille Visites
+' Parametres :
 '   - typeVisite : Type ou ID de la visite
-' Retour : La catégorie trouvée, ou "" si non trouvée
+' Retour : La categorie trouvee, ou "" si non trouvee
 Private Function ChercherCategorieVisite(typeVisite As String) As String
     On Error Resume Next
     
@@ -141,7 +141,7 @@ Private Function ChercherCategorieVisite(typeVisite As String) As String
     Set wsVisites = ThisWorkbook.Sheets(FEUILLE_VISITES)
     derLigne = wsVisites.Cells(wsVisites.Rows.Count, 1).End(xlUp).Row
     
-    ' Trouver les colonnes Type et Catégorie
+    ' Trouver les colonnes Type et Categorie
     typeCol = 0
     catCol = 0
     
@@ -149,31 +149,31 @@ Private Function ChercherCategorieVisite(typeVisite As String) As String
         If InStr(1, wsVisites.Cells(4, i).Value, "Type", vbTextCompare) > 0 Then
             typeCol = i
         End If
-        If InStr(1, wsVisites.Cells(4, i).Value, "Catégorie", vbTextCompare) > 0 Or _
+        If InStr(1, wsVisites.Cells(4, i).Value, "Categorie", vbTextCompare) > 0 Or _
            InStr(1, wsVisites.Cells(4, i).Value, "Categorie", vbTextCompare) > 0 Then
             catCol = i
         End If
     Next i
     
-    ' Si colonnes trouvées
+    ' Si colonnes trouvees
     If typeCol > 0 And catCol > 0 Then
         ' Parcourir les visites
         For i = 5 To derLigne
             If InStr(1, wsVisites.Cells(i, typeCol).Value, typeVisite, vbTextCompare) > 0 Or _
                InStr(1, typeVisite, wsVisites.Cells(i, typeCol).Value, vbTextCompare) > 0 Then
-                ' Visite trouvée, retourner catégorie
+                ' Visite trouvee, retourner categorie
                 ChercherCategorieVisite = Trim(wsVisites.Cells(i, catCol).Value)
                 Exit Function
             End If
         Next i
     End If
     
-    ' Non trouvé
+    ' Non trouve
     ChercherCategorieVisite = ""
 End Function
 
-' Fonction : Applique le code couleur à une ligne spécifique du planning
-' Utilisé lors de la génération automatique ligne par ligne
+' Fonction : Applique le code couleur a une ligne specifique du planning
+' Utilise lors de la generation automatique ligne par ligne
 Public Sub AppliquerCodeCouleurLigne(wsPlanning As Worksheet, ligneNum As Long, categorie As String)
     On Error Resume Next
     
@@ -182,7 +182,7 @@ Public Sub AppliquerCodeCouleurLigne(wsPlanning As Worksheet, ligneNum As Long, 
     
     derCol = wsPlanning.Cells(4, wsPlanning.Columns.Count).End(xlToLeft).Column
     
-    ' Appliquer à toutes les cellules de la ligne
+    ' Appliquer a toutes les cellules de la ligne
     For j = 2 To derCol
         If Not IsEmpty(wsPlanning.Cells(ligneNum, j).Value) Then
             AppliquerCodeCouleur wsPlanning.Cells(ligneNum, j), categorie
@@ -190,7 +190,7 @@ Public Sub AppliquerCodeCouleurLigne(wsPlanning As Worksheet, ligneNum As Long, 
     Next j
 End Sub
 
-' Fonction : Réinitialise le formatage du planning
+' Fonction : Reinitialise le formatage du planning
 Public Sub ReinitialiserFormatagePlanning()
     On Error Resume Next
     
@@ -203,9 +203,9 @@ Public Sub ReinitialiserFormatagePlanning()
     derLigne = wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
     derCol = wsPlanning.Cells(4, wsPlanning.Columns.Count).End(xlToLeft).Column
     
-    Application.ScréénUpdating = False
+    Application.ScreenUpdating = False
     
-    ' Réinitialiser le formatage de toute la zone de données
+    ' Reinitialiser le formatage de toute la zone de donnees
     Dim rng As Range
     Set rng = wsPlanning.Range(wsPlanning.Cells(5, 2), wsPlanning.Cells(derLigne, derCol))
     
@@ -215,7 +215,7 @@ Public Sub ReinitialiserFormatagePlanning()
         .Font.Bold = False
     End With
     
-    Application.ScréénUpdating = True
+    Application.ScreenUpdating = True
     
-    MsgBox "Formatage du planning réinitialisé.", vbInformation
+    MsgBox "Formatage du planning reinitialise.", vbInformation
 End Sub

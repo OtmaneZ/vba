@@ -8,9 +8,9 @@ Attribute VB_Name = "Module_Calculs"
 ' LOGIQUE DE CALCUL:
 ' - Tarifs par JOURNEE selon nombre de visites effectuees le meme jour
 ' - 3 types de visites : Standards / Branly / Hors-les-murs
-' - Standards (45min): 1 visite=80€, 2 visites=110€, 3 visites=140€
-' - Branly (evenements): 2h=120€, 3h=150€, 4h=180€
-' - Hors-les-murs (deplacements): 1 visite=100€, 2 visites=130€, 3 visites=160€
+' - Standards (45min): 1 visite=80, 2 visites=110, 3 visites=140
+' - Branly (evenements): 2h=120, 3h=150, 4h=180
+' - Hors-les-murs (deplacements): 1 visite=100, 2 visites=130, 3 visites=160
 '===============================================================================
 
 Option Explicit
@@ -156,7 +156,7 @@ Public Sub CalculerVisitesEtSalaires()
             montantSalaire = montantSalaire + montantJour
         Next keyJour
 
-        ' SYSTEME DE CACHETS : Montant par cachet = Total ÷ Nb jours (arrondi sup)
+        ' SYSTEME DE CACHETS : Montant par cachet = Total  Nb jours (arrondi sup)
         Dim montantParCachet As Double
         If nbJoursTravailles > 0 Then
             montantParCachet = Application.WorksheetFunction.RoundUp(montantSalaire / nbJoursTravailles, 2)
@@ -170,17 +170,17 @@ Public Sub CalculerVisitesEtSalaires()
         wsCalculs.Cells(ligneCalcul, 3).Value = nbVisitesTotal
         wsCalculs.Cells(ligneCalcul, 4).Value = nbJoursTravailles ' Nombre de jours = Nombre de cachets
         wsCalculs.Cells(ligneCalcul, 5).Value = montantSalaire
-        wsCalculs.Cells(ligneCalcul, 5).NumberFormat = "#,##0.00 €"
+        wsCalculs.Cells(ligneCalcul, 5).NumberFormat = "#,##0.00 "
 
         ' NOUVELLE COLONNE F : Montant par cachet
         wsCalculs.Cells(ligneCalcul, 6).Value = montantParCachet
-        wsCalculs.Cells(ligneCalcul, 6).NumberFormat = "#,##0.00 €"
+        wsCalculs.Cells(ligneCalcul, 6).NumberFormat = "#,##0.00 "
 
-        ' NOUVELLE COLONNE G : Total recalculé (cachets × montant)
+        ' NOUVELLE COLONNE G : Total recalcule (cachets  montant)
         Dim totalRecalcule As Double
         totalRecalcule = montantParCachet * nbJoursTravailles
         wsCalculs.Cells(ligneCalcul, 7).Value = totalRecalcule
-        wsCalculs.Cells(ligneCalcul, 7).NumberFormat = "#,##0.00 €"
+        wsCalculs.Cells(ligneCalcul, 7).NumberFormat = "#,##0.00 "
 
         ' Formater
         If nbVisitesTotal > 0 Then
@@ -190,13 +190,13 @@ Public Sub CalculerVisitesEtSalaires()
         ligneCalcul = ligneCalcul + 1
     Next keyGuide
 
-    ' Mettre à jour les en-têtes si besoin
+    ' Mettre a jour les en-tetes si besoin
     If wsCalculs.Cells(1, 6).Value = "" Then
         wsCalculs.Cells(1, 6).Value = "Montant/Cachet"
         wsCalculs.Cells(1, 6).Font.Bold = True
     End If
     If wsCalculs.Cells(1, 7).Value = "" Then
-        wsCalculs.Cells(1, 7).Value = "Total Recalculé"
+        wsCalculs.Cells(1, 7).Value = "Total Recalcule"
         wsCalculs.Cells(1, 7).Font.Bold = True
     End If
 
@@ -212,11 +212,11 @@ Public Sub CalculerVisitesEtSalaires()
         wsCalculs.Cells(ligneCalcul, 4).Font.Bold = True
 
         wsCalculs.Cells(ligneCalcul, 5).Formula = "=SUM(E2:E" & ligneCalcul - 1 & ")"
-        wsCalculs.Cells(ligneCalcul, 5).NumberFormat = "#,##0.00 €"
+        wsCalculs.Cells(ligneCalcul, 5).NumberFormat = "#,##0.00 "
         wsCalculs.Cells(ligneCalcul, 5).Font.Bold = True
 
         wsCalculs.Cells(ligneCalcul, 7).Formula = "=SUM(G2:G" & ligneCalcul - 1 & ")"
-        wsCalculs.Cells(ligneCalcul, 7).NumberFormat = "#,##0.00 €"
+        wsCalculs.Cells(ligneCalcul, 7).NumberFormat = "#,##0.00 "
         wsCalculs.Cells(ligneCalcul, 7).Font.Bold = True
 
         wsCalculs.Rows(ligneCalcul).Interior.Color = RGB(255, 242, 204)
@@ -232,7 +232,7 @@ Public Sub CalculerVisitesEtSalaires()
         msgPeriode = " (toutes periodes)"
     End If
 
-    MsgBox "Calculs effectues avec succès" & msgPeriode & " !" & vbCrLf & vbCrLf & _
+    MsgBox "Calculs effectues avec succes" & msgPeriode & " !" & vbCrLf & vbCrLf & _
            "Nombre de guides : " & dictGuides.Count, _
            vbInformation, "Calculs Paie"
 
@@ -289,7 +289,7 @@ Private Function CalculerTarifJournee(typeVisite As String, nbVisites As Integer
 
     Select Case UCase(typeVisite)
         Case "STANDARD"
-            ' Tarifs standards: 80€/110€/140€
+            ' Tarifs standards: 80/110/140
             Select Case nbVisites
                 Case 1
                     CalculerTarifJournee = LireParametreConfig("TARIF_1_VISITE", 80)
@@ -300,7 +300,7 @@ Private Function CalculerTarifJournee(typeVisite As String, nbVisites As Integer
             End Select
 
         Case "BRANLY"
-            ' Tarifs Branly selon duree: 2h=120€, 3h=150€, 4h=180€
+            ' Tarifs Branly selon duree: 2h=120, 3h=150, 4h=180
             If dureeHeures <= 2 Then
                 CalculerTarifJournee = LireParametreConfig("TARIF_BRANLY_2H", 120)
             ElseIf dureeHeures <= 3 Then
@@ -310,7 +310,7 @@ Private Function CalculerTarifJournee(typeVisite As String, nbVisites As Integer
             End If
 
         Case "HORSLEMURS"
-            ' Tarifs hors-les-murs: 100€/130€/160€
+            ' Tarifs hors-les-murs: 100/130/160
             Select Case nbVisites
                 Case 1
                     CalculerTarifJournee = LireParametreConfig("TARIF_HORSLEMURS_1", 100)
@@ -500,7 +500,7 @@ Public Sub GenererFichePaieGuide()
         Exit Sub
     End If
 
-    ' Créer un nouveau classeur pour la fiche
+    ' Creer un nouveau classeur pour la fiche
     Set wbFiche = Workbooks.Add
     Set wsFiche = wbFiche.Worksheets(1)
     wsFiche.Name = "Fiche_Paie"
@@ -552,9 +552,9 @@ Public Sub GenererFichePaieGuide()
         wsFiche.Cells(ligne, 2).Value = typeJour
         wsFiche.Cells(ligne, 3).Value = nbVisitesJour
         wsFiche.Cells(ligne, 4).Value = dureeJour
-        wsFiche.Cells(ligne, 5).Value = montantJour & " €"
+        wsFiche.Cells(ligne, 5).Value = montantJour & " "
         wsFiche.Cells(ligne, 6).Value = montantJour
-        wsFiche.Cells(ligne, 6).NumberFormat = "#,##0.00 €"
+        wsFiche.Cells(ligne, 6).NumberFormat = "#,##0.00 "
 
         totalVisites = totalVisites + nbVisitesJour
         totalMontant = totalMontant + montantJour
@@ -567,7 +567,7 @@ Public Sub GenererFichePaieGuide()
     wsFiche.Cells(ligne, 3).Value = totalVisites
     wsFiche.Cells(ligne, 3).Font.Bold = True
     wsFiche.Cells(ligne, 6).Value = totalMontant
-    wsFiche.Cells(ligne, 6).NumberFormat = "#,##0.00 €"
+    wsFiche.Cells(ligne, 6).NumberFormat = "#,##0.00 "
     wsFiche.Cells(ligne, 6).Font.Bold = True
     wsFiche.Range("A" & ligne & ":F" & ligne).Interior.Color = RGB(255, 242, 204)
 
@@ -583,7 +583,7 @@ Public Sub GenererFichePaieGuide()
                                             "Fichiers Excel (*.xlsx), *.xlsx")
     If fichier <> "False" Then
         wbFiche.SaveAs fichier
-        MsgBox "Fiche de paie generee avec succès !" & vbCrLf & fichier, vbInformation
+        MsgBox "Fiche de paie generee avec succes !" & vbCrLf & fichier, vbInformation
     End If
 
     wbFiche.Close SaveChanges:=False
@@ -832,7 +832,7 @@ Public Sub ExporterRecapitulatifPaie()
 
     Application.ScreenUpdating = False
 
-    ' Créer un nouveau classeur
+    ' Creer un nouveau classeur
     Set wbExport = Workbooks.Add
 
     ' Copier les calculs
@@ -848,7 +848,7 @@ Public Sub ExporterRecapitulatifPaie()
                                             "Fichiers Excel (*.xlsx), *.xlsx")
     If fichier <> "False" Then
         wbExport.SaveAs fichier
-        MsgBox "Recapitulatif exporte avec succès !" & vbCrLf & fichier, vbInformation
+        MsgBox "Recapitulatif exporte avec succes !" & vbCrLf & fichier, vbInformation
     End If
 
     wbExport.Close SaveChanges:=False

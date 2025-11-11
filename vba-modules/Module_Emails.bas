@@ -45,7 +45,7 @@ Public Sub EnvoyerPlanningMensuel()
     Set wsGuides = ThisWorkbook.Worksheets(FEUILLE_GUIDES)
     Set dictGuides = CreateObject("Scripting.Dictionary")
 
-    Application.ScréénUpdating = False
+    Application.ScreenUpdating = False
 
     ' Regrouper les visites par guide
     For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
@@ -92,13 +92,13 @@ Public Sub EnvoyerPlanningMensuel()
         End If
     Next key
 
-    Application.ScréénUpdating = True
+    Application.ScreenUpdating = True
 
     MsgBox "Plannings envoyes a " & compteur & " guide(s) !", vbInformation
     Exit Sub
 
 Erreur:
-    Application.ScréénUpdating = True
+    Application.ScreenUpdating = True
     MsgBox "Erreur lors de l'envoi : " & Err.Description, vbCritical
 End Sub
 
@@ -115,7 +115,7 @@ Private Sub EnvoyerEmailPlanning(emailDest As String, nomGuide As String, visite
 
     On Error GoTo Erreur
 
-    ' Créer l'objet Outlook
+    ' Creer l'objet Outlook
     Set OutlookApp = CreateObject("Outlook.Application")
     Set OutlookMail = OutlookApp.CreateItem(0) ' 0 = olMailItem
 
@@ -125,18 +125,18 @@ Private Sub EnvoyerEmailPlanning(emailDest As String, nomGuide As String, visite
     ' Construire le corps de l'email
     corpsEmail = "Bonjour " & nomGuide & "," & vbCrLf & vbCrLf
     corpsEmail = corpsEmail & "Voici votre planning pour le mois de " & nomMois & " :" & vbCrLf & vbCrLf
-    corpsEmail = corpsEmail & "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" & vbCrLf
+    corpsEmail = corpsEmail & "" & vbCrLf
 
     For Each visite In visites
         corpsEmail = corpsEmail & visite & vbCrLf
     Next visite
 
-    corpsEmail = corpsEmail & "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" & vbCrLf & vbCrLf
+    corpsEmail = corpsEmail & "" & vbCrLf & vbCrLf
     corpsEmail = corpsEmail & "Nombre total de visites : " & visites.Count & vbCrLf & vbCrLf
     corpsEmail = corpsEmail & "Vous recevrez des rappels automatiques 7 jours et 1 jour avant chaque visite." & vbCrLf & vbCrLf
     corpsEmail = corpsEmail & "Cordialement," & vbCrLf
     corpsEmail = corpsEmail & "L'equipe de gestion" & vbCrLf & vbCrLf
-    corpsEmail = corpsEmail & "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" & vbCrLf
+    corpsEmail = corpsEmail & "" & vbCrLf
     corpsEmail = corpsEmail & "Cet email a ete genere automatiquement. Ne pas repondre."
 
     ' Configurer l'email
@@ -181,7 +181,7 @@ Public Sub EnvoyerNotificationsAutomatiques()
     compteurJ7 = 0
     compteurJ1 = 0
 
-    Application.ScréénUpdating = False
+    Application.ScreenUpdating = False
 
     ' Parcourir toutes les visites planifiees
     For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
@@ -230,7 +230,7 @@ Public Sub EnvoyerNotificationsAutomatiques()
         End If
     Next i
 
-    Application.ScréénUpdating = True
+    Application.ScreenUpdating = True
 
     MsgBox "Notifications envoyees :" & vbCrLf & _
            "- J-7 : " & compteurJ7 & " notification(s)" & vbCrLf & _
@@ -239,7 +239,7 @@ Public Sub EnvoyerNotificationsAutomatiques()
     Exit Sub
 
 Erreur:
-    Application.ScréénUpdating = True
+    Application.ScreenUpdating = True
     MsgBox "Erreur lors de l'envoi des notifications : " & Err.Description, vbCritical
 End Sub
 
@@ -255,7 +255,7 @@ Private Sub EnvoyerNotificationVisite(emailDest As String, nomGuide As String, i
 
     On Error GoTo Erreur
 
-    ' Créer l'objet Outlook
+    ' Creer l'objet Outlook
     Set OutlookApp = CreateObject("Outlook.Application")
     Set OutlookMail = OutlookApp.CreateItem(0)
 
@@ -270,9 +270,9 @@ Private Sub EnvoyerNotificationVisite(emailDest As String, nomGuide As String, i
     corpsEmail = "Bonjour " & nomGuide & "," & vbCrLf & vbCrLf
     corpsEmail = corpsEmail & "[!] RAPPEL : Vous avez une visite " & importance & " !" & vbCrLf & vbCrLf
     corpsEmail = corpsEmail & "Details de la visite :" & vbCrLf
-    corpsEmail = corpsEmail & "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" & vbCrLf
+    corpsEmail = corpsEmail & "" & vbCrLf
     corpsEmail = corpsEmail & infoVisite & vbCrLf
-    corpsEmail = corpsEmail & "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" & vbCrLf & vbCrLf
+    corpsEmail = corpsEmail & "" & vbCrLf & vbCrLf
 
     If typeNotif = "J-1" Then
         corpsEmail = corpsEmail & "N'oubliez pas de preparer votre visite !" & vbCrLf & vbCrLf
@@ -280,7 +280,7 @@ Private Sub EnvoyerNotificationVisite(emailDest As String, nomGuide As String, i
 
     corpsEmail = corpsEmail & "Cordialement," & vbCrLf
     corpsEmail = corpsEmail & "L'equipe de gestion" & vbCrLf & vbCrLf
-    corpsEmail = corpsEmail & "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" & vbCrLf
+    corpsEmail = corpsEmail & "" & vbCrLf
     corpsEmail = corpsEmail & "Cet email a ete genere automatiquement."
 
     ' Configurer l'email
@@ -360,7 +360,7 @@ Public Sub TestEnvoiEmail()
     emailTest = InputBox("Entrez votre email pour le test:", "Test envoi email")
     If emailTest = "" Then Exit Sub
 
-    ' Créer l'objet Outlook
+    ' Creer l'objet Outlook
     Set OutlookApp = CreateObject("Outlook.Application")
     Set OutlookMail = OutlookApp.CreateItem(0)
 
