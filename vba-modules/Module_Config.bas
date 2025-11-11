@@ -23,8 +23,7 @@ Public Const FEUILLE_CONFIG As String = "Configuration"
 Public Const DELAI_NOTIFICATION_1 As Integer = 7  ' Jours avant (premiere notification)
 Public Const DELAI_NOTIFICATION_2 As Integer = 1  ' Jours avant (rappel)
 
-' Configuration Paie
-Public Const TARIF_VISITE_BASE As Double = 50     ' Tarif par visite (a adapter)
+' Configuration Paie (systeme de cachets - calcule automatiquement)
 
 ' Couleurs
 Public Const COULEUR_DISPONIBLE As Long = 5296274     ' Vert clair
@@ -128,10 +127,9 @@ Private Sub InitialiserFeuille(ws As Worksheet)
             Case FEUILLE_CONFIG
                 .Range("A1").Value = "Parametre"
                 .Range("B1").Value = "Valeur"
-                .Range("A2:B7").Value = Application.Transpose(Array( _
+                .Range("A2:B5").Value = Application.Transpose(Array( _
                     Array("Email_Expediteur", "votre.email@association.fr"), _
                     Array("Nom_Association", "Association des Guides"), _
-                    Array("Tarif_Heure", "50"), _
                     Array("Notification_J7", "OUI"), _
                     Array("Notification_J1", "OUI"), _
                     Array("MotDePasseAdmin", "admin123") _
@@ -194,24 +192,9 @@ Public Function ObtenirConfigEmail() As String
 End Function
 
 '===============================================================================
-' FONCTION: ObtenirTarifHeure
-' DESCRIPTION: Retourne le tarif horaire depuis Configuration
+' NOTE: ObtenirTarifHeure() supprimee - systeme de cachets remplace tarif horaire
+' Utiliser CalculerVisitesEtSalaires() pour calcul automatique des cachets
 '===============================================================================
-Public Function ObtenirTarifHeure() As Double
-    Dim ws As Worksheet
-    Dim rng As Range
-
-    On Error Resume Next
-    Set ws = ThisWorkbook.Worksheets(FEUILLE_CONFIG)
-    Set rng = ws.Range("A:A").Find("Tarif_Heure", LookIn:=xlValues, LookAt:=xlWhole)
-
-    If Not rng Is Nothing Then
-        ObtenirTarifHeure = CDbl(ws.Cells(rng.Row, 2).Value)
-    Else
-        ObtenirTarifHeure = TARIF_VISITE_BASE
-    End If
-    On Error GoTo 0
-End Function
 
 '===============================================================================
 ' FONCTION: MasquerFeuillesSensibles
