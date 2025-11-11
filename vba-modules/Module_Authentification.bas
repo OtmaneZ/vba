@@ -131,50 +131,73 @@ Sub AfficherPlanningGuide(nomGuide As String)
     Set wsPlanning = ThisWorkbook.Sheets(FEUILLE_PLANNING)
     aujourdhui = Date
 
-    ' Supprimer l'ancienne feuille temporaire si elle existe
+    ' Utiliser la feuille Mon_Planning existante (ne pas la supprimer/recreer)
     On Error Resume Next
-    Application.DisplayAlerts = False
-    ThisWorkbook.Sheets("Mon_Planning").Delete
-    Application.DisplayAlerts = True
+    Set wsPlanningGuide = ThisWorkbook.Sheets("Mon_Planning")
     On Error GoTo 0
 
-    ' Creer la feuille temporaire du guide
-    Set wsPlanningGuide = ThisWorkbook.Sheets.Add
-    wsPlanningGuide.Name = "Mon_Planning"
+    ' Si la feuille n'existe pas, la creer
+    If wsPlanningGuide Is Nothing Then
+        Set wsPlanningGuide = ThisWorkbook.Sheets.Add
+        wsPlanningGuide.Name = "Mon_Planning"
+    Else
+        ' Vider le contenu de la feuille existante (sauf les en-tetes)
+        Application.EnableEvents = False
+        If wsPlanningGuide.UsedRange.Rows.Count > 1 Then
+            wsPlanningGuide.Rows("2:" & wsPlanningGuide.UsedRange.Rows.Count).Delete
+        End If
+        Application.EnableEvents = True
+    End If
 
-    ' Copier l'en-tete du planning
-    wsPlanning.Rows(1).Copy wsPlanningGuide.Rows(1)
-
-    ' Ajouter une colonne "Statut" et "Action"
-    wsPlanningGuide.Cells(1, 7).Value = "Statut"
-    wsPlanningGuide.Cells(1, 8).Value = "Action"
+    ' Creer/Verifier les en-tetes (structure attendue)
+    With wsPlanningGuide
+        .Cells(1, 1).Value = "Date"
+        .Cells(1, 2).Value = "Heure_Debut"
+        .Cells(1, 3).Value = "Musee"
+        .Cells(1, 4).Value = "Type_Visite"
+        .Cells(1, 5).Value = "Langue"
+        .Cells(1, 6).Value = "Nb_Personnes"
+        .Cells(1, 7).Value = "Statut"
+        .Cells(1, 8).Value = "Action"
+    End With
 
     ' Copier uniquement les lignes du guide (visites futures)
     lastRow = wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
     ligneDestination = 2
 
     For i = 2 To lastRow
+        ' Trouver la colonne Guide_Attribue (colonne 8 dans la nouvelle structure)
+        Dim guideAttribue As String
+        guideAttribue = wsPlanning.Cells(i, 8).Value
+
         ' Verifier si le guide est attribue a cette visite
-        If InStr(1, UCase(wsPlanning.Cells(i, 5).Value), UCase(nomGuide), vbTextCompare) > 0 Then
+        If InStr(1, UCase(guideAttribue), UCase(nomGuide), vbTextCompare) > 0 Then
             ' Verifier si la visite est dans le futur
             On Error Resume Next
             dateVisite = CDate(wsPlanning.Cells(i, 1).Value)
             On Error GoTo 0
 
             If dateVisite >= aujourdhui Then
-                ' Copier la ligne
-                wsPlanning.Range(wsPlanning.Cells(i, 1), wsPlanning.Cells(i, 6)).Copy _
-                    wsPlanningGuide.Range(wsPlanningGuide.Cells(ligneDestination, 1), wsPlanningGuide.Cells(ligneDestination, 6))
+                ' Copier les donnees dans Mon_Planning
+                ' Structure Mon_Planning : Date, Heure_Debut, Musee, Type_Visite, Langue, Nb_Personnes, Statut, Action
+                ' Structure Planning    : Date, Heure_Debut, Heure_Fin, Musee, Type_Visite, Langue, Nb_Personnes, Guide_Attribue, Statut
 
-                ' Recuperer le statut de confirmation (colonne G du planning principal)
+                wsPlanningGuide.Cells(ligneDestination, 1).Value = wsPlanning.Cells(i, 1).Value ' Date
+                wsPlanningGuide.Cells(ligneDestination, 2).Value = wsPlanning.Cells(i, 2).Value ' Heure_Debut
+                wsPlanningGuide.Cells(ligneDestination, 3).Value = wsPlanning.Cells(i, 4).Value ' Musee
+                wsPlanningGuide.Cells(ligneDestination, 4).Value = wsPlanning.Cells(i, 5).Value ' Type_Visite
+                wsPlanningGuide.Cells(ligneDestination, 5).Value = wsPlanning.Cells(i, 6).Value ' Langue
+                wsPlanningGuide.Cells(ligneDestination, 6).Value = wsPlanning.Cells(i, 7).Value ' Nb_Personnes
+
+                ' Recuperer le statut de confirmation (colonne 9 du planning principal)
                 Dim statutConfirmation As String
-                statutConfirmation = wsPlanning.Cells(i, 7).Value
+                statutConfirmation = wsPlanning.Cells(i, 9).Value
 
                 If statutConfirmation = "" Then statutConfirmation = "En attente"
 
                 wsPlanningGuide.Cells(ligneDestination, 7).Value = statutConfirmation
 
-                ' Ajouter un bouton de confirmation selon le statut
+                ' Ajouter un indicateur visuel selon le statut
                 If statutConfirmation = "Confirme" Then
                     wsPlanningGuide.Cells(ligneDestination, 8).Value = "[OK] Confirme"
                     wsPlanningGuide.Cells(ligneDestination, 8).Interior.Color = RGB(198, 239, 206)
@@ -193,12 +216,12 @@ Sub AfficherPlanningGuide(nomGuide As String)
 
     ' Mise en forme
     With wsPlanningGuide
-        .Columns("A:A").ColumnWidth = 12  ' ID
-        .Columns("B:B").ColumnWidth = 15  ' Date
-        .Columns("C:C").ColumnWidth = 20  ' Heure
-        .Columns("D:D").ColumnWidth = 25  ' Musee
-        .Columns("E:E").ColumnWidth = 30  ' Type
-        .Columns("F:F").ColumnWidth = 12  ' Duree
+        .Columns("A:A").ColumnWidth = 12  ' Date
+        .Columns("B:B").ColumnWidth = 12  ' Heure_Debut
+        .Columns("C:C").ColumnWidth = 25  ' Musee
+        .Columns("D:D").ColumnWidth = 30  ' Type_Visite
+        .Columns("E:E").ColumnWidth = 10  ' Langue
+        .Columns("F:F").ColumnWidth = 12  ' Nb_Personnes
         .Columns("G:G").ColumnWidth = 15  ' Statut
         .Columns("H:H").ColumnWidth = 20  ' Action
         .Range("A1:H1").Font.Bold = True
@@ -236,6 +259,14 @@ Sub AjouterBoutonsGuide(ws As Worksheet)
     Dim btnConfirmer As Button
     Dim btnDeconnexion As Button
     Dim btnExporter As Button
+    Dim btn As Button
+
+    ' Supprimer tous les anciens boutons de cette feuille
+    On Error Resume Next
+    For Each btn In ws.Buttons
+        btn.Delete
+    Next btn
+    On Error GoTo 0
 
     ' Calculer la largeur des colonnes en pixels (approximatif)
     Dim leftPos As Double
@@ -473,6 +504,7 @@ End Sub
 ' ============================================
 Sub SeDeconnecter()
     Dim ws As Worksheet
+    Dim wsPlanningGuide As Worksheet
 
     ' Reinitialiser les variables de session
     utilisateurConnecte = ""
@@ -484,11 +516,23 @@ Sub SeDeconnecter()
     ThisWorkbook.Sheets(FEUILLE_PLANNING).Buttons("BtnDeconnexionAdmin").Delete
     On Error GoTo 0
 
-    ' Supprimer la feuille temporaire si elle existe
+    ' Vider la feuille Mon_Planning au lieu de la supprimer (pour conserver le code VBA)
     On Error Resume Next
-    Application.DisplayAlerts = False
-    ThisWorkbook.Sheets("Mon_Planning").Delete
-    Application.DisplayAlerts = True
+    Set wsPlanningGuide = ThisWorkbook.Sheets("Mon_Planning")
+    If Not wsPlanningGuide Is Nothing Then
+        Application.EnableEvents = False
+        wsPlanningGuide.Cells.Clear
+        ' Recréer les en-têtes pour la prochaine connexion
+        wsPlanningGuide.Cells(1, 1).Value = "Date"
+        wsPlanningGuide.Cells(1, 2).Value = "Heure_Debut"
+        wsPlanningGuide.Cells(1, 3).Value = "Musee"
+        wsPlanningGuide.Cells(1, 4).Value = "Type_Visite"
+        wsPlanningGuide.Cells(1, 5).Value = "Langue"
+        wsPlanningGuide.Cells(1, 6).Value = "Nb_Personnes"
+        wsPlanningGuide.Cells(1, 7).Value = "Statut"
+        wsPlanningGuide.Cells(1, 8).Value = "Action"
+        Application.EnableEvents = True
+    End If
     On Error GoTo 0
 
     ' Masquer toutes les feuilles sauf Accueil
@@ -974,8 +1018,11 @@ Sub MasquerFeuillesOriginalesPourGuide()
     ThisWorkbook.Sheets(FEUILLE_CONTRATS).Visible = xlSheetVeryHidden
     ThisWorkbook.Sheets(FEUILLE_CONFIG).Visible = xlSheetVeryHidden
 
-    ' Activer la feuille Mes_Visites
-    ThisWorkbook.Sheets("Mes_Visites").Activate
+    ' Rendre Mon_Planning visible (feuille principale pour les guides)
+    ThisWorkbook.Sheets("Mon_Planning").Visible = xlSheetVisible
+
+    ' Activer la feuille Mon_Planning
+    ThisWorkbook.Sheets("Mon_Planning").Activate
 
     On Error GoTo 0
 End Sub
