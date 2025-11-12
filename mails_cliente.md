@@ -50,3 +50,15 @@ Le Bal de Saint-Bonnet
 to me
 
 A quoi correspond le numéro de guide dans colonne A Mes dispos du compte guide ?
+
+
+d'accord très bien
+
+est-ce que exceptionnellement, je pourrai d'office choisir et indiquer un guide pour une visite particulière ?
+
+et
+je pourrai mettre les dates en
+
+JOUR CHIFFRE MOIS ANNEE
+
+exemple lundi 1er décembre 2025 et non pas 01/12/2025
