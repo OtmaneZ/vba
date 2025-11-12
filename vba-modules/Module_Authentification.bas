@@ -422,7 +422,7 @@ Sub AfficherInterfaceAdmin()
     On Error GoTo 0
 
     ' Creer le bouton de deconnexion pour l'admin
-    Set btnDeconnexion = wsPlanning.Buttons.Add(10, 10, 150, 30)
+    Set btnDeconnexion = wsPlanning.Buttons.Add(10, 800, 150, 30)
     With btnDeconnexion
         .Name = "BtnDeconnexionAdmin"
         .Caption = "[X] Deconnexion Admin"
@@ -431,7 +431,7 @@ Sub AfficherInterfaceAdmin()
     End With
 
     ' Creer le bouton Refuser et Reattribuer
-    Set btnRefuser = wsPlanning.Buttons.Add(170, 10, 200, 30)
+    Set btnRefuser = wsPlanning.Buttons.Add(170, 800, 200, 30)
     With btnRefuser
         .Name = "BtnRefuserReattribuer"
         .Caption = "[!] Refuser et Reattribuer"
