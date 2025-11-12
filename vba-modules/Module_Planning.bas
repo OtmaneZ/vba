@@ -70,7 +70,7 @@ Public Sub GenererPlanningAutomatique()
         On Error GoTo Erreur
 
         heureVisite = wsVisites.Cells(i, 3).Value & " - " & wsVisites.Cells(i, 4).Value
-        musee = wsVisites.Cells(i, 5).Value
+        musee = wsVisites.Cells(i, 7).Value ' Nom_Structure
 
         ' Recuperer le type de visite (pas de colonne Categorie dans FEUILLE_VISITES)
         Dim typeVisite As String
@@ -98,8 +98,8 @@ Public Sub GenererPlanningAutomatique()
                 wsPlanning.Cells(derLignePlanning, 1).Value = idVisite
                 wsPlanning.Cells(derLignePlanning, 2).Value = dateVisite
                 wsPlanning.Cells(derLignePlanning, 3).Value = heureVisite
-                wsPlanning.Cells(derLignePlanning, 4).Value = musee
-                wsPlanning.Cells(derLignePlanning, 5).Value = guideAssigne
+                wsPlanning.Cells(derLignePlanning, 7) ' Nom_Structure.Value = musee
+                wsPlanning.Cells(derLignePlanning, 12) ' Guide_Attribue.Value = guideAssigne
                 wsPlanning.Cells(derLignePlanning, 6).Value = ObtenirNomGuide(guideAssigne)
 
                 ' Appliquer le code couleur selon le type de visite
@@ -125,8 +125,8 @@ Public Sub GenererPlanningAutomatique()
                     wsPlanning.Cells(derLignePlanning, 1).Value = idVisite
                     wsPlanning.Cells(derLignePlanning, 2).Value = dateVisite
                     wsPlanning.Cells(derLignePlanning, 3).Value = heureVisite
-                    wsPlanning.Cells(derLignePlanning, 4).Value = musee
-                    wsPlanning.Cells(derLignePlanning, 5).Value = guideAssigne
+                    wsPlanning.Cells(derLignePlanning, 7) ' Nom_Structure.Value = musee
+                    wsPlanning.Cells(derLignePlanning, 12) ' Guide_Attribue.Value = guideAssigne
                     wsPlanning.Cells(derLignePlanning, 6).Value = ObtenirNomGuide(guideAssigne)
                     AppliquerCodeCouleurLigne wsPlanning, derLignePlanning, typeVisite
                     derLignePlanning = derLignePlanning + 1
@@ -136,8 +136,8 @@ Public Sub GenererPlanningAutomatique()
                     wsPlanning.Cells(derLignePlanning, 1).Value = idVisite
                     wsPlanning.Cells(derLignePlanning, 2).Value = dateVisite
                     wsPlanning.Cells(derLignePlanning, 3).Value = heureVisite
-                    wsPlanning.Cells(derLignePlanning, 4).Value = musee
-                    wsPlanning.Cells(derLignePlanning, 5).Value = "NON ATTRIBUE"
+                    wsPlanning.Cells(derLignePlanning, 7) ' Nom_Structure.Value = musee
+                    wsPlanning.Cells(derLignePlanning, 12) ' Guide_Attribue.Value = "NON ATTRIBUE"
                     wsPlanning.Cells(derLignePlanning, 6).Value = "Aucun guide autorise disponible"
                     wsPlanning.Rows(derLignePlanning).Interior.Color = COULEUR_OCCUPE
                     derLignePlanning = derLignePlanning + 1
@@ -149,8 +149,8 @@ Public Sub GenererPlanningAutomatique()
             wsPlanning.Cells(derLignePlanning, 1).Value = idVisite
             wsPlanning.Cells(derLignePlanning, 2).Value = dateVisite
             wsPlanning.Cells(derLignePlanning, 3).Value = heureVisite
-            wsPlanning.Cells(derLignePlanning, 4).Value = musee
-            wsPlanning.Cells(derLignePlanning, 5).Value = "NON ATTRIBUE"
+            wsPlanning.Cells(derLignePlanning, 7) ' Nom_Structure.Value = musee
+            wsPlanning.Cells(derLignePlanning, 12) ' Guide_Attribue.Value = "NON ATTRIBUE"
             wsPlanning.Cells(derLignePlanning, 6).Value = "Aucun guide autorise pour ce type de visite"
 
             ' Colorer en rouge
@@ -233,7 +233,7 @@ Private Function GuideDejaOccupe(guideID As String, dateVisite As Date, derniere
 
     For i = 2 To derniereLigne
         On Error Resume Next
-        If wsPlanning.Cells(i, 5).Value = guideID Then
+        If wsPlanning.Cells(i, 12) ' Guide_Attribue.Value = guideID Then
             If CDate(wsPlanning.Cells(i, 2).Value) = dateVisite Then
                 GuideDejaOccupe = True
                 Exit Function
@@ -327,11 +327,11 @@ Public Sub ModifierAttribution()
 
     ' Afficher les infos de la visite
     Dim msg As String
-    msg = "Visite : " & wsPlanning.Cells(ligneVisite, 4).Value & vbCrLf
+    msg = "Visite : " & wsPlanning.Cells(ligneVisite, 7) ' Nom_Structure.Value & vbCrLf
     msg = msg & "Date : " & Format(wsPlanning.Cells(ligneVisite, 2).Value, "dd/mm/yyyy") & vbCrLf
     msg = msg & "Heure : " & wsPlanning.Cells(ligneVisite, 3).Value & vbCrLf
     msg = msg & "Guide actuel : " & wsPlanning.Cells(ligneVisite, 6).Value & vbCrLf & vbCrLf
-    msg = msg & "Guide actuellement assigne : " & wsPlanning.Cells(ligneVisite, 5).Value
+    msg = msg & "Guide actuellement assigne : " & wsPlanning.Cells(ligneVisite, 12) ' Guide_Attribue.Value
 
     MsgBox msg, vbInformation, "Informations visite"
 
@@ -346,7 +346,7 @@ Public Sub ModifierAttribution()
     End If
 
     ' Mettre a jour
-    wsPlanning.Cells(ligneVisite, 5).Value = nouveauGuide
+    wsPlanning.Cells(ligneVisite, 12) ' Guide_Attribue.Value = nouveauGuide
     wsPlanning.Cells(ligneVisite, 6).Value = ObtenirNomGuide(nouveauGuide)
     wsPlanning.Rows(ligneVisite).Interior.Color = COULEUR_ASSIGNE
 
@@ -400,4 +400,101 @@ Public Sub ExporterPlanning()
 Erreur:
     Application.ScreenUpdating = True
     MsgBox "Erreur lors de l'export : " & Err.Description, vbCritical
+
+'===============================================================================
+' FONCTION: GuideAutoriseVisite
+' DESCRIPTION: Verifie si un guide est autorise pour un type de visite
+' PARAMETRES: guideID - ID du guide (ex: G001)
+'             typeVisite - Type de visite/prestation
+' RETOUR: True si autorise, False sinon
+'===============================================================================
+Private Function GuideAutoriseVisite(guideID As String, typeVisite As String) As Boolean
+    On Error GoTo Erreur
+
+    Dim wsSpec As Worksheet
+    Dim i As Long
+    Dim guideNomComplet As String
+    Dim typePrestation As String
+    Dim autorise As String
+
+    ' Par defaut, tout le monde est autorise
+    GuideAutoriseVisite = True
+
+    ' Verifier si l'onglet Specialisations existe
+    On Error Resume Next
+    Set wsSpec = ThisWorkbook.Worksheets("Spécialisations")
+    If wsSpec Is Nothing Then
+        ' Pas d'onglet Specialisations = tous autorises
+        GuideAutoriseVisite = True
+        Exit Function
+    End If
+    On Error GoTo Erreur
+
+    ' Obtenir le nom complet du guide depuis son ID
+    guideNomComplet = ObtenirNomGuide(guideID)
+    If guideNomComplet = "" Then
+        ' Guide non trouve = non autorise par securite
+        GuideAutoriseVisite = False
+        Exit Function
+    End If
+
+    ' Normaliser le type de visite
+    typePrestation = UCase(Trim(typeVisite))
+
+    ' Parcourir l'onglet Specialisations
+    ' Structure: A=ID_Specialisation, B=Prenom_Guide, C=Nom_Guide, D=Type_Prestation, E=Autorise
+    Dim derLigne As Long
+    derLigne = wsSpec.Cells(wsSpec.Rows.Count, 1).End(xlUp).Row
+
+    If derLigne < 2 Then
+        ' Onglet vide = tous autorises
+        GuideAutoriseVisite = True
+        Exit Function
+    End If
+
+    ' Chercher une ligne correspondant au guide ET au type de prestation
+    Dim trouve As Boolean
+    trouve = False
+
+    For i = 2 To derLigne
+        ' Construire nom complet depuis colonnes B et C
+        Dim nomSpecialisation As String
+        nomSpecialisation = Trim(wsSpec.Cells(i, 2).Value) & " " & Trim(wsSpec.Cells(i, 3).Value)
+
+        ' Verifier si c'est le bon guide
+        If UCase(Trim(nomSpecialisation)) = UCase(Trim(guideNomComplet)) Then
+            ' Verifier si c'est le bon type de prestation
+            Dim typePrestationSpec As String
+            typePrestationSpec = UCase(Trim(wsSpec.Cells(i, 4).Value))
+
+            If typePrestationSpec = typePrestation Or _
+               InStr(typePrestation, typePrestationSpec) > 0 Or _
+               InStr(typePrestationSpec, typePrestation) > 0 Then
+                ' Correspondance trouvee
+                trouve = True
+                autorise = UCase(Trim(wsSpec.Cells(i, 5).Value))
+
+                If autorise = "OUI" Then
+                    GuideAutoriseVisite = True
+                Else
+                    GuideAutoriseVisite = False
+                End If
+
+                Exit Function
+            End If
+        End If
+    Next i
+
+    ' Si aucune ligne trouvee pour ce guide + type = autorise par defaut
+    If Not trouve Then
+        GuideAutoriseVisite = True
+    End If
+
+    Exit Function
+
+Erreur:
+    ' En cas d'erreur, autoriser par defaut (securite fail-open)
+    GuideAutoriseVisite = True
+End Function
+
 End Sub
