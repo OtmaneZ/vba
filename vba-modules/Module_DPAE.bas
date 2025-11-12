@@ -42,7 +42,7 @@ Public Sub ExporterDonneesDPAE()
 
     ' Collecter les guides ayant travaille ce mois
     For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
-        guideID = Trim(wsPlanning.Cells(i, 5).Value)
+        guideID = Trim(wsPlanning.Cells(i, 12) ' Guide_Attribue.Value)
 
         If guideID <> "NON ATTRIBUE" And guideID <> "" Then
             On Error Resume Next

@@ -81,7 +81,7 @@ Public Sub GenererContratsEnMasse()
 
     ' Identifier tous les guides ayant des visites ce mois
     For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
-        guideID = wsPlanning.Cells(i, 5).Value
+        guideID = wsPlanning.Cells(i, 12) ' Guide_Attribue.Value
 
         If guideID <> "NON ATTRIBUE" And guideID <> "" Then
             On Error Resume Next
@@ -156,7 +156,7 @@ Private Sub GenererContratSilencieux(guideID As String, mois As Integer, annee A
     ' Compter visites
     nbVisites = 0
     For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
-        If wsPlanning.Cells(i, 5).Value = guideID Then
+        If wsPlanning.Cells(i, 12) ' Guide_Attribue.Value = guideID Then
             On Error Resume Next
             dateVisite = CDate(wsPlanning.Cells(i, 2).Value)
             If Err.Number = 0 And Month(dateVisite) = mois And Year(dateVisite) = annee Then
@@ -304,7 +304,7 @@ Public Sub GenererContratDebutMois()
     listeVisites = ""
 
     For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
-        If wsPlanning.Cells(i, 5).Value = guideID Then
+        If wsPlanning.Cells(i, 12) ' Guide_Attribue.Value = guideID Then
             On Error Resume Next
             dateVisite = CDate(wsPlanning.Cells(i, 2).Value)
 
@@ -475,7 +475,7 @@ Public Sub GenererContratFinMois()
     listeVisitesDetail = ""
 
     For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
-        If wsPlanning.Cells(i, 5).Value = guideID Then
+        If wsPlanning.Cells(i, 12) ' Guide_Attribue.Value = guideID Then
             On Error Resume Next
             dateVisite = CDate(wsPlanning.Cells(i, 2).Value)
             heureVisite = wsPlanning.Cells(i, 3).Value
