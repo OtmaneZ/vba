@@ -60,7 +60,7 @@ Public Sub CalculerVisitesEtSalaires()
 
     ' Parcourir le planning et grouper par guide + jour
     For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
-        guideID = Trim(wsPlanning.Cells(i, 5).Value)
+        guideID = Trim(wsPlanning.Cells(i, 12).Value) ' Guide_Attribue
 
         ' Ignorer si non attribue
         If guideID <> "NON ATTRIBUE" And guideID <> "" Then
@@ -260,12 +260,14 @@ End Sub
 '===============================================================================
 Private Function IdentifierTypeVisite(idVisite As String) As String
     '===============================================================================
-    ' IDENTIFIE LE TYPE DE VISITE depuis la colonne Type_Visite de la feuille Visites
-    ' Retourne: BRANLY, MARINE, HORS-LES-MURS, EVENEMENT, VISIO, ou AUTRE
+    ' FONCTION: IdentifierTypeVisite
+    ' DESCRIPTION: Identifie le type de visite depuis colonne Type_Prestation
+    ' PARAMETRE: idVisite - ID de la visite (ex: V001)
+    ' RETOUR: Type de prestation (VISITE CONTEE BRANLY, MARINE, HORS LES MURS, etc.)
     '===============================================================================
     Dim wsVisites As Worksheet
     Dim i As Long
-    Dim typeVisite As String
+    Dim typePrestation As String
 
     Set wsVisites = ThisWorkbook.Worksheets(FEUILLE_VISITES)
     IdentifierTypeVisite = "AUTRE" ' Par defaut
@@ -273,13 +275,27 @@ Private Function IdentifierTypeVisite(idVisite As String) As String
     ' Chercher la visite dans la feuille Visites
     For i = 2 To wsVisites.Cells(wsVisites.Rows.Count, 1).End(xlUp).Row
         If wsVisites.Cells(i, 1).Value = idVisite Then
-            ' Lire la colonne Type_Visite (colonne 5 dans structure attendue)
-            typeVisite = UCase(Trim(wsVisites.Cells(i, 5).Value))
+            ' Lire la colonne Type_Prestation (colonne 6)
+            typePrestation = UCase(Trim(wsVisites.Cells(i, 6).Value)) ' Type_Prestation
 
-            ' Retourner le type tel quel (ou normalise)
-            If typeVisite <> "" Then
-                IdentifierTypeVisite = typeVisite
-            End If
+            ' Normaliser les types pour correspondre aux tarifs
+            Select Case typePrestation
+                Case "VISITE CONTEE BRANLY", "VISITE BRANLY"
+                    IdentifierTypeVisite = "BRANLY"
+                Case "VISITE CONTEE MARINE", "VISITE MARINE"
+                    IdentifierTypeVisite = "MARINE"
+                Case "HORS LES MURS", "HORS-LES-MURS", "HORSLEMURS"
+                    IdentifierTypeVisite = "HORSLEMURS"
+                Case "VISIO"
+                    IdentifierTypeVisite = "VISIO"
+                Case "EVENEMENT BRANLY", "EVENEMENT"
+                    IdentifierTypeVisite = "EVENEMENT"
+                Case Else
+                    ' Retourner le type tel quel si non reconnu
+                    If typePrestation <> "" Then
+                        IdentifierTypeVisite = typePrestation
+                    End If
+            End Select
 
             Exit Function
         End If
@@ -464,7 +480,7 @@ Public Sub GenererFichePaieGuide()
 
     ' Grouper les visites par jour
     For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
-        If Trim(wsPlanning.Cells(i, 5).Value) = Trim(guideID) Then
+        If Trim(wsPlanning.Cells(i, 12).Value) = Trim(guideID) Then ' Guide_Attribue
             On Error Resume Next
             dateVisite = CDate(wsPlanning.Cells(i, 2).Value)
 
