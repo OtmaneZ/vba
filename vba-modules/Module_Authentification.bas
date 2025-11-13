@@ -763,6 +763,7 @@ Private Sub AfficherToutesFeuillesAdmin()
     ThisWorkbook.Sheets(FEUILLE_CALCULS).Visible = xlSheetVisible
     ThisWorkbook.Sheets(FEUILLE_CONTRATS).Visible = xlSheetVisible
     ThisWorkbook.Sheets(FEUILLE_CONFIG).Visible = xlSheetVisible
+    ThisWorkbook.Sheets("Spécialisations").Visible = xlSheetVisible
 
     On Error GoTo 0
 End Sub

@@ -1,0 +1,20 @@
+Catégorie,Description,Montant Mensuel (€)
+Revenus,Ventes de produits,35000
+Revenus,Prestations de services,12000
+Revenus,Autres revenus,3000
+
+Charges fixes,Loyer bureaux,-2500
+Charges fixes,Salaries et charges sociales,-22000
+Charges fixes,Assurance professionnelle,-450
+Charges fixes,Internet et téléphonie,-180
+Charges fixes,Comptabilité,-300
+
+Charges variables,Achat de marchandises,-8000
+Charges variables,Marketing & publicité,-1200
+Charges variables,Frais de déplacement,-600
+Charges variables,Fournitures,-350
+
+Investissements,Matériel informatique,-900
+Investissements,Logiciels / SaaS,-500
+
+Résultat,Excédent mensuel brut,?

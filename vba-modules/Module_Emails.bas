@@ -203,10 +203,10 @@ Public Sub EnvoyerNotificationsAutomatiques()
 
                     infoVisite = "Date : " & Format(dateVisite, "dd/mm/yyyy") & vbCrLf & _
                                 "Heure : " & wsPlanning.Cells(i, 3).Value & vbCrLf & _
-                                "Lieu : " & wsPlanning.Cells(i, 7).Value ' Nom_Structure & vbCrLf & _
-                                "Type : " & wsPlanning.Cells(i, 6).Value & vbCrLf & _ ' Type_Prestation
-                                "Niveau : " & wsPlanning.Cells(i, 8).Value & vbCrLf & _ ' Niveau
-                                "Thème : " & wsPlanning.Cells(i, 9).Value ' Theme
+                                "Lieu : " & wsPlanning.Cells(i, 7).Value & vbCrLf & _
+                                "Type : " & wsPlanning.Cells(i, 6).Value & vbCrLf & _
+                                "Niveau : " & wsPlanning.Cells(i, 8).Value & vbCrLf & _
+                                "Thème : " & wsPlanning.Cells(i, 9).Value
 
                     If guideMail <> "" Then
                         Call EnvoyerNotificationVisite(guideMail, guideNom, infoVisite, "J-7")
@@ -221,10 +221,10 @@ Public Sub EnvoyerNotificationsAutomatiques()
 
                     infoVisite = "Date : " & Format(dateVisite, "dd/mm/yyyy") & vbCrLf & _
                                 "Heure : " & wsPlanning.Cells(i, 3).Value & vbCrLf & _
-                                "Lieu : " & wsPlanning.Cells(i, 7).Value ' Nom_Structure & vbCrLf & _
-                                "Type : " & wsPlanning.Cells(i, 6).Value & vbCrLf & _ ' Type_Prestation
-                                "Niveau : " & wsPlanning.Cells(i, 8).Value & vbCrLf & _ ' Niveau
-                                "Thème : " & wsPlanning.Cells(i, 9).Value ' Theme
+                                "Lieu : " & wsPlanning.Cells(i, 7).Value & vbCrLf & _
+                                "Type : " & wsPlanning.Cells(i, 6).Value & vbCrLf & _
+                                "Niveau : " & wsPlanning.Cells(i, 8).Value & vbCrLf & _
+                                "Thème : " & wsPlanning.Cells(i, 9).Value
 
                     If guideMail <> "" Then
                         Call EnvoyerNotificationVisite(guideMail, guideNom, infoVisite, "J-1")

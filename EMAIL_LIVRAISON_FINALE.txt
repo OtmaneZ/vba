@@ -4,6 +4,8 @@ Bonjour,
 
 Voici le fichier PLANNING.xlsm finalisé intégrant l'ensemble de vos retours d'aujourd'hui.
 
+Une petite erreur de syntaxe s'était glissée dans le code (lignes de commentaires mal placées) - elle est maintenant corrigée.
+
 **Fichiers joints :**
 1. **PLANNING.xlsm** - Fichier principal (prêt à l'emploi)
 2. **NOUVEAUTES_PHASE_2.pdf** - Document détaillant les modifications apportées
