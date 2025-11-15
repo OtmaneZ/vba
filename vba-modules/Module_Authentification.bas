@@ -415,6 +415,7 @@ Sub AfficherInterfaceAdmin()
     Dim wsPlanning As Worksheet
     Dim btnDeconnexion As Button
     Dim btnRefuser As Button
+    Dim btnGenererPlanning As Button
 
     Set wsPlanning = ThisWorkbook.Sheets(FEUILLE_PLANNING)
 
@@ -422,6 +423,7 @@ Sub AfficherInterfaceAdmin()
     On Error Resume Next
     wsPlanning.Buttons("BtnDeconnexionAdmin").Delete
     wsPlanning.Buttons("BtnRefuserReattribuer").Delete
+    wsPlanning.Buttons("BtnGenererPlanning").Delete
     On Error GoTo 0
 
     ' Creer le bouton de deconnexion pour l'admin
@@ -439,6 +441,15 @@ Sub AfficherInterfaceAdmin()
         .Name = "BtnRefuserReattribuer"
         .Caption = "[!] Refuser et Reattribuer"
         .OnAction = "RefuserEtReattribuerVisite"
+        .Font.Bold = True
+    End With
+
+    ' Creer le bouton Generer Planning
+    Set btnGenererPlanning = wsPlanning.Buttons.Add(380, 800, 180, 30)
+    With btnGenererPlanning
+        .Name = "BtnGenererPlanning"
+        .Caption = "[+] Generer Planning"
+        .OnAction = "Module_Planning.GenererPlanningAutomatique"
         .Font.Bold = True
     End With
 
