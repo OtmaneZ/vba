@@ -37,6 +37,8 @@ Public Sub CalculerVisitesEtSalaires()
     Dim cleJour As String
     Dim typeVisite As String
     Dim dureeHeures As Double
+    Dim infoJour As Variant
+    Dim temp As Variant
 
     On Error GoTo Erreur
 
@@ -60,7 +62,7 @@ Public Sub CalculerVisitesEtSalaires()
 
     ' Parcourir le planning et grouper par guide + jour
     For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
-        guideID = Trim(wsPlanning.Cells(i, 12).Value) ' Guide_Attribue
+        guideID = Trim(wsPlanning.Cells(i, 7).Value) ' Guide_Attribue (Col 7)
 
         ' Ignorer si non attribue
         If guideID <> "NON ATTRIBUE" And guideID <> "" Then
@@ -102,12 +104,10 @@ Public Sub CalculerVisitesEtSalaires()
                 ' Ajouter ou mettre a jour ce jour
                 If Not dictJours.exists(cleJour) Then
                     ' Creer nouvelle journee: [date, type, nb_visites, duree_totale]
-                    Dim infoJour As Variant
                     infoJour = Array(dateVisite, typeVisite, 1, dureeHeures)
                     dictJours.Add cleJour, infoJour
                 Else
                     ' Incrementer les compteurs de cette journee
-                    Dim temp As Variant
                     temp = dictJours(cleJour)
                     temp(2) = temp(2) + 1 ' Nombre de visites
                     temp(3) = temp(3) + dureeHeures ' Duree totale
@@ -137,7 +137,6 @@ Public Sub CalculerVisitesEtSalaires()
 
         ' Calculer le montant TOTAL du mois
         For Each keyJour In dictJours.Keys
-            Dim infoJour As Variant
             infoJour = dictJours(keyJour)
 
             Dim nbVisitesJour As Integer
@@ -450,6 +449,8 @@ Public Sub GenererFichePaieGuide()
     Dim cleJour As String
     Dim typeVisite As String
     Dim dureeHeures As Double
+    Dim infoJour As Variant
+    Dim temp As Variant
 
     On Error GoTo Erreur
 
@@ -480,7 +481,7 @@ Public Sub GenererFichePaieGuide()
 
     ' Grouper les visites par jour
     For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
-        If Trim(wsPlanning.Cells(i, 12).Value) = Trim(guideID) Then ' Guide_Attribue
+        If Trim(wsPlanning.Cells(i, 7).Value) = Trim(guideID) Then ' Guide_Attribue (Col 7)
             On Error Resume Next
             dateVisite = CDate(wsPlanning.Cells(i, 2).Value)
 
@@ -494,11 +495,9 @@ Public Sub GenererFichePaieGuide()
                     dureeHeures = ObtenirDureeVisite(idVisite)
 
                     If Not dictJours.exists(cleJour) Then
-                        Dim infoJour As Variant
                         infoJour = Array(dateVisite, typeVisite, 1, dureeHeures)
                         dictJours.Add cleJour, infoJour
                     Else
-                        Dim temp As Variant
                         temp = dictJours(cleJour)
                         temp(2) = temp(2) + 1
                         temp(3) = temp(3) + dureeHeures
@@ -551,7 +550,6 @@ Public Sub GenererFichePaieGuide()
 
     Dim keyJour As Variant
     For Each keyJour In dictJours.Keys
-        Dim infoJour As Variant
         infoJour = dictJours(keyJour)
 
         Dim nbVisitesJour As Integer
@@ -682,7 +680,7 @@ Public Sub GenererDecompteMensuel()
 
     ' Parcourir le planning
     For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
-        guideID = Trim(wsPlanning.Cells(i, 5).Value)
+        guideID = Trim(wsPlanning.Cells(i, 7).Value) ' Guide_Attribue (Col 7)
 
         If guideID <> "NON ATTRIBUE" And guideID <> "" Then
             On Error Resume Next

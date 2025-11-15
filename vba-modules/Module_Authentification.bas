@@ -386,15 +386,24 @@ End Sub
 Sub ExporterPlanningGuide()
     Dim ws As Worksheet
     Dim cheminFichier As String
+    Dim nomFichier As String
 
     Set ws = ActiveSheet
 
-    If ws.Name <> "Mon_Planning" Then
-        MsgBox "Cette action n'est disponible que depuis votre planning personnel.", vbExclamation
+    ' Autoriser export depuis Mon_Planning (guide) ou Planning (admin)
+    If ws.Name <> "Mon_Planning" And ws.Name <> "Planning" Then
+        MsgBox "Cette action est disponible depuis votre planning personnel (Mon_Planning) ou le planning complet (Planning).", vbExclamation
         Exit Sub
     End If
 
-    cheminFichier = ThisWorkbook.Path & "\Planning_" & Replace(utilisateurConnecte, " ", "_") & "_" & Format(Date, "yyyymmdd") & ".pdf"
+    ' Nom du fichier selon le contexte
+    If ws.Name = "Mon_Planning" Then
+        nomFichier = "Planning_" & Replace(utilisateurConnecte, " ", "_") & "_" & Format(Date, "yyyymmdd") & ".pdf"
+    Else
+        nomFichier = "Planning_Complet_" & Format(Date, "yyyymmdd") & ".pdf"
+    End If
+
+    cheminFichier = ThisWorkbook.Path & "\" & nomFichier
 
     On Error Resume Next
     ws.ExportAsFixedFormat Type:=xlTypePDF, Filename:=cheminFichier, Quality:=xlQualityStandard
@@ -416,6 +425,9 @@ Sub AfficherInterfaceAdmin()
     Dim btnDeconnexion As Button
     Dim btnRefuser As Button
     Dim btnGenererPlanning As Button
+    Dim btnCalculerPaie As Button
+    Dim btnFichePaie As Button
+    Dim btnExportPDF As Button
 
     Set wsPlanning = ThisWorkbook.Sheets(FEUILLE_PLANNING)
 
@@ -424,6 +436,9 @@ Sub AfficherInterfaceAdmin()
     wsPlanning.Buttons("BtnDeconnexionAdmin").Delete
     wsPlanning.Buttons("BtnRefuserReattribuer").Delete
     wsPlanning.Buttons("BtnGenererPlanning").Delete
+    wsPlanning.Buttons("BtnCalculerPaie").Delete
+    wsPlanning.Buttons("BtnFichePaie").Delete
+    wsPlanning.Buttons("BtnExportPDF").Delete
     On Error GoTo 0
 
     ' Creer le bouton de deconnexion pour l'admin
@@ -453,19 +468,45 @@ Sub AfficherInterfaceAdmin()
         .Font.Bold = True
     End With
 
+    ' Creer le bouton Calculer Paie du Mois
+    Set btnCalculerPaie = wsPlanning.Buttons.Add(10, 840, 180, 30)
+    With btnCalculerPaie
+        .Name = "BtnCalculerPaie"
+        .Caption = "[$] Calculer Paie Mois"
+        .OnAction = "Module_Calculs.CalculerVisitesEtSalaires"
+        .Font.Bold = True
+    End With
+
+    ' Creer le bouton Fiche Paie Guide
+    Set btnFichePaie = wsPlanning.Buttons.Add(200, 840, 180, 30)
+    With btnFichePaie
+        .Name = "BtnFichePaie"
+        .Caption = "[=] Fiche Paie Guide"
+        .OnAction = "Module_Calculs.GenererFichePaieGuide"
+        .Font.Bold = True
+    End With
+
+    ' Creer le bouton Export PDF
+    Set btnExportPDF = wsPlanning.Buttons.Add(390, 840, 170, 30)
+    With btnExportPDF
+        .Name = "BtnExportPDF"
+        .Caption = "[PDF] Export Planning"
+        .OnAction = "ExporterPlanningGuide"
+        .Font.Bold = True
+    End With
+
     wsPlanning.Activate
 
     MsgBox "Interface administrateur activee." & vbCrLf & vbCrLf & _
-           "Vous avez acces a :" & vbCrLf & _
-           "- Tous les plannings" & vbCrLf & _
-           "- Generation automatique" & vbCrLf & _
-           "- Envoi d'emails" & vbCrLf & _
-           "- Gestion des guides" & vbCrLf & _
-           "- Statistiques et calculs" & vbCrLf & vbCrLf & _
-           "[NOUVEAU] Bouton [!] Refuser et Reattribuer :" & vbCrLf & _
-           "  Selectionnez une visite dans le Planning," & vbCrLf & _
-           "  puis cliquez pour refuser et reattribuer automatiquement." & vbCrLf & vbCrLf & _
-           "Bouton [X] Deconnexion Admin disponible en haut a gauche.", _
+           "BOUTONS DISPONIBLES :" & vbCrLf & vbCrLf & _
+           "Ligne 1 (Planning) :" & vbCrLf & _
+           "  [X] Deconnexion Admin" & vbCrLf & _
+           "  [!] Refuser et Reattribuer" & vbCrLf & _
+           "  [+] Generer Planning" & vbCrLf & vbCrLf & _
+           "Ligne 2 (Paie & Export) :" & vbCrLf & _
+           "  [$] Calculer Paie Mois - Calcule tous les salaires" & vbCrLf & _
+           "  [=] Fiche Paie Guide - Genere fiche individuelle" & vbCrLf & _
+           "  [PDF] Export Planning - Archive en PDF", _
            vbInformation, "Acces Admin"
 End Sub
 
@@ -484,6 +525,11 @@ Sub SeDeconnecter()
     ' Supprimer les boutons de deconnexion
     On Error Resume Next
     ThisWorkbook.Sheets(FEUILLE_PLANNING).Buttons("BtnDeconnexionAdmin").Delete
+    ThisWorkbook.Sheets(FEUILLE_PLANNING).Buttons("BtnRefuserReattribuer").Delete
+    ThisWorkbook.Sheets(FEUILLE_PLANNING).Buttons("BtnGenererPlanning").Delete
+    ThisWorkbook.Sheets(FEUILLE_PLANNING).Buttons("BtnCalculerPaie").Delete
+    ThisWorkbook.Sheets(FEUILLE_PLANNING).Buttons("BtnFichePaie").Delete
+    ThisWorkbook.Sheets(FEUILLE_PLANNING).Buttons("BtnExportPDF").Delete
     On Error GoTo 0
 
     ' Vider la feuille Mon_Planning au lieu de la supprimer (pour conserver le code VBA)
