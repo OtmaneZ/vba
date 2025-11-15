@@ -49,7 +49,7 @@ Public Sub EnvoyerPlanningMensuel()
 
     ' Regrouper les visites par guide
     For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
-        guideID = wsPlanning.Cells(i, 12).Value ' Guide_Attribue
+        guideID = wsPlanning.Cells(i, 7).Value ' Guide_Attribue (colonne 7, pas 12)
 
         ' Ignorer si non attribue
         If guideID <> "NON ATTRIBUE" And guideID <> "" Then
@@ -68,8 +68,8 @@ Public Sub EnvoyerPlanningMensuel()
                     Dim infoVisite As String
                     infoVisite = Format(dateVisite, "dd/mm/yyyy") & " | " & _
                                 wsPlanning.Cells(i, 3).Value & " | " & _
-                                wsPlanning.Cells(i, 7).Value & " | " & _ ' Nom_Structure
-                                "Type: " & wsPlanning.Cells(i, 6).Value ' Type_Prestation
+                                wsPlanning.Cells(i, 4).Value & " | " & _ ' Musee (colonne 4, pas 7)
+                                "Type: " & wsPlanning.Cells(i, 5).Value ' Type_Visite (colonne 5, pas 6)
 
                     dictGuides(guideID).Add infoVisite
                 End If
@@ -186,7 +186,7 @@ Public Sub EnvoyerNotificationsAutomatiques()
 
     ' Parcourir toutes les visites planifiees
     For i = 2 To wsPlanning.Cells(wsPlanning.Rows.Count, 1).End(xlUp).Row
-        guideID = wsPlanning.Cells(i, 12).Value ' Guide_Attribue
+        guideID = wsPlanning.Cells(i, 7).Value ' Guide_Attribue (colonne 7, pas 12)
 
         ' Ignorer si non attribue
         If guideID <> "NON ATTRIBUE" And guideID <> "" Then
@@ -198,13 +198,13 @@ Public Sub EnvoyerNotificationsAutomatiques()
 
                 ' Notification J-7
                 If joursDifference = DELAI_NOTIFICATION_1 Then
-                    guideNom = wsPlanning.Cells(i, 12).Value ' Guide_Attribue
+                    guideNom = wsPlanning.Cells(i, 7).Value ' Guide_Attribue (colonne 7)
                     guideMail = ObtenirEmailGuide(guideID)
 
                     infoVisite = "Date : " & Format(dateVisite, "dd/mm/yyyy") & vbCrLf & _
                                 "Heure : " & wsPlanning.Cells(i, 3).Value & vbCrLf & _
-                                "Lieu : " & wsPlanning.Cells(i, 7).Value & vbCrLf & _
-                                "Type : " & wsPlanning.Cells(i, 6).Value & vbCrLf & _
+                                "Lieu : " & wsPlanning.Cells(i, 4).Value & vbCrLf & _
+                                "Type : " & wsPlanning.Cells(i, 5).Value & vbCrLf & _
                                 "Niveau : " & wsPlanning.Cells(i, 8).Value & vbCrLf & _
                                 "Thème : " & wsPlanning.Cells(i, 9).Value
 
@@ -216,13 +216,13 @@ Public Sub EnvoyerNotificationsAutomatiques()
 
                 ' Notification J-1
                 If joursDifference = DELAI_NOTIFICATION_2 Then
-                    guideNom = wsPlanning.Cells(i, 12).Value ' Guide_Attribue
+                    guideNom = wsPlanning.Cells(i, 7).Value ' Guide_Attribue (colonne 7)
                     guideMail = ObtenirEmailGuide(guideID)
 
                     infoVisite = "Date : " & Format(dateVisite, "dd/mm/yyyy") & vbCrLf & _
                                 "Heure : " & wsPlanning.Cells(i, 3).Value & vbCrLf & _
-                                "Lieu : " & wsPlanning.Cells(i, 7).Value & vbCrLf & _
-                                "Type : " & wsPlanning.Cells(i, 6).Value & vbCrLf & _
+                                "Lieu : " & wsPlanning.Cells(i, 4).Value & vbCrLf & _
+                                "Type : " & wsPlanning.Cells(i, 5).Value & vbCrLf & _
                                 "Niveau : " & wsPlanning.Cells(i, 8).Value & vbCrLf & _
                                 "Thème : " & wsPlanning.Cells(i, 9).Value
 

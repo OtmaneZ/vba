@@ -28,7 +28,7 @@ Public Function GuideAutoriseVisite(nomGuide As String, typeVisite As String) As
 
     ' Recuperer la feuille Specialisations
     On Error Resume Next
-    Set ws = ThisWorkbook.Sheets("Specialisations")
+    Set ws = ThisWorkbook.Sheets("Spécialisations")
     On Error GoTo Erreur
 
     If ws Is Nothing Then
@@ -153,7 +153,7 @@ Public Sub AfficherContraintesGuide(nomGuide As String)
     Dim msg As String
     Dim guideSpec As String
 
-    Set ws = ThisWorkbook.Sheets("Specialisations")
+    Set ws = ThisWorkbook.Sheets("Spécialisations")
 
     If ws Is Nothing Then
         MsgBox "Aucune contrainte definie pour ce guide.", vbInformation

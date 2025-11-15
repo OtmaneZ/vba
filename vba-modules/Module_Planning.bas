@@ -98,9 +98,12 @@ Public Sub GenererPlanningAutomatique()
                 wsPlanning.Cells(derLignePlanning, 1).Value = idVisite
                 wsPlanning.Cells(derLignePlanning, 2).Value = dateVisite
                 wsPlanning.Cells(derLignePlanning, 3).Value = heureVisite
-                wsPlanning.Cells(derLignePlanning, 7) ' Nom_Structure.Value = musee
-                wsPlanning.Cells(derLignePlanning, 12) ' Guide_Attribue.Value = guideAssigne
-                wsPlanning.Cells(derLignePlanning, 6).Value = ObtenirNomGuide(guideAssigne)
+                wsPlanning.Cells(derLignePlanning, 4).Value = musee ' Musée (col 4)
+                wsPlanning.Cells(derLignePlanning, 5).Value = typeVisite ' Type_Visite (col 5)
+                wsPlanning.Cells(derLignePlanning, 6).Value = wsVisites.Cells(i, 14).Value ' Durée (col 6)
+                wsPlanning.Cells(derLignePlanning, 7).Value = guideAssigne ' Guide_Attribué (col 7)
+                wsPlanning.Cells(derLignePlanning, 8).Value = wsVisites.Cells(i, 9).Value ' Thème (col H/8) - INVERSÉ
+                wsPlanning.Cells(derLignePlanning, 9).Value = wsVisites.Cells(i, 8).Value ' Niveau (col I/9) - INVERSÉ
 
                 ' Appliquer le code couleur selon le type de visite
                 AppliquerCodeCouleurLigne wsPlanning, derLignePlanning, typeVisite
@@ -125,9 +128,12 @@ Public Sub GenererPlanningAutomatique()
                     wsPlanning.Cells(derLignePlanning, 1).Value = idVisite
                     wsPlanning.Cells(derLignePlanning, 2).Value = dateVisite
                     wsPlanning.Cells(derLignePlanning, 3).Value = heureVisite
-                    wsPlanning.Cells(derLignePlanning, 7) ' Nom_Structure.Value = musee
-                    wsPlanning.Cells(derLignePlanning, 12) ' Guide_Attribue.Value = guideAssigne
-                    wsPlanning.Cells(derLignePlanning, 6).Value = ObtenirNomGuide(guideAssigne)
+                    wsPlanning.Cells(derLignePlanning, 4).Value = musee ' Musée (col 4)
+                    wsPlanning.Cells(derLignePlanning, 5).Value = typeVisite ' Type_Visite (col 5)
+                    wsPlanning.Cells(derLignePlanning, 6).Value = wsVisites.Cells(i, 14).Value ' Durée (col 6)
+                    wsPlanning.Cells(derLignePlanning, 7).Value = guideAssigne ' Guide_Attribué (col 7)
+                    wsPlanning.Cells(derLignePlanning, 8).Value = wsVisites.Cells(i, 9).Value ' Thème (col H/8)
+                    wsPlanning.Cells(derLignePlanning, 9).Value = wsVisites.Cells(i, 8).Value ' Niveau (col I/9)
                     AppliquerCodeCouleurLigne wsPlanning, derLignePlanning, typeVisite
                     derLignePlanning = derLignePlanning + 1
                     compteurAttribue = compteurAttribue + 1
@@ -136,9 +142,13 @@ Public Sub GenererPlanningAutomatique()
                     wsPlanning.Cells(derLignePlanning, 1).Value = idVisite
                     wsPlanning.Cells(derLignePlanning, 2).Value = dateVisite
                     wsPlanning.Cells(derLignePlanning, 3).Value = heureVisite
-                    wsPlanning.Cells(derLignePlanning, 7) ' Nom_Structure.Value = musee
-                    wsPlanning.Cells(derLignePlanning, 12) ' Guide_Attribue.Value = "NON ATTRIBUE"
-                    wsPlanning.Cells(derLignePlanning, 6).Value = "Aucun guide autorise disponible"
+                    wsPlanning.Cells(derLignePlanning, 4).Value = musee ' Musée (col 4)
+                    wsPlanning.Cells(derLignePlanning, 5).Value = typeVisite ' Type_Visite (col 5)
+                    wsPlanning.Cells(derLignePlanning, 6).Value = wsVisites.Cells(i, 14).Value ' Durée (col 6)
+                    wsPlanning.Cells(derLignePlanning, 7).Value = "NON ATTRIBUE" ' Guide_Attribué (col 7)
+                    wsPlanning.Cells(derLignePlanning, 8).Value = wsVisites.Cells(i, 9).Value ' Thème (col H/8)
+                    wsPlanning.Cells(derLignePlanning, 9).Value = wsVisites.Cells(i, 8).Value ' Niveau (col I/9)
+                    wsPlanning.Cells(derLignePlanning, 11).Value = "Aucun guide autorise disponible" ' Statut (col 11)
                     wsPlanning.Rows(derLignePlanning).Interior.Color = COULEUR_OCCUPE
                     derLignePlanning = derLignePlanning + 1
                     compteurNonAttribue = compteurNonAttribue + 1
@@ -149,9 +159,13 @@ Public Sub GenererPlanningAutomatique()
             wsPlanning.Cells(derLignePlanning, 1).Value = idVisite
             wsPlanning.Cells(derLignePlanning, 2).Value = dateVisite
             wsPlanning.Cells(derLignePlanning, 3).Value = heureVisite
-            wsPlanning.Cells(derLignePlanning, 7) ' Nom_Structure.Value = musee
-            wsPlanning.Cells(derLignePlanning, 12) ' Guide_Attribue.Value = "NON ATTRIBUE"
-            wsPlanning.Cells(derLignePlanning, 6).Value = "Aucun guide autorise pour ce type de visite"
+            wsPlanning.Cells(derLignePlanning, 4).Value = musee ' Musée (col 4)
+            wsPlanning.Cells(derLignePlanning, 5).Value = typeVisite ' Type_Visite (col 5)
+            wsPlanning.Cells(derLignePlanning, 6).Value = wsVisites.Cells(i, 14).Value ' Durée (col 6)
+            wsPlanning.Cells(derLignePlanning, 7).Value = "NON ATTRIBUE" ' Guide_Attribué (col 7)
+            wsPlanning.Cells(derLignePlanning, 8).Value = wsVisites.Cells(i, 9).Value ' Thème (col H/8)
+            wsPlanning.Cells(derLignePlanning, 9).Value = wsVisites.Cells(i, 8).Value ' Niveau (col I/9)
+            wsPlanning.Cells(derLignePlanning, 11).Value = "Aucun guide autorise pour ce type de visite" ' Statut (col 11)
 
             ' Colorer en rouge
             wsPlanning.Rows(derLignePlanning).Interior.Color = COULEUR_OCCUPE
@@ -233,7 +247,7 @@ Private Function GuideDejaOccupe(guideID As String, dateVisite As Date, derniere
 
     For i = 2 To derniereLigne
         On Error Resume Next
-        If wsPlanning.Cells(i, 12) ' Guide_Attribue.Value = guideID Then
+        If wsPlanning.Cells(i, 7).Value = guideID Then ' Guide_Attribué (col 7)
             If CDate(wsPlanning.Cells(i, 2).Value) = dateVisite Then
                 GuideDejaOccupe = True
                 Exit Function
@@ -327,11 +341,11 @@ Public Sub ModifierAttribution()
 
     ' Afficher les infos de la visite
     Dim msg As String
-    msg = "Visite : " & wsPlanning.Cells(ligneVisite, 7) ' Nom_Structure.Value & vbCrLf
+    msg = "Visite : " & wsPlanning.Cells(ligneVisite, 4).Value & vbCrLf ' Musée (col 4)
     msg = msg & "Date : " & Format(wsPlanning.Cells(ligneVisite, 2).Value, "dd/mm/yyyy") & vbCrLf
     msg = msg & "Heure : " & wsPlanning.Cells(ligneVisite, 3).Value & vbCrLf
-    msg = msg & "Guide actuel : " & wsPlanning.Cells(ligneVisite, 6).Value & vbCrLf & vbCrLf
-    msg = msg & "Guide actuellement assigne : " & wsPlanning.Cells(ligneVisite, 12) ' Guide_Attribue.Value
+    msg = msg & "Type : " & wsPlanning.Cells(ligneVisite, 5).Value & vbCrLf & vbCrLf ' Type_Visite (col 5)
+    msg = msg & "Guide actuellement assigne : " & wsPlanning.Cells(ligneVisite, 7).Value ' Guide_Attribué (col 7)
 
     MsgBox msg, vbInformation, "Informations visite"
 
@@ -346,8 +360,8 @@ Public Sub ModifierAttribution()
     End If
 
     ' Mettre a jour
-    wsPlanning.Cells(ligneVisite, 12) ' Guide_Attribue.Value = nouveauGuide
-    wsPlanning.Cells(ligneVisite, 6).Value = ObtenirNomGuide(nouveauGuide)
+    wsPlanning.Cells(ligneVisite, 7).Value = nouveauGuide ' Guide_Attribué (col 7)
+    wsPlanning.Cells(ligneVisite, 11).Value = "Modifié manuellement le " & Format(Now, "dd/mm/yyyy hh:nn") ' Statut (col 11)
     wsPlanning.Rows(ligneVisite).Interior.Color = COULEUR_ASSIGNE
 
     MsgBox "Attribution modifiee avec succes !", vbInformation

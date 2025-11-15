@@ -19,6 +19,7 @@ Public Const FEUILLE_PLANNING As String = "Planning"
 Public Const FEUILLE_CALCULS As String = "Calculs_Paie"
 Public Const FEUILLE_CONTRATS As String = "Contrats"
 Public Const FEUILLE_CONFIG As String = "Configuration"
+Public Const FEUILLE_SPECIALISATIONS As String = "Spécialisations"
 
 ' Configuration Email
 Public Const DELAI_NOTIFICATION_1 As Integer = 7  ' Jours avant (premiere notification)

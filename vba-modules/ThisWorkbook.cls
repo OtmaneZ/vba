@@ -52,7 +52,7 @@ Private Sub MasquerToutesFeuillesParDefaut()
 
     ' Boucle sur TOUTES les feuilles du classeur
     For Each ws In ThisWorkbook.Worksheets
-        ' Masquer toutes sauf Accueil
+        ' Masquer TOUTES les feuilles sauf Accueil
         If ws.Name <> "Accueil" Then
             ws.Visible = xlSheetVeryHidden
         End If
